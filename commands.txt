@@ -1,0 +1,7 @@
+python .\GIN-pytorch-DGL-master\preprocess_malbehavd.py --input-csv .\MalbehavD-V1-main\MalBehavD-V1-dataset.csv --output-pkl .\GIN-pytorch-DGL-master\data\NCI_balanced\nci_malbehavd.pkl --label-format pm1 --edge-mode directed --id-policy make-unique
+
+python .\GIN-pytorch-DGL-master\inspect_pkl.py --pkl .\GIN-pytorch-DGL-master\data\NCI_balanced\nci_malbehavd.pkl --limit 1
+
+cd C:\Users\Marishka\Desktop\code\NIRS\GIN-pytorch-DGL-master
+
+python main.py --num-epochs 5 --batch-size 64 --lr 0.01
