@@ -50,6 +50,9 @@ allowable_features = {
     ]
 }
 
+API_NODE_TYPE_BUCKETS = 120
+API_CHIRALITY_BUCKETS = 3
+
 def mol_to_graph_data_obj_simple(mol):
     """
     Converts rdkit mol object to graph Data object required by the pytorch
@@ -98,6 +101,74 @@ def mol_to_graph_data_obj_simple(mol):
     data = Data(x=x, edge_index=edge_index, edge_attr=edge_attr)
 
     return data
+
+def api_sequence_to_graph_data_obj_simple(api_sequence, api_to_idx):
+    """
+    Converts a sequence of API calls to a graph Data object compatible with the
+    existing GNN model input format.
+    Node features stay 2D (token bucket, extra bucket), edge features stay 2D
+    (edge type, direction), matching model.py expectations.
+    """
+    token_ids = [api_to_idx[api_name] for api_name in api_sequence]
+    if not token_ids:
+        raise ValueError("API sequence is empty.")
+
+    max_supported_tokens = API_NODE_TYPE_BUCKETS * API_CHIRALITY_BUCKETS
+    if max(token_ids) >= max_supported_tokens:
+        raise ValueError(
+            "Too many unique API calls for current node feature encoding. "
+            "Increase encoding buckets or model embedding sizes."
+        )
+
+    atom_features_list = []
+    for token_id in token_ids:
+        atom_type_idx = token_id % API_NODE_TYPE_BUCKETS
+        chirality_idx = token_id // API_NODE_TYPE_BUCKETS
+        atom_features_list.append([atom_type_idx, chirality_idx])
+    x = torch.tensor(np.array(atom_features_list), dtype=torch.long)
+
+    # Encode sequence order with bidirectional edges between consecutive calls.
+    num_bond_features = 2
+    if len(token_ids) > 1:
+        edges_list = []
+        edge_features_list = []
+        for i in range(len(token_ids) - 1):
+            j = i + 1
+            edges_list.append((i, j))
+            edge_features_list.append([0, 0])  # forward temporal edge
+            edges_list.append((j, i))
+            edge_features_list.append([0, 1])  # backward temporal edge
+
+        edge_index = torch.tensor(np.array(edges_list).T, dtype=torch.long)
+        edge_attr = torch.tensor(np.array(edge_features_list), dtype=torch.long)
+    else:
+        edge_index = torch.empty((2, 0), dtype=torch.long)
+        edge_attr = torch.empty((0, num_bond_features), dtype=torch.long)
+
+    return Data(x=x, edge_index=edge_index, edge_attr=edge_attr)
+
+def normalize_binary_label(raw_label):
+    """
+    Normalizes binary labels to {-1, 1}, because finetune.py expects this
+    convention and treats 0 as "missing label".
+    """
+    if pd.isna(raw_label):
+        raise ValueError("Label value is NaN.")
+
+    value = str(raw_label).strip().lower()
+    if value in {"0", "benign", "false", "no"}:
+        return -1
+    if value in {"1", "malicious", "malware", "true", "yes"}:
+        return 1
+
+    numeric_value = int(float(raw_label))
+    if numeric_value == 0:
+        return -1
+    if numeric_value == 1:
+        return 1
+    if numeric_value == -1:
+        return -1
+    raise ValueError("Unsupported binary label value: {}".format(raw_label))
 
 def graph_data_obj_to_mol_simple(data_x, data_edge_index, data_edge_attr):
     """
@@ -274,7 +345,7 @@ class MoleculeDataset(InMemoryDataset):
         processed dir can either empty or a previously processed file
         :param dataset: name of the dataset. Currently only implemented for
         zinc250k, chembl_with_labels, tox21, hiv, bace, bbbp, clintox, esol,
-        freesolv, lipophilicity, muv, pcba, sider, toxcast
+        freesolv, lipophilicity, muv, pcba, sider, toxcast, malbehavd_v1
         :param empty: if True, then will not load any data obj. For
         initializing empty dataset
         """
@@ -717,7 +788,66 @@ class MoleculeDataset(InMemoryDataset):
                     data.y = torch.tensor([labels[i]])
                     data_list.append(data)
                     data_smiles_list.append(smiles_list[i])
-                    
+
+        elif self.dataset == 'malbehavd_v1':
+            csv_candidates = [p for p in self.raw_paths if p.lower().endswith('.csv')]
+            if len(csv_candidates) == 0:
+                raise ValueError("No CSV file found in raw directory for malbehavd_v1 dataset.")
+
+            input_path = csv_candidates[0]
+            input_df = pd.read_csv(input_path)
+
+            if 'labels' not in input_df.columns:
+                raise ValueError("Expected a 'labels' column in malbehavd_v1 dataset.")
+
+            api_cols = sorted(
+                [c for c in input_df.columns if str(c).isdigit()],
+                key=lambda x: int(x)
+            )
+            if len(api_cols) == 0:
+                raise ValueError("No API sequence columns detected (expected numeric column names).")
+
+            api_vocab = set()
+            for col in api_cols:
+                values = input_df[col].dropna().astype(str).str.strip()
+                values = values[values != ""]
+                api_vocab.update(values.tolist())
+
+            api_vocab_list = sorted(api_vocab)
+            api_to_idx = {api_name: idx for idx, api_name in enumerate(api_vocab_list)}
+
+            max_supported_tokens = API_NODE_TYPE_BUCKETS * API_CHIRALITY_BUCKETS
+            if len(api_to_idx) > max_supported_tokens:
+                raise ValueError(
+                    "Detected {} unique API calls, but current encoding supports at most {}."
+                    .format(len(api_to_idx), max_supported_tokens)
+                )
+
+            for i in range(len(input_df)):
+                print(i)
+                row = input_df.iloc[i]
+                api_sequence = []
+                for col in api_cols:
+                    value = row[col]
+                    if pd.isna(value):
+                        continue
+                    value = str(value).strip()
+                    if value == "":
+                        continue
+                    api_sequence.append(value)
+
+                if len(api_sequence) == 0:
+                    continue
+
+                data = api_sequence_to_graph_data_obj_simple(api_sequence, api_to_idx)
+                data.id = torch.tensor([i])
+                data.y = torch.tensor([normalize_binary_label(row['labels'])])
+
+                data_list.append(data)
+                if 'sha256' in input_df.columns:
+                    data_smiles_list.append(str(row['sha256']))
+                else:
+                    data_smiles_list.append("sample_{}".format(i))
 
         else:
             raise ValueError('Invalid dataset name')
@@ -1326,4 +1456,3 @@ def create_all_datasets():
 if __name__ == "__main__":
 
     create_all_datasets()
-
