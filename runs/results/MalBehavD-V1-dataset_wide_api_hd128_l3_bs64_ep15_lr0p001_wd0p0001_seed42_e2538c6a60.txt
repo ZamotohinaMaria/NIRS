@@ -1,0 +1,30 @@
+[TRAIN]
+Samples: 1850
+Class distribution: {1: 925, 0: 925}
+Avg nodes: 42.48
+Avg edges: 41.48
+
+[VAL]
+Samples: 206
+Class distribution: {0: 103, 1: 103}
+Avg nodes: 46.00
+Avg edges: 45.00
+
+[TEST]
+Samples: 514
+Class distribution: {0: 257, 1: 257}
+Avg nodes: 44.60
+Avg edges: 43.60
+
+Best epoch: 6
+Best val F1: 0.9208
+Saved best model to: runs\models\g_h128l3_b64e15_lr0p001_s42_2365f075_be6_vf921.pt
+
+Evaluating best checkpoint on test...
+
+[Test metrics]
+accuracy: 0.9533
+precision: 0.9533
+recall: 0.9533
+f1: 0.9533
+roc_auc: 0.9831
