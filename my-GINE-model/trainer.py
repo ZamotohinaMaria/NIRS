@@ -1,4 +1,4 @@
-from typing import Dict, Tuple
+from typing import Dict, Optional, Tuple
 
 import numpy as np
 import torch
@@ -70,26 +70,44 @@ def evaluate(model, loader, device) -> Dict[str, float]:
     return compute_metrics(y_true, y_pred, y_prob)
 
 
-def train_model(model, train_loader, val_loader, optimizer, device, epochs: int, save_path: str) -> Tuple[int, float]:
+def train_model(
+    model,
+    train_loader,
+    val_loader: Optional[object],
+    optimizer,
+    device,
+    epochs: int,
+    save_path: str,
+) -> Tuple[int, float]:
     best_val_f1 = -1.0
     best_epoch = -1
+    best_train_loss = float("inf")
 
     print("\nStart training...")
     for epoch in range(1, epochs + 1):
         train_loss = train_one_epoch(model, train_loader, optimizer, device)
-        val_metrics = evaluate(model, val_loader, device)
+        if val_loader is not None:
+            val_metrics = evaluate(model, val_loader, device)
+            print(
+                f"Epoch {epoch:03d} | "
+                f"loss={train_loss:.4f} | "
+                f"val_acc={val_metrics['accuracy']:.4f} | "
+                f"val_f1={val_metrics['f1']:.4f} | "
+                f"val_auc={val_metrics['roc_auc']:.4f}"
+            )
 
-        print(
-            f"Epoch {epoch:03d} | "
-            f"loss={train_loss:.4f} | "
-            f"val_acc={val_metrics['accuracy']:.4f} | "
-            f"val_f1={val_metrics['f1']:.4f} | "
-            f"val_auc={val_metrics['roc_auc']:.4f}"
-        )
+            if val_metrics["f1"] > best_val_f1:
+                best_val_f1 = val_metrics["f1"]
+                best_epoch = epoch
+                torch.save(model.state_dict(), save_path)
+        else:
+            print(f"Epoch {epoch:03d} | loss={train_loss:.4f}")
+            if train_loss < best_train_loss:
+                best_train_loss = train_loss
+                best_epoch = epoch
+                torch.save(model.state_dict(), save_path)
 
-        if val_metrics["f1"] > best_val_f1:
-            best_val_f1 = val_metrics["f1"]
-            best_epoch = epoch
-            torch.save(model.state_dict(), save_path)
+    if val_loader is None:
+        best_val_f1 = float("nan")
 
     return best_epoch, best_val_f1

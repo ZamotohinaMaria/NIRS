@@ -1,0 +1,11 @@
+[TRAIN]
+Samples: 1300
+Class distribution: {0: 650, 1: 650}
+Avg nodes: 43.52
+Avg edges: 42.52
+
+Best epoch: 30
+Best val F1: n/a (no internal split)
+Saved best model to: .\runs\models\g_h128l3_b64e30_lr0p001_s42_75f7c4ab_be30_vfna.pt
+
+Test evaluation skipped (no internal split).

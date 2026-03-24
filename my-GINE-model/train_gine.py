@@ -188,19 +188,26 @@ def main():
     print(f"Output dir: {args.output_dir}")
     print(f"Saved vocab to: {vocab_path}")
 
-    train_graphs, val_graphs, test_graphs = split_dataset(
-        graphs=graphs,
-        test_size=args.test_size,
-        val_size=args.val_size,
-        seed=args.seed,
-    )
+    if args.no_internal_split:
+        train_graphs = graphs
+        val_graphs = []
+        test_graphs = []
+        print("\nInternal split disabled (--no-internal-split).")
+        print_dataset_stats(train_graphs, "TRAIN_ALL")
+    else:
+        train_graphs, val_graphs, test_graphs = split_dataset(
+            graphs=graphs,
+            test_size=args.test_size,
+            val_size=args.val_size,
+            seed=args.seed,
+        )
+        print_dataset_stats(train_graphs, "TRAIN")
+        print_dataset_stats(val_graphs, "VAL")
+        print_dataset_stats(test_graphs, "TEST")
 
-    print_dataset_stats(train_graphs, "TRAIN")
-    print_dataset_stats(val_graphs, "VAL")
-    print_dataset_stats(test_graphs, "TEST")
     train_stats = collect_split_stats(train_graphs)
-    val_stats = collect_split_stats(val_graphs)
-    test_stats = collect_split_stats(test_graphs)
+    val_stats = collect_split_stats(val_graphs) if val_graphs else None
+    test_stats = collect_split_stats(test_graphs) if test_graphs else None
 
     train_loader = DataLoader(
         train_graphs,
@@ -208,17 +215,25 @@ def main():
         shuffle=True,
         num_workers=args.num_workers,
     )
-    val_loader = DataLoader(
-        val_graphs,
-        batch_size=args.batch_size,
-        shuffle=False,
-        num_workers=args.num_workers,
+    val_loader = (
+        DataLoader(
+            val_graphs,
+            batch_size=args.batch_size,
+            shuffle=False,
+            num_workers=args.num_workers,
+        )
+        if len(val_graphs) > 0
+        else None
     )
-    test_loader = DataLoader(
-        test_graphs,
-        batch_size=args.batch_size,
-        shuffle=False,
-        num_workers=args.num_workers,
+    test_loader = (
+        DataLoader(
+            test_graphs,
+            batch_size=args.batch_size,
+            shuffle=False,
+            num_workers=args.num_workers,
+        )
+        if len(test_graphs) > 0
+        else None
     )
 
     num_node_features = train_graphs[0].num_node_features
@@ -251,20 +266,26 @@ def main():
     )
 
     print(f"\nBest epoch: {best_epoch}")
-    print(f"Best val F1: {best_val_f1:.4f}")
+    if val_loader is not None:
+        print(f"Best val F1: {best_val_f1:.4f}")
+    else:
+        print("Best val F1: n/a (no internal split)")
 
     if auto_model_name:
         save_path = finalize_auto_model_path(save_path, best_epoch=best_epoch, best_val_f1=best_val_f1)
 
     print(f"Saved best model to: {save_path}")
+    test_metrics = None
+    if test_loader is not None:
+        print("\nEvaluating best checkpoint on test...")
+        model.load_state_dict(torch.load(save_path, map_location=device))
+        test_metrics = evaluate(model, test_loader, device)
 
-    print("\nEvaluating best checkpoint on test...")
-    model.load_state_dict(torch.load(save_path, map_location=device))
-    test_metrics = evaluate(model, test_loader, device)
-
-    print("\n[Test metrics]")
-    for k, v in test_metrics.items():
-        print(f"{k}: {v:.4f}")
+        print("\n[Test metrics]")
+        for k, v in test_metrics.items():
+            print(f"{k}: {v:.4f}")
+    else:
+        print("\nTest evaluation skipped (no internal split).")
 
     if args.results_path:
         results_path = resolve_output_path(args.results_path, args.output_dir)
@@ -274,20 +295,29 @@ def main():
 
     report_lines: list[str] = []
     report_lines.extend(format_split_block("TRAIN", train_stats))
-    report_lines.append("")
-    report_lines.extend(format_split_block("VAL", val_stats))
-    report_lines.append("")
-    report_lines.extend(format_split_block("TEST", test_stats))
+    if val_stats is not None:
+        report_lines.append("")
+        report_lines.extend(format_split_block("VAL", val_stats))
+    if test_stats is not None:
+        report_lines.append("")
+        report_lines.extend(format_split_block("TEST", test_stats))
     report_lines.append("")
     report_lines.append(f"Best epoch: {best_epoch}")
-    report_lines.append(f"Best val F1: {best_val_f1:.4f}")
+    if val_loader is not None:
+        report_lines.append(f"Best val F1: {best_val_f1:.4f}")
+    else:
+        report_lines.append("Best val F1: n/a (no internal split)")
     report_lines.append(f"Saved best model to: {save_path}")
-    report_lines.append("")
-    report_lines.append("Evaluating best checkpoint on test...")
-    report_lines.append("")
-    report_lines.append("[Test metrics]")
-    for k, v in test_metrics.items():
-        report_lines.append(f"{k}: {v:.4f}")
+    if test_metrics is not None:
+        report_lines.append("")
+        report_lines.append("Evaluating best checkpoint on test...")
+        report_lines.append("")
+        report_lines.append("[Test metrics]")
+        for k, v in test_metrics.items():
+            report_lines.append(f"{k}: {v:.4f}")
+    else:
+        report_lines.append("")
+        report_lines.append("Test evaluation skipped (no internal split).")
 
     with open(results_path, "w", encoding="utf-8") as f:
         f.write("\n".join(report_lines) + "\n")
