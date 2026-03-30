@@ -1,0 +1,26 @@
+# 1) Перейти в проект
+cd .\TextGAN-PyTorch-master
+
+# 2) (Один раз) подготовить MalbehavD-V1 в формат RelGAN
+python .\tools\prepare_malbehavd_relgan.py --input_csv ..\MalbehavD-V1-main\MalBehavD-V1-dataset.csv --output_root dataset --dataset_prefix MalbehavD-V1 --test_ratio 0.2 --seed 42
+
+# 3) Обучить 2 модели (goodware и malware)
+cd .\run
+python .\run_relgan.py 0 0   # goodware
+python .\run_relgan.py 1 0   # malware
+cd ..
+
+# 4) Найти последние чекпоинты генератора
+$good_ckpt = (Get-ChildItem -Recurse -File .\save | Where-Object { $_.Name -like 'gen_ADV_*.pt' -and $_.FullName -like '*MalbehavD-V1_goodware*' } | Sort-Object LastWriteTime -Descending | Select-Object -First 1).FullName
+$mal_ckpt  = (Get-ChildItem -Recurse -File .\save | Where-Object { $_.Name -like 'gen_ADV_*.pt' -and $_.FullName -like '*MalbehavD-V1_malware*' }  | Sort-Object LastWriteTime -Descending | Select-Object -First 1).FullName
+
+# 5) Сгенерировать тестово по 128 строк на класс
+python .\tools\generate_relgan_samples.py --dataset MalbehavD-V1_goodware --checkpoint "$good_ckpt" --output_txt .\generated\goodware_128.txt --num_samples 128 --batch_size 32
+python .\tools\generate_relgan_samples.py --dataset MalbehavD-V1_malware  --checkpoint "$mal_ckpt"  --output_txt .\generated\malware_128.txt  --num_samples 128 --batch_size 32
+
+# 6) Вернуть в исходный CSV-формат MalbehavD
+python .\tools\export_relgan_samples_to_csv.py --samples_txt .\generated\goodware_128.txt --template_csv ..\MalbehavD-V1-main\MalBehavD-V1-dataset.csv --output_csv .\generated\goodware_128.csv --label 0
+python .\tools\export_relgan_samples_to_csv.py --samples_txt .\generated\malware_128.txt  --template_csv ..\MalbehavD-V1-main\MalBehavD-V1-dataset.csv --output_csv .\generated\malware_128.csv  --label 1
+
+# 7) (Опционально) объединить в один CSV
+python .\tools\merge_generated_csv.py --goodware_csv .\generated\goodware_128.csv --malware_csv .\generated\malware_128.csv --output_csv .\generated\MalBehavD-V1-generated-128x2.csv

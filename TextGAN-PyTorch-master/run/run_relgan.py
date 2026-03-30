@@ -38,8 +38,8 @@ CUDA = int(True)
 oracle_pretrain = int(True)
 gen_pretrain = int(False)
 dis_pretrain = int(False)
-MLE_train_epoch = 300
-ADV_train_epoch = 1500
+MLE_train_epoch = 200 #300
+ADV_train_epoch = 800 #1500
 tips = 'RelGAN high-fidelity experiments ({})'
 
 # ===Real data===
@@ -63,8 +63,8 @@ max_seq_len = 20  # auto-overwritten from dataset file in main.py for real data
 gen_lr = 5e-3
 gen_adv_lr = 5e-5
 dis_lr = 5e-5
-pre_log_step = 10
-adv_log_step = 25
+pre_log_step = 25
+adv_log_step = 100
 
 # ===Generator===
 ADV_g_step = 1
@@ -83,9 +83,9 @@ num_rep = 64
 # ===Metrics===
 use_nll_oracle = int(True)
 use_nll_gen = int(True)
-use_nll_div = int(True)
-use_bleu = int(True)
-use_self_bleu = int(True)
+use_nll_div = int(False)
+use_bleu = int(False)
+use_self_bleu = int(False)
 use_ppl = int(False)
 
 if job_id >= len(dataset):
@@ -96,7 +96,7 @@ args = [
     '--if_test', if_test,
     '--run_model', run_model,
     '--cuda', CUDA,
-    # '--device', gpu_id,   # comment for auto GPU
+    '--device', gpu_id,
     '--ora_pretrain', oracle_pretrain,
     '--gen_pretrain', gen_pretrain,
     '--dis_pretrain', dis_pretrain,

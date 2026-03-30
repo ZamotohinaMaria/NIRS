@@ -96,6 +96,11 @@ class BLEU(Metrics):
 
     def get_bleu_parallel(self, ngram, reference):
         weight = tuple((1. / ngram for _ in range(ngram)))
+        # On Windows, multiprocessing spawn can be very slow/unstable for this loop.
+        if os.name == 'nt':
+            scores = [self.cal_bleu(reference, h, weight) for h in self.test_text[:self.sample_size]]
+            return round(sum(scores) / len(scores), 3) if scores else 0.0
+
         pool = Pool(os.cpu_count())
         result = list()
         for idx, hypothesis in enumerate(self.test_text[:self.sample_size]):

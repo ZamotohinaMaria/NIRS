@@ -205,18 +205,33 @@ class BasicInstructor:
         :param fmt_str: if return format string for logging
         """
         with torch.no_grad():
-            # Prepare data for evaluation
-            eval_samples = self.gen.sample(cfg.samples_num, 4 * cfg.batch_size)
-            gen_data = GenDataIter(eval_samples)
-            gen_tokens = tensor_to_tokens(eval_samples, self.idx2word_dict)
-            gen_tokens_s = tensor_to_tokens(self.gen.sample(200, 200), self.idx2word_dict)
+            need_eval_samples = cfg.use_nll_div or cfg.use_bleu or cfg.use_self_bleu or cfg.use_ppl
+            need_gen_tokens = cfg.use_bleu or cfg.use_self_bleu or cfg.use_ppl
 
-            # Reset metrics
-            self.bleu.reset(test_text=gen_tokens, real_text=self.test_data.tokens)
-            self.nll_gen.reset(self.gen, self.train_data.loader)
-            self.nll_div.reset(self.gen, gen_data.loader)
-            self.self_bleu.reset(test_text=gen_tokens_s, real_text=gen_tokens)
-            self.ppl.reset(gen_tokens)
+            eval_samples = None
+            gen_data = None
+            gen_tokens = None
+
+            if need_eval_samples:
+                eval_samples = self.gen.sample(cfg.samples_num, 4 * cfg.batch_size)
+                gen_data = GenDataIter(eval_samples)
+
+            if need_gen_tokens:
+                if eval_samples is None:
+                    eval_samples = self.gen.sample(cfg.samples_num, 4 * cfg.batch_size)
+                gen_tokens = tensor_to_tokens(eval_samples, self.idx2word_dict)
+
+            if cfg.use_bleu:
+                self.bleu.reset(test_text=gen_tokens, real_text=self.test_data.tokens)
+            if cfg.use_nll_gen:
+                self.nll_gen.reset(self.gen, self.train_data.loader)
+            if cfg.use_nll_div:
+                self.nll_div.reset(self.gen, gen_data.loader)
+            if cfg.use_self_bleu:
+                gen_tokens_s = tensor_to_tokens(self.gen.sample(200, 200), self.idx2word_dict)
+                self.self_bleu.reset(test_text=gen_tokens_s, real_text=gen_tokens)
+            if cfg.use_ppl:
+                self.ppl.reset(gen_tokens)
 
         if fmt_str:
             return ', '.join(['%s = %s' % (metric.get_name(), metric.get_score()) for metric in self.all_metrics])
@@ -227,20 +242,36 @@ class BasicInstructor:
         assert type(label_i) == int, 'missing label'
 
         with torch.no_grad():
-            # Prepare data for evaluation
-            eval_samples = self.gen.sample(cfg.samples_num, 8 * cfg.batch_size, label_i=label_i)
-            gen_data = GenDataIter(eval_samples)
-            gen_tokens = tensor_to_tokens(eval_samples, self.idx2word_dict)
-            gen_tokens_s = tensor_to_tokens(self.gen.sample(200, 200, label_i=label_i), self.idx2word_dict)
-            clas_data = CatClasDataIter([eval_samples], label_i)
+            need_eval_samples = cfg.use_nll_div or cfg.use_bleu or cfg.use_self_bleu or cfg.use_clas_acc or cfg.use_ppl
+            need_gen_tokens = cfg.use_bleu or cfg.use_self_bleu or cfg.use_ppl
 
-            # Reset metrics
-            self.bleu.reset(test_text=gen_tokens, real_text=self.test_data_list[label_i].tokens)
-            self.nll_gen.reset(self.gen, self.train_data_list[label_i].loader, label_i)
-            self.nll_div.reset(self.gen, gen_data.loader, label_i)
-            self.self_bleu.reset(test_text=gen_tokens_s, real_text=gen_tokens)
-            self.clas_acc.reset(self.clas, clas_data.loader)
-            self.ppl.reset(gen_tokens)
+            eval_samples = None
+            gen_data = None
+            gen_tokens = None
+
+            if need_eval_samples:
+                eval_samples = self.gen.sample(cfg.samples_num, 8 * cfg.batch_size, label_i=label_i)
+
+            if cfg.use_nll_div:
+                gen_data = GenDataIter(eval_samples)
+
+            if need_gen_tokens:
+                gen_tokens = tensor_to_tokens(eval_samples, self.idx2word_dict)
+
+            if cfg.use_bleu:
+                self.bleu.reset(test_text=gen_tokens, real_text=self.test_data_list[label_i].tokens)
+            if cfg.use_nll_gen:
+                self.nll_gen.reset(self.gen, self.train_data_list[label_i].loader, label_i)
+            if cfg.use_nll_div:
+                self.nll_div.reset(self.gen, gen_data.loader, label_i)
+            if cfg.use_self_bleu:
+                gen_tokens_s = tensor_to_tokens(self.gen.sample(200, 200, label_i=label_i), self.idx2word_dict)
+                self.self_bleu.reset(test_text=gen_tokens_s, real_text=gen_tokens)
+            if cfg.use_clas_acc:
+                clas_data = CatClasDataIter([eval_samples], label_i)
+                self.clas_acc.reset(self.clas, clas_data.loader)
+            if cfg.use_ppl:
+                self.ppl.reset(gen_tokens)
 
         return [metric.get_score() for metric in self.all_metrics]
 
