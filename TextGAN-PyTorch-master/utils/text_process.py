@@ -7,7 +7,6 @@
 # @Description  : 
 # Copyrights (C) 2018. All Rights Reserved.
 
-import nltk
 import numpy as np
 import os
 import torch
@@ -16,12 +15,14 @@ import config as cfg
 
 
 def get_tokenlized(file):
-    """tokenlize the file"""
+    """Tokenize line-based API sequences preserving original case."""
     tokenlized = list()
-    with open(file) as raw:
+    with open(file, 'r', encoding='utf-8') as raw:
         for text in raw:
-            text = nltk.word_tokenize(text.lower())
-            tokenlized.append(text)
+            text = text.strip()
+            if not text:
+                continue
+            tokenlized.append(text.split())
     return tokenlized
 
 
@@ -93,7 +94,7 @@ def load_dict(dataset):
     iw_path = 'dataset/{}_iw_dict.txt'.format(dataset)
     wi_path = 'dataset/{}_wi_dict.txt'.format(dataset)
 
-    if not os.path.exists(iw_path) or not os.path.exists(iw_path):  # initialize dictionaries
+    if not os.path.exists(iw_path) or not os.path.exists(wi_path):  # initialize dictionaries
         init_dict(dataset)
 
     with open(iw_path, 'r') as dictin:
