@@ -70,7 +70,17 @@ class BasicInstructor:
         self.self_bleu = BLEU('Self-BLEU', gram=[2, 3, 4], if_use=cfg.use_self_bleu)
         self.clas_acc = ACC(if_use=cfg.use_clas_acc)
         self.ppl = PPL(self.train_data, self.test_data, n_gram=5, if_use=cfg.use_ppl)
-        self.all_metrics = [self.bleu, self.nll_gen, self.nll_div, self.self_bleu, self.ppl]
+        self.all_metrics = []
+        if cfg.use_bleu:
+            self.all_metrics.append(self.bleu)
+        if cfg.use_nll_gen:
+            self.all_metrics.append(self.nll_gen)
+        if cfg.use_nll_div:
+            self.all_metrics.append(self.nll_div)
+        if cfg.use_self_bleu:
+            self.all_metrics.append(self.self_bleu)
+        if cfg.use_ppl:
+            self.all_metrics.append(self.ppl)
 
     def _run(self):
         print('Nothing to run in Basic Instructor!')
@@ -234,6 +244,8 @@ class BasicInstructor:
                 self.ppl.reset(gen_tokens)
 
         if fmt_str:
+            if not self.all_metrics:
+                return ''
             return ', '.join(['%s = %s' % (metric.get_name(), metric.get_score()) for metric in self.all_metrics])
         else:
             return [metric.get_score() for metric in self.all_metrics]
@@ -277,6 +289,8 @@ class BasicInstructor:
 
     def comb_metrics(self, fmt_str=False):
         all_scores = [self.cal_metrics_with_label(label_i) for label_i in range(cfg.k_label)]
+        if not self.all_metrics:
+            return '' if fmt_str else []
         all_scores = np.array(all_scores).T.tolist()  # each row for each metric
 
         if fmt_str:

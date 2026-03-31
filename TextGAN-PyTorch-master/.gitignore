@@ -1,10 +1,10 @@
 # Custom
 log/
-dataset/
-pretrain/
-save/
-savefig/
-.idea/
+# dataset/
+# pretrain/
+# save/
+# savefig/
+#.idea/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
