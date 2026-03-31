@@ -35,6 +35,11 @@ class RelGANInstructor(BasicInstructor):
         self.gen_adv_opt = optim.Adam(self.gen.parameters(), lr=cfg.gen_adv_lr)
         self.dis_opt = optim.Adam(self.dis.parameters(), lr=cfg.dis_lr)
 
+        self.best_mle_loss = float('inf')
+        self.best_adv_nll = float('inf')
+        self.best_mle_path = cfg.save_model_root + 'gen_MLE_best.pt'
+        self.best_adv_path = cfg.save_model_root + 'gen_ADV_best.pt'
+
     def _run(self):
         # ===PRE-TRAINING (GENERATOR)===
         if not cfg.gen_pretrain:
@@ -42,7 +47,9 @@ class RelGANInstructor(BasicInstructor):
             self.pretrain_generator(cfg.MLE_train_epoch)
             if cfg.if_save and not cfg.if_test:
                 torch.save(self.gen.state_dict(), cfg.pretrained_gen_path)
+                torch.save(self.gen.state_dict(), cfg.pretrained_gen_time_path)
                 print('Save pretrain_generator: {}'.format(cfg.pretrained_gen_path))
+                print('Save pretrain_generator (timestamped): {}'.format(cfg.pretrained_gen_time_path))
 
         # # ===ADVERSARIAL TRAINING===
         self.log.info('Starting Adversarial Training...')
@@ -59,11 +66,22 @@ class RelGANInstructor(BasicInstructor):
 
                 # TEST
                 if adv_epoch % cfg.adv_log_step == 0 or adv_epoch == cfg.ADV_train_epoch - 1:
-                    self.log.info('[ADV] epoch %d: g_loss: %.4f, d_loss: %.4f, %s' % (
-                        adv_epoch, g_loss, d_loss, self.cal_metrics(fmt_str=True)))
+                    metric_scores, metric_fmt = self._collect_metrics()
+                    if metric_fmt:
+                        self.log.info('[ADV] epoch %d: g_loss: %.4f, d_loss: %.4f, %s' % (
+                            adv_epoch, g_loss, d_loss, metric_fmt))
+                    else:
+                        self.log.info('[ADV] epoch %d: g_loss: %.4f, d_loss: %.4f' % (
+                            adv_epoch, g_loss, d_loss))
 
                     if cfg.if_save and not cfg.if_test:
                         self._save('ADV', adv_epoch)
+                        nll_gen = self._get_metric_score(metric_scores, 'NLL_gen')
+                        if nll_gen is not None and nll_gen < self.best_adv_nll:
+                            self.best_adv_nll = nll_gen
+                            torch.save(self.gen.state_dict(), self.best_adv_path)
+                            self.log.info('[ADV-BEST] epoch %d: NLL_gen = %.4f -> %s' % (
+                                adv_epoch, nll_gen, self.best_adv_path))
             else:
                 self.log.info('>>> Stop by adv_signal! Finishing adversarial training...')
                 progress.close()
@@ -84,17 +102,38 @@ class RelGANInstructor(BasicInstructor):
             if self.sig.pre_sig:
                 # ===Train===
                 pre_loss = self.train_gen_epoch(self.gen, self.train_data.loader, self.mle_criterion, self.gen_opt)
+                if cfg.if_save and not cfg.if_test and pre_loss < self.best_mle_loss:
+                    self.best_mle_loss = pre_loss
+                    torch.save(self.gen.state_dict(), self.best_mle_path)
 
                 # ===Test===
                 if epoch % cfg.pre_log_step == 0 or epoch == epochs - 1:
-                    self.log.info('[MLE-GEN] epoch %d : pre_loss = %.4f, %s' % (
-                        epoch, pre_loss, self.cal_metrics(fmt_str=True)))
+                    _, metric_fmt = self._collect_metrics()
+                    if metric_fmt:
+                        self.log.info('[MLE-GEN] epoch %d : pre_loss = %.4f, %s' % (
+                            epoch, pre_loss, metric_fmt))
+                    else:
+                        self.log.info('[MLE-GEN] epoch %d : pre_loss = %.4f' % (epoch, pre_loss))
 
                     if cfg.if_save and not cfg.if_test:
                         self._save('MLE', epoch)
             else:
                 self.log.info('>>> Stop by pre signal, skip to adversarial training...')
                 break
+
+    def _collect_metrics(self):
+        metric_scores = self.cal_metrics(fmt_str=False)
+        if len(metric_scores) == 0:
+            return metric_scores, ''
+        metric_fmt = ', '.join(['%s = %s' % (metric.get_name(), score)
+                                for metric, score in zip(self.all_metrics, metric_scores)])
+        return metric_scores, metric_fmt
+
+    def _get_metric_score(self, metric_scores, metric_name):
+        for metric, score in zip(self.all_metrics, metric_scores):
+            if metric.get_name() == metric_name:
+                return score
+        return None
 
     def adv_train_generator(self, g_step):
         total_loss = 0

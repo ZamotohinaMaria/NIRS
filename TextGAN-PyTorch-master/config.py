@@ -173,6 +173,8 @@ multi_oracle_samples_path = 'pretrain/oracle_data/oracle{}_lstm_samples_{}.pt'
 pretrain_root = 'pretrain/{}/'.format(dataset if if_real_data else 'oracle_data')
 pretrained_gen_path = pretrain_root + 'gen_MLE_pretrain_{}_{}_sl{}_sn{}.pt'.format(run_model, model_type, max_seq_len,
                                                                                    samples_num)
+pretrained_gen_time_path = pretrain_root + 'gen_MLE_pretrain_{}_{}_sl{}_sn{}_T{}.pt'.format(
+    run_model, model_type, max_seq_len, samples_num, log_time_str)
 pretrained_dis_path = pretrain_root + 'dis_pretrain_{}_{}_sl{}_sn{}.pt'.format(run_model, model_type, max_seq_len,
                                                                                samples_num)
 pretrained_clas_path = pretrain_root + 'clas_pretrain_{}_{}_sl{}_sn{}.pt'.format(run_model, model_type, max_seq_len,
@@ -194,7 +196,7 @@ def init_param(opt):
         gen_hidden_dim, goal_size, step_size, mem_slots, num_heads, head_size, d_step, d_epoch, \
         ADV_d_step, ADV_d_epoch, dis_embed_dim, dis_hidden_dim, num_rep, log_filename, save_root, \
         signal_file, tips, save_samples_root, save_model_root, if_real_data, pretrained_gen_path, \
-        pretrained_dis_path, pretrain_root, if_test, dataset, PRE_clas_epoch, oracle_samples_path, \
+        pretrained_gen_time_path, pretrained_dis_path, pretrain_root, if_test, dataset, PRE_clas_epoch, oracle_samples_path, \
         pretrained_clas_path, n_parent, mu_type, eval_type, d_type, eval_b_num, lambda_fd, d_out_mean, \
         lambda_fq, freeze_dis, freeze_clas, use_all_real_fake, use_population, gen_init, dis_init, \
         multi_oracle_samples_path, k_label, cat_train_data, cat_test_data, evo_temp_step, devices, \
@@ -318,6 +320,8 @@ def init_param(opt):
     pretrain_root = 'pretrain/{}/'.format(dataset if if_real_data else 'oracle_data')
     pretrained_gen_path = pretrain_root + 'gen_MLE_pretrain_{}_{}_sl{}_sn{}.pt'.format(run_model, model_type,
                                                                                        max_seq_len, samples_num)
+    pretrained_gen_time_path = pretrain_root + 'gen_MLE_pretrain_{}_{}_sl{}_sn{}_T{}.pt'.format(
+        run_model, model_type, max_seq_len, samples_num, log_time_str)
     pretrained_dis_path = pretrain_root + 'dis_pretrain_{}_{}_sl{}_sn{}.pt'.format(run_model, model_type, max_seq_len,
                                                                                    samples_num)
     pretrained_clas_path = pretrain_root + 'clas_pretrain_{}_{}_sl{}_sn{}.pt'.format(run_model, model_type, max_seq_len,
