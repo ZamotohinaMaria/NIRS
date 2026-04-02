@@ -24,3 +24,13 @@ python .\tools\export_relgan_samples_to_csv.py --samples_txt .\generated\malware
 
 # 7) (Опционально) объединить в один CSV
 python .\tools\merge_generated_csv.py --goodware_csv .\generated\goodware_128.csv --malware_csv .\generated\malware_128.csv --output_csv .\generated\MalBehavD-V1-generated-128x2.csv
+
+
+
+Лучший запуск для текущей модели
+
+cd C:\Users\Marishka\Desktop\code\NIRS\TextGAN-PyTorch-master
+
+python -m tools.generate_relgan_samples --dataset MalbehavD-V1_goodware --checkpoint ".\save\20260401\MalbehavD-V1_goodware\relgan_vanilla_dt-Ra_lt-rsgan_mt-ra_et-Ra_sl153_temp40_lfd0.0_T0401_1259_06\models\gen_MLE_best.pt" --output_txt ".\generated\goodware_2000.txt" --num_samples 2000 --batch_size 64 --cuda 1 --device 0
+
+python -m tools.generate_relgan_samples --dataset MalbehavD-V1_malware --checkpoint ".\save\20260401\MalbehavD-V1_malware\relgan_vanilla_dt-Ra_lt-rsgan_mt-ra_et-Ra_sl175_temp40_lfd0.0_T0401_1458_03\models\gen_MLE_best.pt" --output_txt ".\generated\malware_2000.txt" --num_samples 2000 --batch_size 64 --cuda 1 --device 0

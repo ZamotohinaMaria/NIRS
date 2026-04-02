@@ -1,0 +1,101 @@
+====================================================================================================
+> training arguments:
+>>> if_test: 0
+>>> run_model: relgan
+>>> k_label: 2
+>>> dataset: MalbehavD-V1_goodware
+>>> model_type: vanilla
+>>> loss_type: rsgan
+>>> mu_type: ragan
+>>> eval_type: Ra
+>>> d_type: Ra
+>>> if_real_data: 1
+>>> cuda: 1
+>>> device: 0
+>>> devices: 0
+>>> shuffle: 0
+>>> gen_init: truncated_normal
+>>> dis_init: uniform
+>>> n_parent: 1
+>>> eval_b_num: 8
+>>> lambda_fq: 1.0
+>>> lambda_fd: 0.0
+>>> d_out_mean: True
+>>> freeze_dis: False
+>>> freeze_clas: False
+>>> use_all_real_fake: False
+>>> use_population: False
+>>> samples_num: 4096
+>>> vocab_size: 280
+>>> mle_epoch: 300
+>>> clas_pre_epoch: 10
+>>> adv_epoch: 250
+>>> inter_epoch: 15
+>>> batch_size: 32
+>>> max_seq_len: 153
+>>> start_letter: 1
+>>> padding_idx: 0
+>>> gen_lr: 0.005
+>>> gen_adv_lr: 5e-05
+>>> dis_lr: 5e-05
+>>> clip_norm: 5.0
+>>> pre_log_step: 25
+>>> adv_log_step: 50
+>>> train_data: dataset/MalbehavD-V1_goodware.txt
+>>> test_data: dataset/testdata/MalbehavD-V1_goodware_test.txt
+>>> temp_adpt: exp
+>>> evo_temp_step: 1
+>>> temperature: 40
+>>> ora_pretrain: 1
+>>> gen_pretrain: 0
+>>> dis_pretrain: 0
+>>> adv_g_step: 1
+>>> rollout_num: 16
+>>> gen_embed_dim: 64
+>>> gen_hidden_dim: 64
+>>> goal_size: 16
+>>> step_size: 4
+>>> mem_slots: 1
+>>> num_heads: 2
+>>> head_size: 128
+>>> d_step: 5
+>>> d_epoch: 3
+>>> adv_d_step: 3
+>>> adv_d_epoch: 3
+>>> dis_embed_dim: 128
+>>> dis_hidden_dim: 128
+>>> num_rep: 64
+>>> use_nll_oracle: 0
+>>> use_nll_gen: 1
+>>> use_nll_div: 1
+>>> use_bleu: 1
+>>> use_self_bleu: 0
+>>> use_clas_acc: True
+>>> use_ppl: 0
+>>> log_file: log/log_0401_1259_06.txt
+>>> save_root: save/20260401/MalbehavD-V1_goodware/relgan_vanilla_dt-Ra_lt-rsgan_mt-ra_et-Ra_sl153_temp40_lfd0.0_T0401_1259_06/
+>>> signal_file: run_signal.txt
+>>> tips: RelGAN high-fidelity experiments (goodware)
+====================================================================================================
+Starting Generator MLE Training...
+[MLE-GEN] epoch 0 : pre_loss = 1.7307, BLEU-[2, 3, 4, 5] = [0.379, 0.116, 0.055, 0.036], NLL_gen = 1.2915, NLL_div = 1.4136
+[MLE-GEN] epoch 25 : pre_loss = 0.2759, BLEU-[2, 3, 4, 5] = [0.883, 0.789, 0.682, 0.581], NLL_gen = 0.2693, NLL_div = 0.4132
+[MLE-GEN] epoch 50 : pre_loss = 0.1701, BLEU-[2, 3, 4, 5] = [0.902, 0.805, 0.696, 0.597], NLL_gen = 0.159, NLL_div = 0.2155
+[MLE-GEN] epoch 75 : pre_loss = 0.1022, BLEU-[2, 3, 4, 5] = [0.913, 0.822, 0.721, 0.625], NLL_gen = 0.1023, NLL_div = 0.1654
+[MLE-GEN] epoch 100 : pre_loss = 0.0806, BLEU-[2, 3, 4, 5] = [0.908, 0.818, 0.722, 0.628], NLL_gen = 0.0807, NLL_div = 0.1443
+[MLE-GEN] epoch 125 : pre_loss = 0.0672, BLEU-[2, 3, 4, 5] = [0.919, 0.822, 0.723, 0.629], NLL_gen = 0.0693, NLL_div = 0.1087
+[MLE-GEN] epoch 150 : pre_loss = 0.0647, BLEU-[2, 3, 4, 5] = [0.925, 0.844, 0.751, 0.663], NLL_gen = 0.0606, NLL_div = 0.0946
+[MLE-GEN] epoch 175 : pre_loss = 0.0845, BLEU-[2, 3, 4, 5] = [0.915, 0.819, 0.723, 0.63], NLL_gen = 0.0717, NLL_div = 0.1087
+[MLE-GEN] epoch 200 : pre_loss = 0.0538, BLEU-[2, 3, 4, 5] = [0.948, 0.872, 0.789, 0.704], NLL_gen = 0.049, NLL_div = 0.0595
+[MLE-GEN] epoch 225 : pre_loss = 0.0517, BLEU-[2, 3, 4, 5] = [0.943, 0.856, 0.757, 0.663], NLL_gen = 0.048, NLL_div = 0.054
+[MLE-GEN] epoch 250 : pre_loss = 0.0584, BLEU-[2, 3, 4, 5] = [0.934, 0.849, 0.761, 0.682], NLL_gen = 0.0547, NLL_div = 0.0815
+[MLE-GEN] epoch 275 : pre_loss = 0.0542, BLEU-[2, 3, 4, 5] = [0.94, 0.854, 0.759, 0.665], NLL_gen = 0.0505, NLL_div = 0.0647
+[MLE-GEN] epoch 299 : pre_loss = 0.0544, BLEU-[2, 3, 4, 5] = [0.938, 0.844, 0.754, 0.666], NLL_gen = 0.0507, NLL_div = 0.069
+Starting Adversarial Training...
+[ADV] epoch 0: g_loss: 0.6932, d_loss: 0.6932, BLEU-[2, 3, 4, 5] = [0.939, 0.849, 0.75, 0.652], NLL_gen = 0.0507, NLL_div = 0.0705
+[ADV-BEST] epoch 0: NLL_gen = 0.0507 -> save/20260401/MalbehavD-V1_goodware/relgan_vanilla_dt-Ra_lt-rsgan_mt-ra_et-Ra_sl153_temp40_lfd0.0_T0401_1259_06/models/gen_ADV_best.pt
+[ADV] epoch 50: g_loss: 0.7121, d_loss: 0.6821, BLEU-[2, 3, 4, 5] = [0.957, 0.896, 0.826, 0.747], NLL_gen = 0.0509, NLL_div = 0.0626
+[ADV] epoch 100: g_loss: 1.2548, d_loss: 0.5448, BLEU-[2, 3, 4, 5] = [0.97, 0.915, 0.85, 0.78], NLL_gen = 0.0552, NLL_div = 0.0531
+[ADV] epoch 150: g_loss: 1.6328, d_loss: 0.3786, BLEU-[2, 3, 4, 5] = [0.984, 0.951, 0.901, 0.845], NLL_gen = 0.0664, NLL_div = 0.0398
+[ADV] epoch 200: g_loss: 3.2014, d_loss: 0.1726, BLEU-[2, 3, 4, 5] = [0.982, 0.943, 0.891, 0.833], NLL_gen = 0.0839, NLL_div = 0.0513
+[ADV] epoch 249: g_loss: 2.6973, d_loss: 0.2449, BLEU-[2, 3, 4, 5] = [0.931, 0.865, 0.781, 0.673], NLL_gen = 0.0959, NLL_div = 0.0775

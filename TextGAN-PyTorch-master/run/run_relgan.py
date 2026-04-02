@@ -38,8 +38,8 @@ CUDA = int(True)
 oracle_pretrain = int(True)
 gen_pretrain = int(False)
 dis_pretrain = int(False)
-MLE_train_epoch = 200 #300
-ADV_train_epoch = 150 #1500
+MLE_train_epoch = 300 #300
+ADV_train_epoch = 250 #1500
 tips = 'RelGAN high-fidelity experiments ({})'
 
 # ===Real data===
@@ -83,8 +83,8 @@ num_rep = 64
 # ===Metrics===
 use_nll_oracle = int(False)
 use_nll_gen = int(True)
-use_nll_div = int(False)
-use_bleu = int(False)
+use_nll_div = int(True)
+use_bleu = int(True)
 use_self_bleu = int(False)
 use_ppl = int(False)
 

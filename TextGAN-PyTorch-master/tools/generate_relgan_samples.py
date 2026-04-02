@@ -36,11 +36,11 @@ def main():
     args = parse_args()
 
     train_path = os.path.join("dataset", f"{args.dataset}.txt")
-    test_path = os.path.join("dataset", "testdata", f"{args.dataset}_test.txt")
     if not os.path.exists(train_path):
         raise FileNotFoundError(f"Dataset file not found: {train_path}")
 
-    seq_len, vocab_size = text_process(train_path, test_path if os.path.exists(test_path) else None)
+    # Match training behavior from main.py: vocab/seq_len are built from TRAIN only.
+    seq_len, vocab_size = text_process(train_path)
     cfg.dataset = args.dataset
     cfg.max_seq_len = seq_len
     cfg.vocab_size = vocab_size
@@ -54,6 +54,19 @@ def main():
         torch.cuda.set_device(cfg.device)
 
     _, idx2word = load_dict(args.dataset)
+    map_location = f"cuda:{cfg.device}" if use_cuda else "cpu"
+    state = torch.load(args.checkpoint, map_location=map_location)
+    ckpt_vocab = state["embeddings.weight"].size(0)
+    if ckpt_vocab != cfg.vocab_size:
+        print(f"[warn] vocab mismatch: dataset={cfg.vocab_size}, checkpoint={ckpt_vocab}. "
+              f"Using checkpoint vocab size.")
+        cfg.vocab_size = ckpt_vocab
+
+    # Ensure dictionary can decode every token id from checkpoint vocab.
+    for i in range(cfg.vocab_size):
+        key = str(i)
+        if key not in idx2word:
+            idx2word[key] = f"UNK_{i}"
 
     gen = RelGAN_G(
         args.mem_slots,
@@ -67,8 +80,6 @@ def main():
         gpu=use_cuda,
     )
 
-    map_location = f"cuda:{cfg.device}" if use_cuda else "cpu"
-    state = torch.load(args.checkpoint, map_location=map_location)
     gen.load_state_dict(state)
     if use_cuda:
         gen = gen.cuda()
