@@ -1,0 +1,359 @@
+Microsoft Windows [Version 10.0.19045.6456]
+(c) Корпорация Майкрософт (Microsoft Corporation). Все права защищены.
+
+C:\Users\Marishka>cd C:\Users\Marishka\Desktop\code\NIRS\TextGAN-PyTorch-master
+
+C:\Users\Marishka\Desktop\code\NIRS\TextGAN-PyTorch-master>python -m tools.generate_relgan_samples --dataset MalbehavD-V1_goodware --checkpoint ".\save\20260401\MalbehavD-V1_goodware\relgan_vanilla_dt-Ra_lt-rsgan_mt-ra_et-Ra_sl153_temp40_lfd0.0_T0401_1259_06\models\gen_MLE_best.pt" --output_txt ".\generated\goodware_200.txt" --num_samples 200 --batch_size 64 --cuda 1 --device 0
+[ok] generated 200 samples -> C:\Users\Marishka\Desktop\code\NIRS\TextGAN-PyTorch-master\generated\goodware_200.txt
+
+C:\Users\Marishka\Desktop\code\NIRS\TextGAN-PyTorch-master>
+C:\Users\Marishka\Desktop\code\NIRS\TextGAN-PyTorch-master>python -m tools.generate_relgan_samples --dataset MalbehavD-V1_malware --checkpoint ".\save\20260401\MalbehavD-V1_malware\relgan_vanilla_dt-Ra_lt-rsgan_mt-ra_et-Ra_sl175_temp40_lfd0.0_T0401_1458_03\models\gen_MLE_best.pt" --output_txt ".\generated\malware_200.txt" --num_samples 200 --batch_size 64 --cuda 1 --device 0
+[ok] generated 200 samples -> C:\Users\Marishka\Desktop\code\NIRS\TextGAN-PyTorch-master\generated\malware_200.txt
+
+C:\Users\Marishka\Desktop\code\NIRS\TextGAN-PyTorch-master>python .\tools\export_relgan_samples_to_csv.py --samples_txt .\generated\goodware_200.txt --template_csv ..\MalbehavD-V1-main\MalBehavD-V1-dataset.csv --output_csv .\generated\goodware_128.csv --label 0
+[ok] exported 200 rows -> C:\Users\Marishka\Desktop\code\NIRS\TextGAN-PyTorch-master\generated\goodware_128.csv
+
+C:\Users\Marishka\Desktop\code\NIRS\TextGAN-PyTorch-master>python .\tools\export_relgan_samples_to_csv.py --samples_txt .\generated\goodware_200.txt --template_csv ..\MalbehavD-V1-main\MalBehavD-V1-dataset.csv --output_csv .\generated\goodware_200.csv --label 0
+[ok] exported 200 rows -> C:\Users\Marishka\Desktop\code\NIRS\TextGAN-PyTorch-master\generated\goodware_200.csv
+
+C:\Users\Marishka\Desktop\code\NIRS\TextGAN-PyTorch-master>python .\tools\export_relgan_samples_to_csv.py --samples_txt .\generated\malware_200.txt  --template_csv ..\MalbehavD-V1-main\MalBehavD-V1-dataset.csv --output_csv .\generated\malware_200.csv  --label 1
+[ok] exported 200 rows -> C:\Users\Marishka\Desktop\code\NIRS\TextGAN-PyTorch-master\generated\malware_200.csv
+
+C:\Users\Marishka\Desktop\code\NIRS\TextGAN-PyTorch-master>python .\tools\merge_generated_csv.py --goodware_csv .\generated\goodware_200.csv --malware_csv .\generated\malware_200.csv --output_csv .\generated\MalBehavD-V1-generated-200x2.csv
+[ok] merged 200 + 200 rows -> C:\Users\Marishka\Desktop\code\NIRS\TextGAN-PyTorch-master\generated\MalBehavD-V1-generated-200x2.csv
+
+C:\Users\Marishka\Desktop\code\NIRS\TextGAN-PyTorch-master>python .\tools\merge_generated_csv.py --goodware_csv .\generated\MalBehavD-V1-generated-200x2.csv --malware_csv ..\MalbehavD-V1-main\MalBehavD-V1-dataset.csv --output_csv .\generated\MalBehavD-V1-merged_200.csv
+[ok] merged 400 + 2570 rows -> C:\Users\Marishka\Desktop\code\NIRS\TextGAN-PyTorch-master\generated\MalBehavD-V1-merged_200.csv
+
+C:\Users\Marishka\Desktop\code\NIRS\TextGAN-PyTorch-master>python .\tools\merge_generated_csv.py --goodware_csv .\generated\MalBehavD-V1-generated-200x2.csv --malware_csv ..\MalbehavD-V1-main\MalBehavD-V1-dataset.csv --output_csv ..\MalbehavD-V1-main\MalBehavD-V1-merged_200.csv
+[ok] merged 400 + 2570 rows -> C:\Users\Marishka\Desktop\code\NIRS\MalbehavD-V1-main\MalBehavD-V1-merged_200.csv
+
+C:\Users\Marishka\Desktop\code\NIRS\TextGAN-PyTorch-master>python .\my-GINE-model\train_gine.py --csv .\MalbehavD-V1-main\MalBehavD-V1-merged_200.csv --dataset-format auto --include-unnamed-api-cols --epochs 30 --batch-size 64
+python: can't open file 'C:\\Users\\Marishka\\Desktop\\code\\NIRS\\TextGAN-PyTorch-master\\my-GINE-model\\train_gine.py': [Errno 2] No such file or directory
+
+C:\Users\Marishka\Desktop\code\NIRS\TextGAN-PyTorch-master>cd ..
+
+C:\Users\Marishka\Desktop\code\NIRS>python .\my-GINE-model\train_gine.py --csv .\MalbehavD-V1-main\MalBehavD-V1-merged_200.csv --dataset-format auto --include-unnamed-api-cols --epochs 30 --batch-size 64
+Loading CSV...
+Adapter format: wide_api
+Source sequence columns: 175 columns
+Raw rows: 2970
+Prepared rows: 2970
+Detected label column: labels
+Detected sequence column: api_sequence
+Rows after preparation: 2970
+Building graph dataset...
+Vocabulary size: 292
+Output dir: runs
+Saved vocab to: runs\vocab/api_vocab.json
+
+[TRAIN]
+Samples: 2138
+Class distribution: {0: 1069, 1: 1069}
+Avg nodes: 42.50
+Avg edges: 41.50
+
+[VAL]
+Samples: 238
+Class distribution: {1: 119, 0: 119}
+Avg nodes: 43.67
+Avg edges: 42.67
+
+[TEST]
+Samples: 594
+Class distribution: {1: 297, 0: 297}
+Avg nodes: 43.34
+Avg edges: 42.34
+
+Start training...
+Epoch 001 | loss=0.6897 | val_acc=0.6933 | val_f1=0.5576 | val_auc=0.7534
+Epoch 002 | loss=0.2168 | val_acc=0.9370 | val_f1=0.9372 | val_auc=0.9843
+Epoch 003 | loss=0.1623 | val_acc=0.9328 | val_f1=0.9360 | val_auc=0.9877
+Epoch 004 | loss=0.1279 | val_acc=0.7185 | val_f1=0.6082 | val_auc=0.8937
+Epoch 005 | loss=0.1081 | val_acc=0.9034 | val_f1=0.8930 | val_auc=0.9551
+Epoch 006 | loss=0.1028 | val_acc=0.7227 | val_f1=0.6163 | val_auc=0.9501
+Epoch 007 | loss=0.0734 | val_acc=0.7983 | val_f1=0.8298 | val_auc=0.9670
+Epoch 008 | loss=0.1120 | val_acc=0.7857 | val_f1=0.7273 | val_auc=0.9599
+Epoch 009 | loss=0.0891 | val_acc=0.7689 | val_f1=0.8110 | val_auc=0.9663
+Epoch 010 | loss=0.0714 | val_acc=0.9538 | val_f1=0.9536 | val_auc=0.9880
+Epoch 011 | loss=0.0728 | val_acc=0.9160 | val_f1=0.9083 | val_auc=0.9684
+Epoch 012 | loss=0.0796 | val_acc=0.9202 | val_f1=0.9140 | val_auc=0.9631
+Epoch 013 | loss=0.0602 | val_acc=0.9622 | val_f1=0.9614 | val_auc=0.9856
+Epoch 014 | loss=0.0619 | val_acc=0.9538 | val_f1=0.9547 | val_auc=0.9858
+Epoch 015 | loss=0.0511 | val_acc=0.9076 | val_f1=0.9134 | val_auc=0.9833
+Epoch 016 | loss=0.0558 | val_acc=0.8403 | val_f1=0.8603 | val_auc=0.9746
+Epoch 017 | loss=0.0528 | val_acc=0.9370 | val_f1=0.9393 | val_auc=0.9864
+Epoch 018 | loss=0.0448 | val_acc=0.7647 | val_f1=0.8069 | val_auc=0.9776
+Epoch 019 | loss=0.0478 | val_acc=0.9244 | val_f1=0.9182 | val_auc=0.9643
+Epoch 020 | loss=0.0543 | val_acc=0.7773 | val_f1=0.7135 | val_auc=0.9537
+Epoch 021 | loss=0.0544 | val_acc=0.9244 | val_f1=0.9286 | val_auc=0.9870
+Epoch 022 | loss=0.0500 | val_acc=0.6471 | val_f1=0.7375 | val_auc=0.9398
+Epoch 023 | loss=0.0387 | val_acc=0.6807 | val_f1=0.5309 | val_auc=0.9032
+Epoch 024 | loss=0.0401 | val_acc=0.8992 | val_f1=0.9062 | val_auc=0.9831
+Epoch 025 | loss=0.0380 | val_acc=0.7899 | val_f1=0.8252 | val_auc=0.9230
+Epoch 026 | loss=0.0399 | val_acc=0.7689 | val_f1=0.6995 | val_auc=0.9565
+Epoch 027 | loss=0.0285 | val_acc=0.8824 | val_f1=0.8931 | val_auc=0.9726
+Epoch 028 | loss=0.0566 | val_acc=0.7227 | val_f1=0.6163 | val_auc=0.9209
+Epoch 029 | loss=0.0600 | val_acc=0.9160 | val_f1=0.9213 | val_auc=0.9854
+Epoch 030 | loss=0.0430 | val_acc=0.9580 | val_f1=0.9587 | val_auc=0.9926
+
+Best epoch: 13
+Best val F1: 0.9614
+Saved best model to: runs\models\g_h128l3_b64e30_lr0p001_s42_75f7c4ab_be13_vf961.pt
+
+Evaluating best checkpoint on test...
+
+[Test metrics]
+accuracy: 0.9512
+precision: 0.9963
+recall: 0.9057
+f1: 0.9489
+roc_auc: 0.9794
+Saved run summary to: runs\results\MalBehavD-V1-merged_200_wide_api_hd128_l3_bs64_ep30_lr0p001_wd0p0001_seed42_8526177808.txt
+
+C:\Users\Marishka\Desktop\code\NIRS>python .\my-GINE-model\predict_gine.py --model-path .\runs\models\g_h128l3_b64e30_lr0p001_s42_75f7c4ab_be13_vf961.pt --vocab-path .\runs\vocab\api_vocab.json --input-csv .\MalbehavD-V1-main\MalBehavD-V1-merged_200.csv --dataset-format auto --include-unnamed-api-cols --label-col labels
+Resolved input source: 175 wide API columns
+Rows in CSV: 2970
+Rows with non-empty sequence after parsing: 2970
+[Prediction summary]
+Resolved label column: labels
+Rows in CSV: 2970
+Rows with non-empty sequence: 2970
+Threshold: 0.5000
+Predicted benign (0): 1577
+Predicted malware (1): 1393
+Mean malware probability: 0.4709
+Rows with valid labels for evaluation: 2970
+
+[Evaluation metrics]
+accuracy: 0.9663
+precision: 0.9971
+recall: 0.9354
+f1: 0.9653
+roc_auc: 0.9935
+
+[Confusion matrix]
+rows=true, cols=pred
+         pred_0  pred_1
+true_0   1481    4
+true_1   96      1389
+
+[Counts]
+True benign (0): 1485
+True malware (1): 1485
+Pred benign (0): 1577
+Pred malware (1): 1393
+
+Saved prediction metrics to: runs\predictions\metrics_g_h128l3_b64e30_lr0p001_s42_75f7c4ab_be13_vf961_MalBehavD-V1-merged_200_f5400a0a.txt
+
+C:\Users\Marishka\Desktop\code\NIRS>python .\my-GINE-model\train_gine.py --csv .\MalbehavD-V1-main\MalBehavD-V1-dataset.csv --dataset-format auto --include-unnamed-api-cols --epochs 30 --batch-size 64
+Loading CSV...
+Adapter format: wide_api
+Source sequence columns: 175 columns
+Raw rows: 2570
+Prepared rows: 2570
+Detected label column: labels
+Detected sequence column: api_sequence
+Rows after preparation: 2570
+Building graph dataset...
+Vocabulary size: 292
+Output dir: runs
+Saved vocab to: runs\vocab/api_vocab.json
+
+[TRAIN]
+Samples: 1850
+Class distribution: {1: 925, 0: 925}
+Avg nodes: 42.48
+Avg edges: 41.48
+
+[VAL]
+Samples: 206
+Class distribution: {0: 103, 1: 103}
+Avg nodes: 46.00
+Avg edges: 45.00
+
+[TEST]
+Samples: 514
+Class distribution: {0: 257, 1: 257}
+Avg nodes: 44.60
+Avg edges: 43.60
+
+Start training...
+Epoch 001 | loss=0.9674 | val_acc=0.5000 | val_f1=0.6667 | val_auc=0.4864
+Epoch 002 | loss=0.2487 | val_acc=0.9029 | val_f1=0.8925 | val_auc=0.9597
+Epoch 003 | loss=0.1623 | val_acc=0.8981 | val_f1=0.8966 | val_auc=0.9659
+Epoch 004 | loss=0.1511 | val_acc=0.6942 | val_f1=0.7586 | val_auc=0.8959
+Epoch 005 | loss=0.1350 | val_acc=0.7767 | val_f1=0.7125 | val_auc=0.9445
+Epoch 006 | loss=0.1255 | val_acc=0.9223 | val_f1=0.9200 | val_auc=0.9776
+Epoch 007 | loss=0.0940 | val_acc=0.7476 | val_f1=0.7937 | val_auc=0.9514
+Epoch 008 | loss=0.0743 | val_acc=0.8932 | val_f1=0.8981 | val_auc=0.9753
+Epoch 009 | loss=0.0947 | val_acc=0.9175 | val_f1=0.9110 | val_auc=0.9682
+Epoch 010 | loss=0.0812 | val_acc=0.9078 | val_f1=0.9073 | val_auc=0.9710
+Epoch 011 | loss=0.0769 | val_acc=0.6699 | val_f1=0.5072 | val_auc=0.9097
+Epoch 012 | loss=0.0699 | val_acc=0.8786 | val_f1=0.8889 | val_auc=0.9745
+Epoch 013 | loss=0.0680 | val_acc=0.6359 | val_f1=0.7292 | val_auc=0.9241
+Epoch 014 | loss=0.0603 | val_acc=0.6602 | val_f1=0.4853 | val_auc=0.8743
+Epoch 015 | loss=0.0820 | val_acc=0.6117 | val_f1=0.7183 | val_auc=0.9543
+Epoch 016 | loss=0.0563 | val_acc=0.8010 | val_f1=0.8313 | val_auc=0.9697
+Epoch 017 | loss=0.0484 | val_acc=0.9272 | val_f1=0.9231 | val_auc=0.9796
+Epoch 018 | loss=0.0561 | val_acc=0.7961 | val_f1=0.8279 | val_auc=0.9728
+Epoch 019 | loss=0.0486 | val_acc=0.9369 | val_f1=0.9366 | val_auc=0.9764
+Epoch 020 | loss=0.0636 | val_acc=0.9369 | val_f1=0.9333 | val_auc=0.9813
+Epoch 021 | loss=0.0482 | val_acc=0.5243 | val_f1=0.6776 | val_auc=0.6550
+Epoch 022 | loss=0.0495 | val_acc=0.9515 | val_f1=0.9500 | val_auc=0.9873
+Epoch 023 | loss=0.0464 | val_acc=0.6845 | val_f1=0.7566 | val_auc=0.8493
+Epoch 024 | loss=0.0545 | val_acc=0.7718 | val_f1=0.7044 | val_auc=0.9643
+Epoch 025 | loss=0.0575 | val_acc=0.9417 | val_f1=0.9406 | val_auc=0.9804
+Epoch 026 | loss=0.0405 | val_acc=0.7524 | val_f1=0.7984 | val_auc=0.9462
+Epoch 027 | loss=0.0361 | val_acc=0.9078 | val_f1=0.8984 | val_auc=0.9748
+Epoch 028 | loss=0.0423 | val_acc=0.9417 | val_f1=0.9400 | val_auc=0.9826
+Epoch 029 | loss=0.0369 | val_acc=0.5825 | val_f1=0.7034 | val_auc=0.7543
+Epoch 030 | loss=0.0406 | val_acc=0.8010 | val_f1=0.7515 | val_auc=0.9637
+
+Best epoch: 22
+Best val F1: 0.9500
+Saved best model to: runs\models\g_h128l3_b64e30_lr0p001_s42_75f7c4ab_be22_vf950.pt
+
+Evaluating best checkpoint on test...
+
+[Test metrics]
+accuracy: 0.9591
+precision: 0.9758
+recall: 0.9416
+f1: 0.9584
+roc_auc: 0.9840
+Saved run summary to: runs\results\MalBehavD-V1-dataset_wide_api_hd128_l3_bs64_ep30_lr0p001_wd0p0001_seed42_3e7dea2b34.txt
+
+C:\Users\Marishka\Desktop\code\NIRS>python .\my-GINE-model\predict_gine.py --model-path .\runs\models\g_h128l3_b64e30_lr0p001_s42_75f7c4ab_be22_vf950.pt --vocab-path .\runs\vocab\api_vocab.json --input-csv .\TextGAN-PyTorch-master\generated\MalBehavD-V1-generated-200x2.csv --dataset-format auto --include-unnamed-api-cols --label-col labels
+Resolved input source: 153 wide API columns
+Rows in CSV: 400
+Rows with non-empty sequence after parsing: 400
+[Prediction summary]
+Resolved label column: labels
+Rows in CSV: 400
+Rows with non-empty sequence: 400
+Threshold: 0.5000
+Predicted benign (0): 202
+Predicted malware (1): 198
+Mean malware probability: 0.5004
+Rows with valid labels for evaluation: 400
+
+[Evaluation metrics]
+accuracy: 0.9850
+precision: 0.9899
+recall: 0.9800
+f1: 0.9849
+roc_auc: 0.9958
+
+[Confusion matrix]
+rows=true, cols=pred
+         pred_0  pred_1
+true_0   198     2
+true_1   4       196
+
+[Counts]
+True benign (0): 200
+True malware (1): 200
+Pred benign (0): 202
+Pred malware (1): 198
+
+Saved prediction metrics to: runs\predictions\metrics_g_h128l3_b64e30_lr0p001_s42_75f7c4ab_be22_vf950_MalBehavD-V1-generated-200x2_80b12b5c.txt
+
+C:\Users\Marishka\Desktop\code\NIRS>python .\tools\export_relgan_samples_to_csv.py --samples_txt .\generated\goodware_2000.txt --template_csv ..\MalbehavD-V1-main\MalBehavD-V1-dataset.csv --output_csv .\generated\goodware_2000.csv --label 0
+python: can't open file 'C:\\Users\\Marishka\\Desktop\\code\\NIRS\\tools\\export_relgan_samples_to_csv.py': [Errno 2] No such file or directory
+
+C:\Users\Marishka\Desktop\code\NIRS>cd TextGAN-PyTorch-master
+
+C:\Users\Marishka\Desktop\code\NIRS\TextGAN-PyTorch-master>python .\tools\export_relgan_samples_to_csv.py --samples_txt .\generated\goodware_2000.txt --template_csv ..\MalbehavD-V1-main\MalBehavD-V1-dataset.csv --output_csv .\generated\goodware_2000.csv --label 0
+[ok] exported 2000 rows -> C:\Users\Marishka\Desktop\code\NIRS\TextGAN-PyTorch-master\generated\goodware_2000.csv
+
+C:\Users\Marishka\Desktop\code\NIRS\TextGAN-PyTorch-master>python .\tools\export_relgan_samples_to_csv.py --samples_txt .\generated\malware_2000.txt  --template_csv ..\MalbehavD-V1-main\MalBehavD-V1-dataset.csv --output_csv .\generated\malware_2000.csv  --label 1
+[ok] exported 2000 rows -> C:\Users\Marishka\Desktop\code\NIRS\TextGAN-PyTorch-master\generated\malware_2000.csv
+
+C:\Users\Marishka\Desktop\code\NIRS\TextGAN-PyTorch-master>python .\tools\merge_generated_csv.py --goodware_csv .\generated\goodware_2000.csv --malware_csv .\generated\malware_2000.csv --output_csv .\generated\MalBehavD-V1-generated-2000x2.csv
+[ok] merged 2000 + 2000 rows -> C:\Users\Marishka\Desktop\code\NIRS\TextGAN-PyTorch-master\generated\MalBehavD-V1-generated-2000x2.csv
+
+C:\Users\Marishka\Desktop\code\NIRS\TextGAN-PyTorch-master>cd ..
+
+C:\Users\Marishka\Desktop\code\NIRS>.\my-GINE-model\predict_gine.py --model-path .\runs\models\g_h128l3_b64e30_lr0p001_s42_75f7c4ab_be22_vf950.pt --vocab-path .\runs\vocab\api_vocab.json --input-csv .\TextGAN-PyTorch-master\generated\MalBehavD-V1-generated-2000x2.csv --dataset-format auto --include-unnamed-api-cols --label-col labels
+
+C:\Users\Marishka\Desktop\code\NIRS>
+
+
+C:\Users\Marishka\Desktop\code\NIRS>
+C:\Users\Marishka\Desktop\code\NIRS>
+C:\Users\Marishka\Desktop\code\NIRS>
+C:\Users\Marishka\Desktop\code\NIRS>
+C:\Users\Marishka\Desktop\code\NIRS>
+C:\Users\Marishka\Desktop\code\NIRS>.\my-GINE-model\predict_gine.py --model-path .\runs\models\g_h128l3_b64e30_lr0p001_s42_75f7c4ab_be22_vf950.pt --vocab-path .\runs\vocab\api_vocab.json --input-csv .\TextGAN-PyTorch-master\generated\MalBehavD-V1-generated-2000x2.csv --dataset-format auto --include-unnamed-api-cols --label-col labels
+
+C:\Users\Marishka\Desktop\code\NIRS>
+python .\my-GINE-model\predict_gine.py --model-path .\runs\models\g_h128l3_b64e30_lr0p001_s42_75f7c4ab_be22_vf950.pt --vocab-path .\runs\vocab\api_vocab.json --input-csv .\TextGAN-PyTorch-master\generated\MalBehavD-V1-generated-200x2.csv --dataset-format auto --include-unnamed-api-cols --label-col labels
+Resolved input source: 153 wide API columns
+Rows in CSV: 400
+Rows with non-empty sequence after parsing: 400
+[Prediction summary]
+Resolved label column: labels
+Rows in CSV: 400
+Rows with non-empty sequence: 400
+Threshold: 0.5000
+Predicted benign (0): 202
+Predicted malware (1): 198
+Mean malware probability: 0.5004
+Rows with valid labels for evaluation: 400
+
+[Evaluation metrics]
+accuracy: 0.9850
+precision: 0.9899
+recall: 0.9800
+f1: 0.9849
+roc_auc: 0.9958
+
+[Confusion matrix]
+rows=true, cols=pred
+         pred_0  pred_1
+true_0   198     2
+true_1   4       196
+
+[Counts]
+True benign (0): 200
+True malware (1): 200
+Pred benign (0): 202
+Pred malware (1): 198
+
+Saved prediction metrics to: runs\predictions\metrics_g_h128l3_b64e30_lr0p001_s42_75f7c4ab_be22_vf950_MalBehavD-V1-generated-200x2_80b12b5c.txt
+
+C:\Users\Marishka\Desktop\code\NIRS>python .\my-GINE-model\predict_gine.py --model-path .\runs\models\g_h128l3_b64e30_lr0p001_s42_75f7c4ab_be22_vf950.pt --vocab-path .\runs\vocab\api_vocab.json --input-csv .\TextGAN-PyTorch-master\generated\MalBehavD-V1-generated-2000x2.csv --dataset-format auto --include-unnamed-api-cols --label-col labels
+Resolved input source: 175 wide API columns
+Rows in CSV: 4000
+Rows with non-empty sequence after parsing: 4000
+[Prediction summary]
+Resolved label column: labels
+Rows in CSV: 4000
+Rows with non-empty sequence: 4000
+Threshold: 0.5000
+Predicted benign (0): 2012
+Predicted malware (1): 1988
+Mean malware probability: 0.5014
+Rows with valid labels for evaluation: 4000
+
+[Evaluation metrics]
+accuracy: 0.9825
+precision: 0.9854
+recall: 0.9795
+f1: 0.9824
+roc_auc: 0.9977
+
+[Confusion matrix]
+rows=true, cols=pred
+         pred_0  pred_1
+true_0   1971    29
+true_1   41      1959
+
+[Counts]
+True benign (0): 2000
+True malware (1): 2000
+Pred benign (0): 2012
+Pred malware (1): 1988
+
+Saved prediction metrics to: runs\predictions\metrics_g_h128l3_b64e30_lr0p001_s42_75f7c4ab_be22_vf950_MalBehavD-V1-generated-2000x2_b98ede91.txt

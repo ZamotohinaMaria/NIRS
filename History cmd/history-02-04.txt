@@ -1,0 +1,28 @@
+cd C:\Users\Marishka\Desktop\code\NIRS\TextGAN-PyTorch-master
+python -m tools.generate_relgan_samples --dataset MalbehavD-V1_goodware --checkpoint ".\save\20260401\MalbehavD-V1_goodware\relgan_vanilla_dt-Ra_lt-rsgan_mt-ra_et-Ra_sl153_temp40_lfd0.0_T0401_1259_06\models\gen_MLE_best.pt" --output_txt ".\generated\goodware_200.txt" --num_samples 200 --batch_size 64 --cuda 1 --device 0
+python -m tools.generate_relgan_samples --dataset MalbehavD-V1_malware --checkpoint ".\save\20260401\MalbehavD-V1_malware\relgan_vanilla_dt-Ra_lt-rsgan_mt-ra_et-Ra_sl175_temp40_lfd0.0_T0401_1458_03\models\gen_MLE_best.pt" --output_txt ".\generated\malware_200.txt" --num_samples 200 --batch_size 64 --cuda 1 --device 0
+python .\tools\export_relgan_samples_to_csv.py --samples_txt .\generated\goodware_200.txt --template_csv ..\MalbehavD-V1-main\MalBehavD-V1-dataset.csv --output_csv .\generated\goodware_128.csv --label 0
+python .\tools\export_relgan_samples_to_csv.py --samples_txt .\generated\goodware_200.txt --template_csv ..\MalbehavD-V1-main\MalBehavD-V1-dataset.csv --output_csv .\generated\goodware_200.csv --label 0
+python .\tools\export_relgan_samples_to_csv.py --samples_txt .\generated\malware_200.txt  --template_csv ..\MalbehavD-V1-main\MalBehavD-V1-dataset.csv --output_csv .\generated\malware_200.csv  --label 1
+python .\tools\merge_generated_csv.py --goodware_csv .\generated\goodware_200.csv --malware_csv .\generated\malware_200.csv --output_csv .\generated\MalBehavD-V1-generated-200x2.csv
+python .\tools\merge_generated_csv.py --goodware_csv .\generated\MalBehavD-V1-generated-200x2.csv --malware_csv ..\MalbehavD-V1-main\MalBehavD-V1-dataset.csv --output_csv .\generated\MalBehavD-V1-merged_200.csv
+python .\tools\merge_generated_csv.py --goodware_csv .\generated\MalBehavD-V1-generated-200x2.csv --malware_csv ..\MalbehavD-V1-main\MalBehavD-V1-dataset.csv --output_csv ..\MalbehavD-V1-main\MalBehavD-V1-merged_200.csv
+python .\my-GINE-model\train_gine.py --csv .\MalbehavD-V1-main\MalBehavD-V1-merged_200.csv --dataset-format auto --include-unnamed-api-cols --epochs 30 --batch-size 64
+cd ..
+python .\my-GINE-model\train_gine.py --csv .\MalbehavD-V1-main\MalBehavD-V1-merged_200.csv --dataset-format auto --include-unnamed-api-cols --epochs 30 --batch-size 64
+python .\my-GINE-model\predict_gine.py --model-path .\runs\models\g_h128l3_b64e30_lr0p001_s42_75f7c4ab_be13_vf961.pt --vocab-path .\runs\vocab\api_vocab.json --input-csv .\MalbehavD-V1-main\MalBehavD-V1-merged_200.csv --dataset-format auto --include-unnamed-api-cols --label-col labels
+python .\my-GINE-model\train_gine.py --csv .\MalbehavD-V1-main\MalBehavD-V1-dataset.csv --dataset-format auto --include-unnamed-api-cols --epochs 30 --batch-size 64
+python .\my-GINE-model\predict_gine.py --model-path .\runs\models\g_h128l3_b64e30_lr0p001_s42_75f7c4ab_be22_vf950.pt --vocab-path .\runs\vocab\api_vocab.json --input-csv .\TextGAN-PyTorch-master\generated\MalBehavD-V1-generated-200x2.csv --dataset-format auto --include-unnamed-api-cols --label-col labels
+python .\tools\export_relgan_samples_to_csv.py --samples_txt .\generated\goodware_2000.txt --template_csv ..\MalbehavD-V1-main\MalBehavD-V1-dataset.csv --output_csv .\generated\goodware_2000.csv --label 0
+cd TextGAN-PyTorch-master
+python .\tools\export_relgan_samples_to_csv.py --samples_txt .\generated\goodware_2000.txt --template_csv ..\MalbehavD-V1-main\MalBehavD-V1-dataset.csv --output_csv .\generated\goodware_2000.csv --label 0
+python .\tools\export_relgan_samples_to_csv.py --samples_txt .\generated\malware_2000.txt  --template_csv ..\MalbehavD-V1-main\MalBehavD-V1-dataset.csv --output_csv .\generated\malware_2000.csv  --label 1
+python .\tools\merge_generated_csv.py --goodware_csv .\generated\goodware_2000.csv --malware_csv .\generated\malware_2000.csv --output_csv .\generated\MalBehavD-V1-generated-2000x2.csv
+cd ..
+.\my-GINE-model\predict_gine.py --model-path .\runs\models\g_h128l3_b64e30_lr0p001_s42_75f7c4ab_be22_vf950.pt --vocab-path .\runs\vocab\api_vocab.json --input-csv .\TextGAN-PyTorch-master\generated\MalBehavD-V1-generated-2000x2.csv --dataset-format auto --include-unnamed-api-cols --label-col labels
+python .\my-GINE-model\predict_gine.py --model-path .\runs\models\g_h128l3_b64e30_lr0p001_s42_75f7c4ab_be22_vf950.pt --vocab-path .\runs\vocab\api_vocab.json --input-csv .\TextGAN-PyTorch-master\generated\MalBehavD-V1-generated-200x2.csv --dataset-format auto --include-unnamed-api-cols --label-col labels
+python .\my-GINE-model\predict_gine.py --model-path .\runs\models\g_h128l3_b64e30_lr0p001_s42_75f7c4ab_be22_vf950.pt --vocab-path .\runs\vocab\api_vocab.json --input-csv .\TextGAN-PyTorch-master\generated\MalBehavD-V1-generated-2000x2.csv --dataset-format auto --include-unnamed-api-cols --label-col labels
+doskey /history > History cmd\history-02-04.txt
+doskey /history > \History cmd\history-02-04.txt
+doskey /history > .\History cmd\history-02-04.txt
+doskey /history > .\"History cmd"\history-02-04.txt

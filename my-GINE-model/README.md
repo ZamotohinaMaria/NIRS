@@ -121,6 +121,15 @@ Run several random splits and get averaged metrics:
 python .\my-GINE-model\run_splits.py --csv .\MalbehavD-V1-main\MalBehavD-V1-dataset.csv --label-col labels --dataset-format auto --include-unnamed-api-cols --train-per-class 650 --num-runs 5 --base-seed 42
 ```
 
+Set custom split filenames (for one run):
+
+```bash
+python .\my-GINE-model\run_splits.py --csv .\MalbehavD-V1-main\MalBehavD-V1-dataset.csv --label-col labels --dataset-format auto --include-unnamed-api-cols --train-per-class 650 --num-runs 1 --base-seed 42 --train-filename-template train_custom.csv --eval-filename-template test_custom.csv
+```
+
+For multiple runs, filename templates should include `{seed}` or `{run}` to avoid collisions
+(for example `train_seed{seed}.csv`, `eval_seed{seed}.csv`).
+
 The script always creates a new experiment folder:
 
 `runs/multi_split_eval/exp_<timestamp>/`

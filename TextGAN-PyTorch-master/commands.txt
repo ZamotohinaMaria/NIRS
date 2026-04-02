@@ -19,11 +19,11 @@ python .\tools\generate_relgan_samples.py --dataset MalbehavD-V1_goodware --chec
 python .\tools\generate_relgan_samples.py --dataset MalbehavD-V1_malware  --checkpoint "$mal_ckpt"  --output_txt .\generated\malware_128.txt  --num_samples 128 --batch_size 32
 
 # 6) Вернуть в исходный CSV-формат MalbehavD
-python .\tools\export_relgan_samples_to_csv.py --samples_txt .\generated\goodware_200.txt --template_csv ..\MalbehavD-V1-main\MalBehavD-V1-dataset.csv --output_csv .\generated\goodware_200.csv --label 0
-python .\tools\export_relgan_samples_to_csv.py --samples_txt .\generated\malware_200.txt  --template_csv ..\MalbehavD-V1-main\MalBehavD-V1-dataset.csv --output_csv .\generated\malware_200.csv  --label 1
+python .\tools\export_relgan_samples_to_csv.py --samples_txt .\generated\goodware_2000.txt --template_csv ..\MalbehavD-V1-main\MalBehavD-V1-dataset.csv --output_csv .\generated\goodware_2000.csv --label 0
+python .\tools\export_relgan_samples_to_csv.py --samples_txt .\generated\malware_2000.txt  --template_csv ..\MalbehavD-V1-main\MalBehavD-V1-dataset.csv --output_csv .\generated\malware_2000.csv  --label 1
 
 # 7) (Опционально) объединить в один CSV
-python .\tools\merge_generated_csv.py --goodware_csv .\generated\goodware_200.csv --malware_csv .\generated\malware_200.csv --output_csv .\generated\MalBehavD-V1-generated-200x2.csv
+python .\tools\merge_generated_csv.py --goodware_csv .\generated\goodware_2000.csv --malware_csv .\generated\malware_2000.csv --output_csv .\generated\MalBehavD-V1-generated-2000x2.csv
 
 python .\tools\merge_generated_csv.py --goodware_csv .\generated\MalBehavD-V1-generated-200x2.csv --malware_csv ..\MalbehavD-V1-main\MalBehavD-V1-dataset.csv --output_csv ..\MalbehavD-V1-main\MalBehavD-V1-merged_200.csv
 

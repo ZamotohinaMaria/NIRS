@@ -70,11 +70,46 @@ def parse_args() -> argparse.Namespace:
         default="runs/multi_split_eval",
         help="A new experiment folder will be created inside this root",
     )
+    parser.add_argument(
+        "--train-filename-template",
+        type=str,
+        default="seed{seed}_train.csv",
+        help="Train split filename template in splits/. Supports {seed} and {run}",
+    )
+    parser.add_argument(
+        "--eval-filename-template",
+        type=str,
+        default="seed{seed}_eval.csv",
+        help="Eval split filename template in splits/. Supports {seed} and {run}",
+    )
     return parser.parse_args()
 
 
 def ensure_dir(path: str) -> None:
     os.makedirs(path, exist_ok=True)
+
+
+def format_split_filename(template: str, seed: int, run_idx: int, kind: str) -> str:
+    try:
+        filename = template.format(seed=seed, run=run_idx)
+    except KeyError as exc:
+        raise ValueError(
+            f"Unknown placeholder in --{kind}-filename-template: {exc}. "
+            "Allowed placeholders: {seed}, {run}"
+        ) from exc
+    except Exception as exc:
+        raise ValueError(
+            f"Failed to format --{kind}-filename-template='{template}': {exc}"
+        ) from exc
+
+    filename = filename.strip()
+    if not filename:
+        raise ValueError(f"--{kind}-filename-template produced an empty filename")
+    if os.path.basename(filename) != filename:
+        raise ValueError(
+            f"--{kind}-filename-template must be a filename only (no directories): '{filename}'"
+        )
+    return filename
 
 
 def split_raw_dataset(
@@ -237,6 +272,7 @@ def main():
 
     print(f"Experiment dir: {exp_dir}")
     print(f"Runs: {args.num_runs}, train-per-class: {args.train_per_class}")
+    used_split_names = set()
 
     for i in range(args.num_runs):
         seed = args.base_seed + i
@@ -250,8 +286,28 @@ def main():
             seed=seed,
         )
 
-        train_csv = os.path.join(splits_dir, f"seed{seed}_train.csv")
-        eval_csv = os.path.join(splits_dir, f"seed{seed}_eval.csv")
+        run_idx = i + 1
+        train_name = format_split_filename(
+            args.train_filename_template, seed=seed, run_idx=run_idx, kind="train"
+        )
+        eval_name = format_split_filename(
+            args.eval_filename_template, seed=seed, run_idx=run_idx, kind="eval"
+        )
+        if train_name == eval_name:
+            raise ValueError(
+                "Train and eval filenames are identical. "
+                "Use different templates for --train-filename-template and --eval-filename-template."
+            )
+        if train_name in used_split_names or eval_name in used_split_names:
+            raise ValueError(
+                "Filename collision across runs in splits/. "
+                "For multi-run mode, include {seed} or {run} in filename templates."
+            )
+        used_split_names.add(train_name)
+        used_split_names.add(eval_name)
+
+        train_csv = os.path.join(splits_dir, train_name)
+        eval_csv = os.path.join(splits_dir, eval_name)
         train_raw.to_csv(train_csv, index=False)
         eval_raw.to_csv(eval_csv, index=False)
 
