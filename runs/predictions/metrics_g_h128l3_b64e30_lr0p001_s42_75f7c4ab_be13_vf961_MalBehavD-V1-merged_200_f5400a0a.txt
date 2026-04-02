@@ -1,0 +1,28 @@
+[Prediction summary]
+Resolved label column: labels
+Rows in CSV: 2970
+Rows with non-empty sequence: 2970
+Threshold: 0.5000
+Predicted benign (0): 1577
+Predicted malware (1): 1393
+Mean malware probability: 0.4709
+Rows with valid labels for evaluation: 2970
+
+[Evaluation metrics]
+accuracy: 0.9663
+precision: 0.9971
+recall: 0.9354
+f1: 0.9653
+roc_auc: 0.9935
+
+[Confusion matrix]
+rows=true, cols=pred
+         pred_0  pred_1
+true_0   1481    4
+true_1   96      1389
+
+[Counts]
+True benign (0): 1485
+True malware (1): 1485
+Pred benign (0): 1577
+Pred malware (1): 1393
