@@ -1,17 +1,14 @@
 # from PIL import Image
 # import blobfile as bf
-from mpi4py import MPI
 import numpy as np
 from torch.utils.data import DataLoader, Dataset
-from transformers import AutoModelForCausalLM, AutoConfig, AutoTokenizer, default_data_collator, PreTrainedTokenizerFast, \
-    PreTrainedTokenizer
+from transformers import AutoTokenizer, PreTrainedTokenizerFast
 from datasets import load_dataset
-import sys, os
+import os
 import torch
 # sys.path.insert(0, os.path.join(sys.path[0], '../../transformers/examples/pytorch/language-modeling'))
 # from custom_trainer import GPT2LMHeadModelCompress, BERTModelCompress, AutoEncoderWithNoise
 from collections import Counter, defaultdict
-from functools import partial
 from itertools import chain
 
 
@@ -646,7 +643,6 @@ def read_e2e_files(path, args, tokenizer):
 
 def get_corpus_book(data_args, tokenizer, model, image_size, padding_mode='block', split='train',):
     max_length = image_size ** 2
-    import os
     assert padding_mode == 'block'
     raw_datasets = load_dataset('bookcorpus')
     if "validation" not in raw_datasets.keys():

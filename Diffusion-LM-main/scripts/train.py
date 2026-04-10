@@ -186,7 +186,7 @@ def create_argparser():
     text_defaults = dict(modality='text',
                          dataset_name='wikitext',
                          dataset_config_name='wikitext-2-raw-v1',
-                         config='diffusion_lm/synthetic_data/configs/emnlp2020/experiments/difflm_seed0_m3_k128_trainc20000.yaml',
+                         config='',
                          model_name_or_path='predictability/diff_models/compress_e=5_b=60_m=gpt2_wikitext-103-raw-v1_None',
                          experiment='gpt2_pre_compress',model_arch='conv-unet',
                          roc_train='diffusion_lm/ROCstory',#'diffusion_lm/ROCstory/ROCstory17.csv',

@@ -44,6 +44,6 @@ python -m tools.generate_relgan_samples --dataset MalbehavD-V1_malware --checkpo
 План на 11-04:
 
 - Обучить новую RelGAN
-- Обучить диффузку
+- Обучить диффузку - есть какие то модели 2.0 и файл для image датасета надо будет спросить чеза х
 - Обучить модель на malware behaviour а потом проверять качество генерации датасета
 

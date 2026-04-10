@@ -1,4 +1,3 @@
-import sys
 import os
 import argparse
 
@@ -8,7 +7,7 @@ if __name__ == '__main__':
     parser.add_argument('--experiment', type=str, default='random', help='no-rep=gpt2gen, no-zipfs, has-rep=regular, rm-window-rep')
 
     parser.add_argument('--model_arch', type=str, default='conv-unet', help='')
-    parser.add_argument('--modality', type=str, default='synth', help='')
+    parser.add_argument('--modality', type=str, default='roc', help='')
     parser.add_argument('--noise_schedule', type=str, default='cosine', help='')
     parser.add_argument('--loss_type', type=str, default='Lsimple', help='')
     parser.add_argument('--dropout', type=str, default='0.1', help='')
@@ -63,13 +62,7 @@ if __name__ == '__main__':
         exp_m = 'glo'
 
 
-    if args.modality == 'synth' or args.modality =='synth_trans':
-
-        Model_FILE = f"diff_{args.modality}{args.k}_{args.m}_{exp_m}{args.in_channel}_{args.model_arch}_lr{args.lr}" \
-                     f"_{args.diff_steps}_{args.noise_schedule}_{args.loss_type}_h{args.hidden_size}" \
-                     f"_s{args.num_res_blocks}_sd{args.seed}"
-
-    elif args.modality == 'roc' or args.modality == 'roc-aug' or args.modality == 'book' \
+    if args.modality == 'roc' or args.modality == 'roc-aug' or args.modality == 'book' \
             or args.modality == 'simple-wiki' or args.modality == 'e2e-tgt' or args.modality == 'e2e'\
             or args.modality == 'yelp' or args.modality == 'commonGen' or args.modality == 'commonGen-aug':
 
@@ -87,6 +80,8 @@ if __name__ == '__main__':
         Model_FILE = f"diff_{args.modality}{0}_{0}_{exp_m}{args.in_channel}_{args.model_arch}_lr{args.lr}" \
                      f"_{args.diff_steps}_{args.noise_schedule}_{args.loss_type}_h{args.hidden_size}" \
                      f"_s{args.num_res_blocks}_sd{args.seed}"
+    else:
+        raise NotImplementedError(f"Unsupported modality in cleaned project: {args.modality}")
 
     if args.notes:
         Model_FILE = Model_FILE + f'_{args.notes}'

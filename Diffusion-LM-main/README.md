@@ -9,8 +9,7 @@ https://arxiv.org/pdf/2205.14217.pdf
 ```python 
 conda install mpi4py
 conda install pytorch torchvision torchaudio cudatoolkit=11.3 -c pytorch
-pip install -e improved-diffusion/ 
-pip install -e transformers/
+pip install -e .
 pip install spacy==3.2.4
 pip install datasets==1.8.0 
 pip install huggingface_hub==0.4.0 
@@ -20,7 +19,7 @@ pip install wandb
 -----------------------------------------------------
 ## Train Diffusion-LM:
 
-```cd improved-diffusion; mkdir diffusion_models;```
+```mkdir diffusion_models```
 
 ```python scripts/run_train.py --diff_steps 2000 --model_arch transformer --lr 0.0001 --lr_anneal_steps 200000  --seed 102 --noise_schedule sqrt --in_channel 16 --modality e2e-tgt --submit no --padding_mode block --app "--predict_xstart True --training_mode e2e --vocab_size 821  --e2e_train ../datasets/e2e_data " --notes xstart_e2e```
 

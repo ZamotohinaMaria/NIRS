@@ -10,7 +10,7 @@ import torch.distributed as dist
 
 from improved_diffusion import dist_util, logger
 from improved_diffusion.image_datasets import load_data
-from improved_diffusion.text_datasets import load_data_text, load_synthetic_data
+from improved_diffusion.text_datasets import load_data_text
 from improved_diffusion.script_util import (
     model_and_diffusion_defaults,
     create_model_and_diffusion,
@@ -85,37 +85,8 @@ def main():
             class_cond=args.class_cond,
             permutation=perm
         )
-    elif args.modality == 'synth':
-        from improved_diffusion.rounding import load_models
-        model2, tokenizer = load_models(args.modality, args.experiment, args.model_name_or_path, args.in_channel,
-                    os.path.split(args.model_path)[0])
-
-        data = load_synthetic_data(
-            data_dir=args.data_dir,
-            batch_size=args.batch_size,
-            image_size=args.image_size,
-            class_cond=args.class_cond,
-            data_args=args,
-            model=model2,
-            split='train',
-            # split='valid',
-            deterministic=True
-
-        )
-    elif args.modality == 'pos':
-        from improved_diffusion.rounding import load_models
-        model2, tokenizer = load_models(args.modality, args.experiment, args.model_name_or_path, args.in_channel,
-                                        os.path.split(args.model_path)[0])
-        data = load_synthetic_data(
-            data_dir=args.data_dir,
-            batch_size=args.batch_size,
-            image_size=args.image_size,
-            class_cond=args.class_cond,
-            data_args=args,
-            model=model2,
-            pos=True,
-            deterministic = True
-        )
+    elif args.modality == 'synth' or args.modality == 'pos':
+        raise NotImplementedError("synth/pos branches were removed in this cleaned project.")
     else:
         from improved_diffusion.rounding import load_models
         model2, tokenizer = load_models(args.modality, args.experiment, args.model_name_or_path, args.in_channel,

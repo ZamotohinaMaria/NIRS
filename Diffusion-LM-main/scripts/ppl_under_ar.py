@@ -4,18 +4,11 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 import argparse
 import os
 
-import numpy as np
-import torch as th
-import torch.distributed as dist
 from transformers import set_seed
-from improved_diffusion.rounding import rounding_func, load_models, load_tokenizer
-from improved_diffusion import dist_util, logger
+from improved_diffusion.rounding import load_tokenizer
 from improved_diffusion.script_util import (
-    NUM_CLASSES,
     model_and_diffusion_defaults,
-    create_model_and_diffusion,
     add_dict_to_argparser,
-    args_to_dict,
 )
 
 from improved_diffusion.test_util import  load_results

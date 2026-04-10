@@ -1,8 +1,4 @@
 import os, sys, glob
-# full_lst = glob.glob('diff_models_synth128*')
-# full_lst = glob.glob('diff_models_synth32*')
-# full_lst = glob.glob('diff_models_synth32_3_rand16*')
-# full_lst = glob.glob('diff_models_synth_rand_16_trans_lr_1e-5_long_Lsimple')
 full_lst = glob.glob(sys.argv[1])
 top_p = -1.0 if len(sys.argv) < 2 else sys.argv[2]
 print(f'top_p = {top_p}')
@@ -30,9 +26,7 @@ for lst in full_lst:
     # noise_schedule = 'cosine'
     # dim = dim_.split('rand')[1]
 
-    if 'synth' in lst:
-        modality = 'synth'
-    elif 'pos' in lst:
+    if 'pos' in lst:
         modality = 'pos'
     elif 'image' in lst:
         modality = 'image'
@@ -51,11 +45,6 @@ for lst in full_lst:
     elif 'e2e' in lst:
         modality = 'e2e'
 
-
-    if 'synth32' in lst:
-        kk = 32
-    elif 'synth128' in lst:
-        kk = 128
 
     try:
         diffusion_steps = int(lst.split('_')[7-num])
@@ -114,11 +103,6 @@ for lst in full_lst:
 
     if modality == 'pos':
         model_name_path = 'predictability/diff_models/pos_e=15_b=20_m=gpt2_wikitext-103-raw-v1_s=102'
-    elif modality == 'synth':
-        if kk == 128:
-            model_name_path = 'predictability/diff_models/synth_e=15_b=10_m=gpt2_wikitext-103-raw-v1_None'
-        else:
-            model_name_path = 'predictability/diff_models/synth_e=15_b=20_m=gpt2_wikitext-103-raw-v1_None'
     elif modality == 'e2e-tgt':
         model_name_path = "predictability/diff_models/e2e-tgt_e=15_b=20_m=gpt2_wikitext-103-raw-v1_101_None"
     elif modality == 'roc':

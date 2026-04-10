@@ -1,23 +1,18 @@
-from .transformer_utils import BertAttention, trans_nd, layer_norm
+from .transformer_utils import trans_nd, layer_norm
 from transformers import AutoConfig
 # from transformers import BertEncoder
 from transformers.models.bert.modeling_bert import BertEncoder
 import torch
 from abc import abstractmethod
 
-import math
-
 import numpy as np
 import torch as th
 import torch.nn as nn
-import torch.nn.functional as F
 
 from .fp16_util import convert_module_to_f16, convert_module_to_f32
 from .nn import (
     SiLU,
-    conv_nd,
     linear,
-    avg_pool_nd,
     zero_module,
     timestep_embedding,
     checkpoint,
