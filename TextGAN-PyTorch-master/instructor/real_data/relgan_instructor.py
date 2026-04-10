@@ -58,21 +58,25 @@ class RelGANInstructor(BasicInstructor):
             self.sig.update()
             if self.sig.adv_sig:
                 g_loss = self.adv_train_generator(cfg.ADV_g_step)  # Generator
-                d_loss = self.adv_train_discriminator(cfg.ADV_d_step)  # Discriminator
+                # Train discriminator every other epoch: 0, 2, 4, ...
+                dis_trained = (adv_epoch % 2 == 0)
+                d_loss = self.adv_train_discriminator(cfg.ADV_d_step) if dis_trained else 0.0
                 self.update_temperature(adv_epoch, cfg.ADV_train_epoch)  # update temperature
 
                 progress.set_description(
-                    'g_loss: %.4f, d_loss: %.4f, temperature: %.4f' % (g_loss, d_loss, self.gen.temperature))
+                    'g_loss: %.4f, d_loss: %.4f, d_upd: %s, temperature: %.4f' % (
+                        g_loss, d_loss, 'yes' if dis_trained else 'no', self.gen.temperature
+                    ))
 
                 # TEST
                 if adv_epoch % cfg.adv_log_step == 0 or adv_epoch == cfg.ADV_train_epoch - 1:
                     metric_scores, metric_fmt = self._collect_metrics()
                     if metric_fmt:
-                        self.log.info('[ADV] epoch %d: g_loss: %.4f, d_loss: %.4f, %s' % (
-                            adv_epoch, g_loss, d_loss, metric_fmt))
+                        self.log.info('[ADV] epoch %d: g_loss: %.4f, d_loss: %.4f, d_update: %s, %s' % (
+                            adv_epoch, g_loss, d_loss, 'yes' if dis_trained else 'no', metric_fmt))
                     else:
-                        self.log.info('[ADV] epoch %d: g_loss: %.4f, d_loss: %.4f' % (
-                            adv_epoch, g_loss, d_loss))
+                        self.log.info('[ADV] epoch %d: g_loss: %.4f, d_loss: %.4f, d_update: %s' % (
+                            adv_epoch, g_loss, d_loss, 'yes' if dis_trained else 'no'))
 
                     if cfg.if_save and not cfg.if_test:
                         self._save('ADV', adv_epoch)
