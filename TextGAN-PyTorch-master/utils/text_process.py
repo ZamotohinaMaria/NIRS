@@ -32,7 +32,8 @@ def get_word_list(tokens):
     for sentence in tokens:
         for word in sentence:
             word_set.append(word)
-    return list(set(word_set))
+    # Keep dictionary build deterministic.
+    return sorted(set(word_set))
 
 
 def get_dict(word_set):
@@ -101,6 +102,18 @@ def load_dict(dataset):
         idx2word_dict = eval(dictin.read().strip())
     with open(wi_path, 'r') as dictin:
         word2idx_dict = eval(dictin.read().strip())
+
+    # If cached dict is stale (e.g. tokenization changed), rebuild once.
+    train_path = 'dataset/{}.txt'.format(dataset)
+    if os.path.exists(train_path):
+        tokens = get_tokenlized(train_path)
+        stale_dict = any(word not in word2idx_dict for sent in tokens for word in sent)
+        if stale_dict:
+            init_dict(dataset)
+            with open(iw_path, 'r') as dictin:
+                idx2word_dict = eval(dictin.read().strip())
+            with open(wi_path, 'r') as dictin:
+                word2idx_dict = eval(dictin.read().strip())
 
     return word2idx_dict, idx2word_dict
 

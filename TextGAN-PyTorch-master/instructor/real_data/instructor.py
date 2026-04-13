@@ -37,12 +37,23 @@ class BasicInstructor:
         self.word2idx_dict, self.idx2word_dict = load_dict(cfg.dataset)
 
         # Dataloader
+        self.train_data = None
+        self.test_data = None
         try:
             self.train_data = GenDataIter(cfg.train_data)
             self.test_data = GenDataIter(cfg.test_data, if_test_data=True)
-        except:
-            pass
+        except Exception as e:
+            raise RuntimeError(
+                "Failed to load dataset files '{}', '{}'. "
+                "Check paths and dictionary cache in dataset/*_wi_dict.txt.".format(
+                    cfg.train_data, cfg.test_data)
+            ) from e
 
+        self.train_data_list = []
+        self.test_data_list = []
+        self.clas_data_list = []
+        self.train_samples_list = []
+        self.clas_samples_list = []
         try:
             self.train_data_list = [GenDataIter(cfg.cat_train_data.format(i)) for i in range(cfg.k_label)]
             self.test_data_list = [GenDataIter(cfg.cat_test_data.format(i), if_test_data=True) for i in
@@ -52,7 +63,7 @@ class BasicInstructor:
 
             self.train_samples_list = [self.train_data_list[i].target for i in range(cfg.k_label)]
             self.clas_samples_list = [self.clas_data_list[i].target for i in range(cfg.k_label)]
-        except:
+        except Exception:
             pass
 
         # Criterion

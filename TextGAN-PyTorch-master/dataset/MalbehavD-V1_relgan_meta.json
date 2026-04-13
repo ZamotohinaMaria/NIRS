@@ -2,7 +2,7 @@
   "input_csv": "C:\\Users\\Marishka\\Desktop\\code\\NIRS\\MalbehavD-V1-main\\MalBehavD-V1-dataset.csv",
   "dataset_prefix": "MalbehavD-V1",
   "test_ratio": 0.2,
-  "seed": 42,
+  "seed": 56,
   "min_seq_len": 2,
   "api_columns": [
     "0",

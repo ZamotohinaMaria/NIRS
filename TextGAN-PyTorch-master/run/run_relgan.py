@@ -63,8 +63,8 @@ max_seq_len = 20  # auto-overwritten from dataset file in main.py for real data
 gen_lr = 5e-3
 gen_adv_lr = 5e-5
 dis_lr = 5e-5
-pre_log_step = 25
-adv_log_step = 50
+pre_log_step = 10
+adv_log_step = 10
 
 # ===Generator===
 ADV_g_step = 1
