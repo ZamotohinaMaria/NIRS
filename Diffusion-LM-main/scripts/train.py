@@ -4,6 +4,7 @@ Train a diffusion model on images.
 
 import argparse
 import json, torch, os
+from collections import Counter
 import numpy as np
 from improved_diffusion import dist_util, logger
 from improved_diffusion.image_datasets import load_data
@@ -24,12 +25,102 @@ from improved_diffusion.rounding import load_models, load_tokenizer
 import torch.distributed as dist
 import wandb
 
+def _as_bool(value):
+    if isinstance(value, bool):
+        return value
+    return str(value).strip().lower() in {"1", "true", "yes", "y", "on"}
+
+
+def _infer_roc_vocab_size(roc_train_dir: str, min_token_freq: int):
+    train_path = os.path.join(roc_train_dir, "roc_train.json")
+    if not os.path.exists(train_path):
+        return None
+
+    min_token_freq = max(1, int(min_token_freq))
+    counter = Counter()
+    with open(train_path, "r", encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                payload = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            if isinstance(payload, list) and len(payload) > 0:
+                text = str(payload[0])
+            elif isinstance(payload, str):
+                text = payload
+            else:
+                continue
+            counter.update(tok for tok in text.split() if tok)
+
+    kept_tokens = sum(1 for _, freq in counter.items() if freq >= min_token_freq)
+    # START/END/UNK/PAD
+    return kept_tokens + 4
+
+
+def _apply_roc_profile(args):
+    if args.modality not in {"roc", "roc-aug"}:
+        return []
+    if not _as_bool(getattr(args, "apply_roc_profile", True)):
+        return []
+
+    changes = []
+
+    def _set_arg(name, new_value):
+        old_value = getattr(args, name)
+        if old_value != new_value:
+            setattr(args, name, new_value)
+            changes.append(f"{name}: {old_value} -> {new_value}")
+
+    resumed = bool(args.resume_checkpoint)
+    if resumed:
+        changes.append("resume checkpoint detected: keep hyperparameters for compatibility")
+        if args.early_stop_patience_steps > 0:
+            _set_arg("early_stop_patience_steps", 0)
+        return changes
+
+    if args.training_mode == "emb":
+        _set_arg("training_mode", "e2e")
+    if args.in_channel < 128:
+        _set_arg("in_channel", 128)
+    if args.out_channel != args.in_channel:
+        _set_arg("out_channel", args.in_channel)
+    if args.padding_mode != "pad":
+        _set_arg("padding_mode", "pad")
+    if not args.predict_xstart:
+        _set_arg("predict_xstart", True)
+    if args.diffusion_steps < 2000:
+        _set_arg("diffusion_steps", 2000)
+    if args.lr_anneal_steps < 200000:
+        _set_arg("lr_anneal_steps", 400000)
+    if args.weight_decay != 0.0:
+        _set_arg("weight_decay", 0.0)
+    if args.early_stop_patience_steps > 0:
+        _set_arg("early_stop_patience_steps", 0)
+    if args.min_token_freq != 1:
+        _set_arg("min_token_freq", 1)
+    if _as_bool(getattr(args, "auto_vocab_size", True)) and str(args.training_mode).startswith("e2e"):
+        inferred_vocab_size = _infer_roc_vocab_size(args.roc_train, args.min_token_freq)
+        if inferred_vocab_size is not None:
+            _set_arg("vocab_size", inferred_vocab_size)
+        else:
+            changes.append(
+                f"vocab_size: keep {args.vocab_size} (cannot find {args.roc_train}/roc_train.json)"
+            )
+
+    return changes
+
+
 def main():
     args = create_argparser().parse_args()
     set_seed(args.seed) 
     dist_util.setup_dist() # DEBUG **
     os.makedirs(args.checkpoint_path, exist_ok=True)
     logger.configure(dir=args.checkpoint_path)
+    for update_msg in _apply_roc_profile(args):
+        logger.log(f"roc profile | {update_msg}")
 
 
     logger.log("creating model and diffusion...")
@@ -117,6 +208,7 @@ def main():
             batch_size=args.batch_size,
             image_size=args.image_size,
             class_cond=args.class_cond,
+            deterministic=True,
             data_args=args,
             task_mode=args.modality,
             padding_mode=args.padding_mode,  # block, pad
@@ -139,7 +231,10 @@ def main():
         diffusion.mapping_func = mapping_func
         return mapping_func
 
-    get_mapping_func(args, diffusion, data)
+    if args.modality != 'image' and not str(args.training_mode).startswith('e2e'):
+        get_mapping_func(args, diffusion, data)
+    else:
+        logger.log("skipping mapping function setup for image/e2e training mode.")
 
     logger.log("training...")
     TrainLoop(
@@ -184,7 +279,7 @@ def create_argparser():
         seed=101,
         gradient_clipping=-1.0,
         eval_interval=2000,
-        early_stop_patience_steps=500,
+        early_stop_patience_steps=0,
         checkpoint_path='diff_models'
     )
     text_defaults = dict(modality='text',
@@ -197,10 +292,13 @@ def create_argparser():
                          wiki_train='diffusion_lm/simple_wiki/data.v1.split/simple.training.txt',
                          e2e_train='e2e_data',
                          yelp_train='diffusion_lm/yelpnlg-resources/yelpnlg-corpus',
-                         commonGen_train = 'diffusion_lm/common-gen/commongen_data',
-                         emb_scale_factor=1.0, noise_level=0.0, cache_mode='no', use_bert_tokenizer='no',
-                         padding_mode='block',
-                         preprocessing_num_workers=1)
+                          commonGen_train = 'diffusion_lm/common-gen/commongen_data',
+                          emb_scale_factor=1.0, noise_level=0.0, cache_mode='no', use_bert_tokenizer='no',
+                          padding_mode='block',
+                          min_token_freq=1,
+                          apply_roc_profile=True,
+                          auto_vocab_size=True,
+                          preprocessing_num_workers=1)
     defaults.update(model_and_diffusion_defaults())
     defaults.update(text_defaults)
     parser = argparse.ArgumentParser()

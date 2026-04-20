@@ -562,10 +562,11 @@ def get_corpus_rocstory(data_args, model, image_size, padding_mode='block',
 
     if load_vocab is None:
         vocab_dict = {'START': 0, 'END': 1, 'UNK':2, 'PAD':3}
+        min_token_freq = max(1, int(getattr(data_args, "min_token_freq", 1)))
         for k, v in counter.items():
-            if v > 10:
+            if v >= min_token_freq:
                 vocab_dict[k] = len(vocab_dict)
-        print(len(counter), len(vocab_dict))
+        print(len(counter), len(vocab_dict), f"min_token_freq={min_token_freq}")
 
         os.makedirs(data_args.checkpoint_path, exist_ok=True)
         path_save_vocab = f'{data_args.checkpoint_path}/vocab.json'

@@ -34,14 +34,15 @@ def main():
 
     training_args['batch_size'] = args.batch_size
     print(args.data_dir)
-    del training_args['data_dir']
+    training_args.pop('data_dir', None)
     # print(args.__dict__, training_args)
     args.__dict__.update(training_args)
+    if args.roc_train_override:
+        args.roc_train = args.roc_train_override
     print(args.__dict__['batch_size'], training_args['batch_size'], args.clip_denoised, args.batch_size)
     print(args.data_dir)
     # if args.noise_level > 0.0: flag_noise=True #DEBUG
     args.noise_level = 0.0
-    args.roc_train = 'diffusion_lm/ROCstory'
     if args.modality == 'roc-aug':
         args.modality = 'roc'
     # DEBUG
@@ -203,6 +204,7 @@ def create_argparser():
         data_dir="", clip_denoised=False, num_samples=128, batch_size=64, model_path="",
         out_dir="diffusion_lm/improved_diffusion/scores",
         emb_scale_factor=1.0, split='train', debug_path='', clamp='clamp',
+        roc_train_override="",
     )
     defaults.update(model_and_diffusion_defaults())
     parser = argparse.ArgumentParser()

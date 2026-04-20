@@ -187,7 +187,7 @@ class TrainLoop:
                 metrics_dumped_this_step = True
             if self.eval_data is not None and self.step % self.eval_interval == 0:
                 batch_eval, cond_eval = next(self.eval_data)
-                self.forward_only(batch, cond)
+                self.forward_only(batch_eval, cond_eval)
                 print('eval on validation set')
                 eval_kvs = logger.dumpkvs()
                 metrics_dumped_this_step = True
