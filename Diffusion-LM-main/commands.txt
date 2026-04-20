@@ -1,0 +1,119 @@
+cd C:\Users\Marishka\Desktop\code\NIRS\Diffusion-LM-main
+
+1. Подготовить Malbehav в формат, который ожидает Diffusion-LM:
+
+python scripts/prepare_malbehav_roc.py --input_csv ../MalbehavD-V1-main/MalBehavD-V1-dataset.csv --out_dir diffusion_lm/ROCstory --valid_size 500 --label_filter all
+
+python scripts/prepare_malbehav_roc.py --input_csv ../MalbehavD-V1-main/MalBehavD-V1-dataset.csv --out_dir diffusion_lm/ROCstory_malware --valid_size 300 --label_filter malware --seed 101
+python scripts/prepare_malbehav_roc.py --input_csv ../MalbehavD-V1-main/MalBehavD-V1-dataset.csv --out_dir diffusion_lm/ROCstory_benign --valid_size 300 --label_filter benign --seed 101
+
+
+2. Обучить модель:
+
+Чтобы быстро посмотреть, какие чекпоинты есть:
+
+Get-ChildItem diffusion_models\malbehav_malware\model*.pt
+
+Добавить для чекпоинта:
+
+  --resume_checkpoint diffusion_models/malbehav_malware/model000900.pt ^
+
+python scripts/train.py ^
+  --checkpoint_path diffusion_models/malbehav_malware ^
+  --model_arch transformer ^
+  --modality roc ^
+  --save_interval 100 ^
+  --log_interval 100 ^
+  --eval_interval 100 ^
+  --schedule_sampler uniform ^
+  --ema_rate 0.9999 ^
+  --microbatch -1 ^
+  --gradient_clipping 1.0 ^
+  --lr 0.0001 ^
+  --batch_size 64 ^
+  --diffusion_steps 1500 ^
+  --noise_schedule sqrt ^
+  --use_kl False ^
+  --learn_sigma False ^
+  --image_size 13 ^
+  --num_channels 128 ^
+  --seed 101 ^
+  --dropout 0.15 ^
+  --in_channel 32 ^
+  --out_channel 32 ^
+  --padding_mode pad ^
+  --experiment random ^
+  --training_mode emb ^
+  --predict_xstart True ^
+  --lr_anneal_steps 2500 ^
+  --weight_decay 0.01 ^
+  --num_res_blocks 2 ^
+  --cache_mode yes ^
+  --use_bert_tokenizer no ^
+  --roc_train diffusion_lm/ROCstory_malware
+
+
+
+python scripts/train.py ^
+  --checkpoint_path diffusion_models/malbehav_benign ^
+  --model_arch transformer ^
+  --modality roc ^
+  --save_interval 100 ^
+  --log_interval 100 ^
+  --eval_interval 100 ^
+  --schedule_sampler uniform ^
+  --ema_rate 0.9999 ^
+  --microbatch -1 ^
+  --gradient_clipping 1.0 ^
+  --lr 0.0001 ^
+  --batch_size 64 ^
+  --diffusion_steps 1500 ^
+  --noise_schedule sqrt ^
+  --use_kl False ^
+  --learn_sigma False ^
+  --image_size 13 ^
+  --num_channels 128 ^
+  --seed 101 ^
+  --dropout 0.2 ^
+  --in_channel 32 ^
+  --out_channel 32 ^
+  --padding_mode pad ^
+  --experiment random ^
+  --training_mode emb ^
+  --predict_xstart True ^
+  --lr_anneal_steps 2500 ^
+  --weight_decay 0.01 ^
+  --num_res_blocks 2 ^
+  --cache_mode yes ^
+  --use_bert_tokenizer no ^
+  --roc_train diffusion_lm/ROCstory_benign
+
+ОБУЧЕНИЕ AR МОДЕЛИ ДЛЯ ГЕНЕРАЦИИ
+
+python scripts/train_ar.py ^
+  --roc_train diffusion_lm/ROCstory_benign ^
+  --vocab_path diffusion_models/1gen/malbehav_benign/vocab.json ^
+  --output_dir ar_models/benign_ar_lm ^
+  --epochs 50 ^
+  --batch_size 64 ^
+  --lr 3e-4 ^
+  --weight_decay 0.01 ^
+  --max_len 169 ^
+  --d_model 256 ^
+  --n_layers 4 ^
+  --n_heads 4 ^
+  --dropout 0.1 ^
+  --seed 101
+
+ГЕНЕРАЦИЯ
+
+python scripts/text_sample.py ^
+  --model_path diffusion_models/1gen/malbehav_benign/ema_0.9999_000400.pt ^
+  --batch_size 64 ^
+  --num_samples 1000 ^
+  --out_dir generation_outputs/gen1/benign ^
+  --top_p 0.9 ^
+  --verbose yes ^
+  --compute_all_metrics True ^
+  --ar_model_path ar_models/benign_ar_lm/best ^
+  --use_ddim True

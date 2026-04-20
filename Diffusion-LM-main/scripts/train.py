@@ -28,7 +28,8 @@ def main():
     args = create_argparser().parse_args()
     set_seed(args.seed) 
     dist_util.setup_dist() # DEBUG **
-    logger.configure()
+    os.makedirs(args.checkpoint_path, exist_ok=True)
+    logger.configure(dir=args.checkpoint_path)
 
 
     logger.log("creating model and diffusion...")
@@ -132,8 +133,9 @@ def main():
         model2, tokenizer = load_models(args.modality, args.experiment, args.model_name_or_path, args.in_channel,
                                         args.checkpoint_path, extra_args=args)
         model3 = get_weights(model2, args)
+        model3 = model3.to(dist_util.dev())
         print(model3, model3.weight.requires_grad)
-        mapping_func = partial(compute_logp, args, model3.cuda())
+        mapping_func = partial(compute_logp, args, model3)
         diffusion.mapping_func = mapping_func
         return mapping_func
 
@@ -159,7 +161,8 @@ def main():
         checkpoint_path=args.checkpoint_path,
         gradient_clipping=args.gradient_clipping,
         eval_data=data_valid,
-        eval_interval=args.eval_interval
+        eval_interval=args.eval_interval,
+        early_stop_patience_steps=args.early_stop_patience_steps,
     ).run_loop()
 
 
@@ -181,6 +184,7 @@ def create_argparser():
         seed=101,
         gradient_clipping=-1.0,
         eval_interval=2000,
+        early_stop_patience_steps=500,
         checkpoint_path='diff_models'
     )
     text_defaults = dict(modality='text',

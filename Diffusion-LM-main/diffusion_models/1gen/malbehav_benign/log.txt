@@ -1,0 +1,389 @@
+Logging to diffusion_models/malbehav_benign
+creating model and diffusion...
+the parameter count is 87140384
+saving the hyperparameters to diffusion_models/malbehav_benign/training_args.json
+creating data loader...
+training...
+current step: 0
+------------------------
+| grad_norm | 1        |
+| loss      | 1.09     |
+| loss_q0   | 1.1      |
+| loss_q1   | 1.09     |
+| loss_q2   | 1.1      |
+| loss_q3   | 1.09     |
+| mse       | 1.09     |
+| mse_q0    | 1.1      |
+| mse_q1    | 1.09     |
+| mse_q2    | 1.1      |
+| mse_q3    | 1.09     |
+| samples   | 64       |
+| step      | 0        |
+------------------------
+---------------------------
+| eval_loss    | 0.579    |
+| eval_loss_q0 | 0.641    |
+| eval_loss_q1 | 0.659    |
+| eval_loss_q2 | 0.53     |
+| eval_loss_q3 | 0.483    |
+| eval_mse     | 0.579    |
+| eval_mse_q0  | 0.641    |
+| eval_mse_q1  | 0.659    |
+| eval_mse_q2  | 0.53     |
+| eval_mse_q3  | 0.483    |
+---------------------------
+saving model 0...
+saving model 0.9999...
+current step: 10
+current step: 20
+current step: 30
+current step: 40
+current step: 50
+current step: 60
+current step: 70
+current step: 80
+current step: 90
+current step: 100
+------------------------
+| grad_norm | 0.376    |
+| loss      | 0.286    |
+| loss_q0   | 0.244    |
+| loss_q1   | 0.263    |
+| loss_q2   | 0.277    |
+| loss_q3   | 0.358    |
+| mse       | 0.286    |
+| mse_q0    | 0.244    |
+| mse_q1    | 0.263    |
+| mse_q2    | 0.277    |
+| mse_q3    | 0.358    |
+| samples   | 6.46e+03 |
+| step      | 100      |
+------------------------
+---------------------------
+| eval_loss    | 0.226    |
+| eval_loss_q0 | 0.152    |
+| eval_loss_q1 | 0.151    |
+| eval_loss_q2 | 0.27     |
+| eval_loss_q3 | 0.299    |
+| eval_mse     | 0.226    |
+| eval_mse_q0  | 0.152    |
+| eval_mse_q1  | 0.151    |
+| eval_mse_q2  | 0.27     |
+| eval_mse_q3  | 0.299    |
+---------------------------
+saving model 0...
+saving model 0.9999...
+current step: 110
+current step: 120
+current step: 130
+current step: 140
+current step: 150
+current step: 160
+current step: 170
+current step: 180
+current step: 190
+current step: 200
+------------------------
+| grad_norm | 0.176    |
+| loss      | 0.175    |
+| loss_q0   | 0.0954   |
+| loss_q1   | 0.145    |
+| loss_q2   | 0.195    |
+| loss_q3   | 0.271    |
+| mse       | 0.175    |
+| mse_q0    | 0.0954   |
+| mse_q1    | 0.145    |
+| mse_q2    | 0.195    |
+| mse_q3    | 0.271    |
+| samples   | 1.29e+04 |
+| step      | 200      |
+------------------------
+---------------------------
+| eval_loss    | 0.171    |
+| eval_loss_q0 | 0.0928   |
+| eval_loss_q1 | 0.109    |
+| eval_loss_q2 | 0.232    |
+| eval_loss_q3 | 0.273    |
+| eval_mse     | 0.171    |
+| eval_mse_q0  | 0.0928   |
+| eval_mse_q1  | 0.109    |
+| eval_mse_q2  | 0.232    |
+| eval_mse_q3  | 0.273    |
+---------------------------
+saving model 0...
+saving model 0.9999...
+current step: 210
+current step: 220
+current step: 230
+current step: 240
+current step: 250
+current step: 260
+current step: 270
+current step: 280
+current step: 290
+current step: 300
+------------------------
+| grad_norm | 0.191    |
+| loss      | 0.154    |
+| loss_q0   | 0.0651   |
+| loss_q1   | 0.112    |
+| loss_q2   | 0.177    |
+| loss_q3   | 0.261    |
+| mse       | 0.154    |
+| mse_q0    | 0.0651   |
+| mse_q1    | 0.112    |
+| mse_q2    | 0.177    |
+| mse_q3    | 0.261    |
+| samples   | 1.93e+04 |
+| step      | 300      |
+------------------------
+---------------------------
+| eval_loss    | 0.129    |
+| eval_loss_q0 | 0.0374   |
+| eval_loss_q1 | 0.0986   |
+| eval_loss_q2 | 0.174    |
+| eval_loss_q3 | 0.213    |
+| eval_mse     | 0.129    |
+| eval_mse_q0  | 0.0374   |
+| eval_mse_q1  | 0.0986   |
+| eval_mse_q2  | 0.174    |
+| eval_mse_q3  | 0.213    |
+---------------------------
+saving model 0...
+saving model 0.9999...
+current step: 310
+current step: 320
+current step: 330
+current step: 340
+current step: 350
+current step: 360
+current step: 370
+current step: 380
+current step: 390
+current step: 400
+------------------------
+| grad_norm | 0.15     |
+| loss      | 0.138    |
+| loss_q0   | 0.0462   |
+| loss_q1   | 0.0947   |
+| loss_q2   | 0.16     |
+| loss_q3   | 0.253    |
+| mse       | 0.138    |
+| mse_q0    | 0.0462   |
+| mse_q1    | 0.0947   |
+| mse_q2    | 0.16     |
+| mse_q3    | 0.253    |
+| samples   | 2.57e+04 |
+| step      | 400      |
+------------------------
+---------------------------
+| eval_loss    | 0.0928   |
+| eval_loss_q0 | 0.0241   |
+| eval_loss_q1 | 0.0706   |
+| eval_loss_q2 | 0.146    |
+| eval_loss_q3 | 0.242    |
+| eval_mse     | 0.0928   |
+| eval_mse_q0  | 0.0241   |
+| eval_mse_q1  | 0.0706   |
+| eval_mse_q2  | 0.146    |
+| eval_mse_q3  | 0.242    |
+---------------------------
+saving model 0...
+saving model 0.9999...
+current step: 410
+current step: 420
+current step: 430
+current step: 440
+current step: 450
+current step: 460
+current step: 470
+current step: 480
+current step: 490
+current step: 500
+------------------------
+| grad_norm | 0.142    |
+| loss      | 0.127    |
+| loss_q0   | 0.0378   |
+| loss_q1   | 0.0803   |
+| loss_q2   | 0.15     |
+| loss_q3   | 0.239    |
+| mse       | 0.127    |
+| mse_q0    | 0.0378   |
+| mse_q1    | 0.0803   |
+| mse_q2    | 0.15     |
+| mse_q3    | 0.239    |
+| samples   | 3.21e+04 |
+| step      | 500      |
+------------------------
+---------------------------
+| eval_loss    | 0.0998   |
+| eval_loss_q0 | 0.0205   |
+| eval_loss_q1 | 0.0533   |
+| eval_loss_q2 | 0.106    |
+| eval_loss_q3 | 0.209    |
+| eval_mse     | 0.0998   |
+| eval_mse_q0  | 0.0205   |
+| eval_mse_q1  | 0.0533   |
+| eval_mse_q2  | 0.106    |
+| eval_mse_q3  | 0.209    |
+---------------------------
+saving model 0...
+saving model 0.9999...
+current step: 510
+current step: 520
+current step: 530
+current step: 540
+current step: 550
+current step: 560
+current step: 570
+current step: 580
+current step: 590
+current step: 600
+------------------------
+| grad_norm | 0.124    |
+| loss      | 0.119    |
+| loss_q0   | 0.0293   |
+| loss_q1   | 0.071    |
+| loss_q2   | 0.141    |
+| loss_q3   | 0.234    |
+| mse       | 0.119    |
+| mse_q0    | 0.0293   |
+| mse_q1    | 0.071    |
+| mse_q2    | 0.141    |
+| mse_q3    | 0.234    |
+| samples   | 3.85e+04 |
+| step      | 600      |
+------------------------
+---------------------------
+| eval_loss    | 0.122    |
+| eval_loss_q0 | 0.0249   |
+| eval_loss_q1 | 0.0468   |
+| eval_loss_q2 | 0.187    |
+| eval_loss_q3 | 0.221    |
+| eval_mse     | 0.122    |
+| eval_mse_q0  | 0.0249   |
+| eval_mse_q1  | 0.0468   |
+| eval_mse_q2  | 0.187    |
+| eval_mse_q3  | 0.221    |
+---------------------------
+saving model 0...
+saving model 0.9999...
+current step: 610
+current step: 620
+current step: 630
+current step: 640
+current step: 650
+current step: 660
+current step: 670
+current step: 680
+current step: 690
+current step: 700
+------------------------
+| grad_norm | 0.155    |
+| loss      | 0.116    |
+| loss_q0   | 0.0265   |
+| loss_q1   | 0.0602   |
+| loss_q2   | 0.131    |
+| loss_q3   | 0.237    |
+| mse       | 0.116    |
+| mse_q0    | 0.0265   |
+| mse_q1    | 0.0602   |
+| mse_q2    | 0.131    |
+| mse_q3    | 0.237    |
+| samples   | 4.49e+04 |
+| step      | 700      |
+------------------------
+---------------------------
+| eval_loss    | 0.109    |
+| eval_loss_q0 | 0.0124   |
+| eval_loss_q1 | 0.0597   |
+| eval_loss_q2 | 0.125    |
+| eval_loss_q3 | 0.252    |
+| eval_mse     | 0.109    |
+| eval_mse_q0  | 0.0124   |
+| eval_mse_q1  | 0.0597   |
+| eval_mse_q2  | 0.125    |
+| eval_mse_q3  | 0.252    |
+---------------------------
+saving model 0...
+saving model 0.9999...
+current step: 710
+current step: 720
+current step: 730
+current step: 740
+current step: 750
+current step: 760
+current step: 770
+current step: 780
+current step: 790
+current step: 800
+------------------------
+| grad_norm | 0.134    |
+| loss      | 0.109    |
+| loss_q0   | 0.0224   |
+| loss_q1   | 0.059    |
+| loss_q2   | 0.127    |
+| loss_q3   | 0.225    |
+| mse       | 0.109    |
+| mse_q0    | 0.0224   |
+| mse_q1    | 0.059    |
+| mse_q2    | 0.127    |
+| mse_q3    | 0.225    |
+| samples   | 5.13e+04 |
+| step      | 800      |
+------------------------
+---------------------------
+| eval_loss    | 0.114    |
+| eval_loss_q0 | 0.0195   |
+| eval_loss_q1 | 0.073    |
+| eval_loss_q2 | 0.155    |
+| eval_loss_q3 | 0.21     |
+| eval_mse     | 0.114    |
+| eval_mse_q0  | 0.0195   |
+| eval_mse_q1  | 0.073    |
+| eval_mse_q2  | 0.155    |
+| eval_mse_q3  | 0.21     |
+---------------------------
+saving model 0...
+saving model 0.9999...
+current step: 810
+current step: 820
+current step: 830
+current step: 840
+current step: 850
+current step: 860
+current step: 870
+current step: 880
+current step: 890
+current step: 900
+------------------------
+| grad_norm | 0.137    |
+| loss      | 0.104    |
+| loss_q0   | 0.0198   |
+| loss_q1   | 0.0525   |
+| loss_q2   | 0.121    |
+| loss_q3   | 0.222    |
+| mse       | 0.104    |
+| mse_q0    | 0.0198   |
+| mse_q1    | 0.0525   |
+| mse_q2    | 0.121    |
+| mse_q3    | 0.222    |
+| samples   | 5.77e+04 |
+| step      | 900      |
+------------------------
+---------------------------
+| eval_loss    | 0.106    |
+| eval_loss_q0 | 0.00807  |
+| eval_loss_q1 | 0.0383   |
+| eval_loss_q2 | 0.169    |
+| eval_loss_q3 | 0.206    |
+| eval_mse     | 0.106    |
+| eval_mse_q0  | 0.00807  |
+| eval_mse_q1  | 0.0383   |
+| eval_mse_q2  | 0.169    |
+| eval_mse_q3  | 0.206    |
+---------------------------
+early stop: no eval_loss improvement for 500 steps (best 0.092806 at step 400, current 0.106409)
+saving model 0...
+saving model 0.9999...
+stopping early due to validation loss degradation window.

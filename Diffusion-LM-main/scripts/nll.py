@@ -125,15 +125,16 @@ def run_bpd_evaluation(model, diffusion, data, num_samples, clip_denoised, args,
     all_metrics = {"vb": [], "mse": [], "xstart_mse": []}
     num_complete = 0
     model3 = get_weights(model2, args)
+    model3 = model3.to(dist_util.dev())
     while num_complete < num_samples:
         batch, model_kwargs = next(data)
         batch = batch.to(dist_util.dev())
         model_kwargs = {k: v.to(dist_util.dev()) for k, v in model_kwargs.items()}
-        model_kwargs['mapping_func'] = partial(compute_logp, args, model3.cuda())
+        model_kwargs['mapping_func'] = partial(compute_logp, args, model3)
         minibatch_metrics = diffusion.calc_bpd_loop(
             model, batch, clip_denoised=clip_denoised, model_kwargs=model_kwargs,
             # denoised_fn=None,
-            denoised_fn=partial(denoised_fn_round, args, model3.cuda()) if args.clamp == 'clamp' else None,
+            denoised_fn=partial(denoised_fn_round, args, model3) if args.clamp == 'clamp' else None,
         )
 
         for key, term_list in all_metrics.items():

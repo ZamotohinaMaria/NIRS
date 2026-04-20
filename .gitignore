@@ -1,3 +1,11 @@
 **/__pycache__/
 *.py[cod]
 /runs/multi_split_eval/
+Diffusion-LM-main/wandb/
+Diffusion-LM-main/ar_models/
+Diffusion-LM-main/diffusion_lm/ROCstory/
+*.pt
+*.pth
+*.safetensors
+*.npy
+*.npz

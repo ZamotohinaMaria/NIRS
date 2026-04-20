@@ -17,13 +17,14 @@ def main():
     args = create_argparser().parse_args()
     # set_seed(101)
     set_seed(108)
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
     if args.mode == 'eval':
 
         model = AutoModelForCausalLM.from_pretrained(
             args.model_name_or_path, # path to the AR model trained for LMing this task.
-        ).cuda()
+        ).to(device)
 
         model.eval()
 
@@ -48,7 +49,7 @@ def main():
             # print(x)
             tokenized_x = [reverse_tokenizer[s] for s in x]
             # print(tokenized_x)
-            tokenized_x = torch.LongTensor(tokenized_x).cuda()
+            tokenized_x = torch.LongTensor(tokenized_x).to(device)
             labels = tokenized_x.clone()
             labels[labels==reverse_tokenizer['PAD']] = -100
             model_output = model(tokenized_x, labels=labels)
@@ -70,17 +71,17 @@ def main():
         }
         load_results(json_path, json_dict)
     elif args.mode == 'gen':
-        generate(args)
+        generate(args, device)
 
     elif args.mode == 'gen_gpt2':
-        generate_gpt2(args)
+        generate_gpt2(args, device)
 
-def generate_gpt2(args):
+def generate_gpt2(args, device):
 
     print(f'loading from {args.model_name_or_path}')
     model = AutoModelForCausalLM.from_pretrained(
         args.model_name_or_path,  # path to the AR model trained for LMing this task.
-    ).cuda()
+    ).to(device)
 
     # load tokenizer.
     sample_out_lst = []
@@ -119,11 +120,11 @@ def generate_gpt2(args):
     print(f'\nthe mean loss is {torch.tensor(agg_loss).mean()}',)
     print('-'*50)
 
-def generate(args):
+def generate(args, device):
 
     model = AutoModelForCausalLM.from_pretrained(
         args.model_name_or_path,  # path to the AR model trained for LMing this task.
-    ).cuda()
+    ).to(device)
 
     print(model.transformer.wte)
     # print(model)
@@ -175,7 +176,7 @@ def generate(args):
     for idx, x in enumerate(text_samples):
         # print(x)
         tokenized_x = [reverse_tokenizer[s] for s in x]
-        tokenized_x = torch.LongTensor(tokenized_x).cuda()
+        tokenized_x = torch.LongTensor(tokenized_x).to(device)
         # print(tokenized_x)
         # print(sample_out[idx])
         # print((tokenized_x == sample_out[idx]).all())

@@ -26,19 +26,29 @@ def setup_dist():
         return
 
     comm = MPI.COMM_WORLD
-    backend = "gloo" if not th.cuda.is_available() else "nccl"
+    # Windows builds commonly do not include NCCL even when CUDA is available.
+    # Use NCCL only when it is actually available; otherwise fallback to gloo.
+    use_nccl = th.cuda.is_available() and dist.is_nccl_available()
+    backend = "nccl" if use_nccl else "gloo"
 
-    if backend == "gloo":
-        hostname = "localhost"
-    else:
-        hostname = socket.gethostbyname(socket.getfqdn())
+    # For single-machine runs, binding to localhost is the most robust default.
+    # Allow explicit override via env var when needed.
+    hostname = os.environ.get("MASTER_ADDR", "127.0.0.1")
     os.environ["MASTER_ADDR"] = comm.bcast(hostname, root=0)
     os.environ["RANK"] = str(comm.rank)
     os.environ["WORLD_SIZE"] = str(comm.size)
 
     port = comm.bcast(_find_free_port(), root=0)
     os.environ["MASTER_PORT"] = str(port)
-    dist.init_process_group(backend=backend, init_method="env://")
+    try:
+        dist.init_process_group(backend=backend, init_method="env://")
+    except RuntimeError:
+        # Final fallback for environments where NCCL was selected but unavailable
+        # at runtime for any reason.
+        if backend != "gloo":
+            dist.init_process_group(backend="gloo", init_method="env://")
+        else:
+            raise
 
 
 def dev():

@@ -49,6 +49,7 @@ class TrainLoop:
         gradient_clipping=-1.,
         eval_data=None,
         eval_interval=-1,
+        early_stop_patience_steps=500,
     ):
         self.model = model
         self.diffusion = diffusion
@@ -72,6 +73,9 @@ class TrainLoop:
         self.weight_decay = weight_decay
         self.lr_anneal_steps = lr_anneal_steps
         self.gradient_clipping = gradient_clipping
+        self.early_stop_patience_steps = early_stop_patience_steps
+        self.best_eval_loss = None
+        self.best_eval_step = 0
 
         self.step = 0
         self.resume_step = 0
@@ -174,18 +178,33 @@ class TrainLoop:
         ):
             batch, cond = next(self.data)
             self.run_step(batch, cond)
+            metrics_dumped_this_step = False
+            should_early_stop = False
+            if self.step % 10 == 0:
+                logger.log(f"current step: {self.step + self.resume_step}")
             if self.step % self.log_interval == 0:
                 logger.dumpkvs()
+                metrics_dumped_this_step = True
             if self.eval_data is not None and self.step % self.eval_interval == 0:
                 batch_eval, cond_eval = next(self.eval_data)
                 self.forward_only(batch, cond)
                 print('eval on validation set')
-                logger.dumpkvs()
+                eval_kvs = logger.dumpkvs()
+                metrics_dumped_this_step = True
+                should_early_stop = self._check_early_stop(eval_kvs)
             if self.step % self.save_interval == 0:
+                if not metrics_dumped_this_step:
+                    print("dumping metrics at checkpoint step")
+                    logger.dumpkvs()
                 self.save()
                 # Run for a finite amount of time in integration tests.
                 if os.environ.get("DIFFUSION_TRAINING_TEST", "") and self.step > 0:
                     return
+            if should_early_stop:
+                if self.step % self.save_interval != 0:
+                    self.save()
+                logger.log("stopping early due to validation loss degradation window.")
+                return
             self.step += 1
         # Save the last checkpoint if it wasn't already saved.
         if (self.step - 1) % self.save_interval != 0:
@@ -333,6 +352,27 @@ class TrainLoop:
         if self.use_fp16:
             logger.logkv("lg_loss_scale", self.lg_loss_scale)
 
+    def _check_early_stop(self, eval_kvs):
+        if self.early_stop_patience_steps <= 0:
+            return False
+        eval_loss = eval_kvs.get("eval_loss")
+        if eval_loss is None:
+            return False
+
+        current_step = self.step + self.resume_step
+        if self.best_eval_loss is None or eval_loss < self.best_eval_loss:
+            self.best_eval_loss = eval_loss
+            self.best_eval_step = current_step
+            return False
+
+        if current_step - self.best_eval_step >= self.early_stop_patience_steps:
+            logger.log(
+                f"early stop: no eval_loss improvement for {current_step - self.best_eval_step} steps "
+                f"(best {self.best_eval_loss:.6f} at step {self.best_eval_step}, current {eval_loss:.6f})"
+            )
+            return True
+        return False
+
     def save(self):
         def save_checkpoint(rate, params):
             state_dict = self._master_params_to_state_dict(params)
@@ -342,12 +382,24 @@ class TrainLoop:
                     filename = f"model{(self.step+self.resume_step):06d}.pt"
                 else:
                     filename = f"ema_{rate}_{(self.step+self.resume_step):06d}.pt"
-                print('writing to', bf.join(get_blob_logdir(), filename))
-                print('writing to', bf.join(self.checkpoint_path, filename))
-                # with bf.BlobFile(bf.join(get_blob_logdir(), filename), "wb") as f:
-                #     th.save(state_dict, f)
-                with bf.BlobFile(bf.join(self.checkpoint_path, filename), "wb") as f: # DEBUG **
-                    th.save(state_dict, f)
+                try:
+                    blob_target = bf.join(get_blob_logdir(), filename)
+                except Exception:
+                    blob_target = os.path.join(get_blob_logdir(), filename)
+                print('writing to', blob_target)
+
+                # Local filesystem paths are more reliable on Windows with native open().
+                if "://" in self.checkpoint_path:
+                    ckpt_target = bf.join(self.checkpoint_path, filename)
+                    print('writing to', ckpt_target)
+                    with bf.BlobFile(ckpt_target, "wb") as f:
+                        th.save(state_dict, f)
+                else:
+                    os.makedirs(self.checkpoint_path, exist_ok=True)
+                    ckpt_target = os.path.join(self.checkpoint_path, filename)
+                    print('writing to', ckpt_target)
+                    with open(ckpt_target, "wb") as f:
+                        th.save(state_dict, f)
 
         save_checkpoint(0, self.master_params)
         for rate, params in zip(self.ema_rate, self.ema_params):
@@ -423,4 +475,3 @@ def log_loss_dict(diffusion, ts, losses):
         for sub_t, sub_loss in zip(ts.cpu().numpy(), values.detach().cpu().numpy()):
             quartile = int(4 * sub_t / diffusion.num_timesteps)
             logger.logkv_mean(f"{key}_q{quartile}", sub_loss)
-

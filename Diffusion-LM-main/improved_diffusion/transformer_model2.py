@@ -18,6 +18,17 @@ from .nn import (
     checkpoint,
 )
 
+def _force_eager_attention(config):
+    """
+    Keep compatibility with newer transformers where attention dispatch expects
+    a concrete implementation value.
+    """
+    try:
+        config._attn_implementation = "eager"
+    except Exception:
+        pass
+    return config
+
 
 class TimestepBlock(nn.Module):
     """
@@ -199,6 +210,7 @@ class TransModel(nn.Module):
             num_heads_upsample = num_heads
         if config is None:
             config = AutoConfig.from_pretrained('bert-base-uncased')
+            config = _force_eager_attention(config)
             config.position_embedding_type = 'relative_key'
             config.max_position_embeddings = 256
 
@@ -465,6 +477,7 @@ class TransformerNetModel(nn.Module):
 
         if config is None:
             config = AutoConfig.from_pretrained('bert-base-uncased')
+            config = _force_eager_attention(config)
 
         self.in_channels = in_channels
         self.model_channels = model_channels
@@ -720,6 +733,7 @@ class TransformerNetModel2(nn.Module):
 
         if config is None:
             config = AutoConfig.from_pretrained(config_name)
+            config = _force_eager_attention(config)
             config.hidden_dropout_prob = dropout
             # config.hidden_size = 512
 
