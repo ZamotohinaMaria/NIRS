@@ -1,0 +1,11 @@
+{
+  "num_generated": 1000,
+  "avg_length": 169.0,
+  "distinct_1": 7.100591715976331e-05,
+  "distinct_2": 0.0003333333333333333,
+  "unique_sequence_ratio": 1.0,
+  "memorization_rate_exact_train": 0.0,
+  "valid_bpd_error": "Command '['C:\\\\Users\\\\Marishka\\\\anaconda3\\\\python.exe', 'C:\\\\Users\\\\Marishka\\\\Desktop\\\\code\\\\NIRS\\\\Diffusion-LM-main\\\\scripts\\\\nll.py', '--model_path', 'diffusion_models/1gen/malbehav_benign/ema_0.9999_000400.pt', '--batch_size', '64', '--num_samples', '256', '--split', 'valid', '--out_dir', 'scores', '--clamp', 'clamp']' returned non-zero exit status 1.",
+  "train_bpd_error": "Command '['C:\\\\Users\\\\Marishka\\\\anaconda3\\\\python.exe', 'C:\\\\Users\\\\Marishka\\\\Desktop\\\\code\\\\NIRS\\\\Diffusion-LM-main\\\\scripts\\\\nll.py', '--model_path', 'diffusion_models/1gen/malbehav_benign/ema_0.9999_000400.pt', '--batch_size', '64', '--num_samples', '256', '--split', 'train', '--out_dir', 'scores', '--clamp', 'clamp']' returned non-zero exit status 1.",
+  "ar_ppl_error": "Command '['C:\\\\Users\\\\Marishka\\\\anaconda3\\\\python.exe', 'C:\\\\Users\\\\Marishka\\\\Desktop\\\\code\\\\NIRS\\\\Diffusion-LM-main\\\\scripts\\\\ppl_under_ar.py', '--model_path', 'diffusion_models/1gen/malbehav_benign/ema_0.9999_000400.pt', '--modality', 'roc', '--experiment', 'random', '--model_name_or_path', 'ar_models/benign_ar_lm/best', '--input_text', 'generation_outputs/gen1/benign\\\\malbehav_benign.ema_0.9999_000400.pt.samples_0.9.json', '--mode', 'eval']' returned non-zero exit status 1."
+}

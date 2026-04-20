@@ -86,11 +86,90 @@ def _compute_generation_metrics(word_lst, args):
     return metrics
 
 
+def _nearest_token_ids(sample_tensor, emb_weight):
+    flat = sample_tensor.reshape(-1, sample_tensor.size(-1))
+    emb = emb_weight
+    dists = (
+        (flat ** 2).sum(dim=1, keepdim=True)
+        + (emb ** 2).sum(dim=1).unsqueeze(0)
+        - 2.0 * (flat @ emb.t())
+    )
+    token_ids = dists.argmin(dim=1).view(sample_tensor.size(0), sample_tensor.size(1))
+    return token_ids
+
+
+def _update_fast_metrics(state, token_ids, pad_token_id=None):
+    for seq in token_ids.tolist():
+        if pad_token_id is None:
+            tokens = seq
+        else:
+            tokens = [x for x in seq if x != pad_token_id]
+
+        state["num_sequences"] += 1
+        state["sum_lengths"] += len(tokens)
+        state["unique_sequences"].add(tuple(tokens))
+
+        for t in tokens:
+            state["unigrams_total"] += 1
+            state["unigrams_unique"].add(t)
+
+        for i in range(len(tokens) - 1):
+            state["bigrams_total"] += 1
+            state["bigrams_unique"].add((tokens[i], tokens[i + 1]))
+
+    num_seq = max(state["num_sequences"], 1)
+    return {
+        "num_generated": state["num_sequences"],
+        "avg_length": state["sum_lengths"] / num_seq,
+        "distinct_1": (len(state["unigrams_unique"]) / max(state["unigrams_total"], 1)),
+        "distinct_2": (len(state["bigrams_unique"]) / max(state["bigrams_total"], 1)),
+        "unique_sequence_ratio": (len(state["unique_sequences"]) / num_seq),
+    }
+
+
 def _safe_read_json(path):
     if not os.path.exists(path):
         return None
     with open(path, "r", encoding="utf-8") as f:
         return json.load(f)
+
+
+def _postprocess_generated_texts(word_lst, args):
+    if not getattr(args, "postprocess_generated_text", False):
+        return word_lst
+
+    cleaned = []
+    strip_special = getattr(args, "strip_special_tokens", True)
+    truncate_at_end = getattr(args, "truncate_at_end_token", True)
+    max_consecutive = int(max(1, getattr(args, "max_consecutive_repeats", 3)))
+    remove_tokens = {"START", "PAD", "UNK"} if strip_special else set()
+
+    for text in word_lst:
+        tokens = text.strip().split()
+        out = []
+        for tok in tokens:
+            if truncate_at_end and tok == "END":
+                break
+            if tok in remove_tokens:
+                continue
+            out.append(tok)
+
+        if len(out) > 0:
+            compact = []
+            prev = None
+            run = 0
+            for tok in out:
+                if tok == prev:
+                    run += 1
+                else:
+                    prev = tok
+                    run = 1
+                if run <= max_consecutive:
+                    compact.append(tok)
+            out = compact
+
+        cleaned.append(" ".join(out))
+    return cleaned
 
 
 def _run_valid_bpd_eval(args):
@@ -100,6 +179,7 @@ def _run_valid_bpd_eval(args):
 def _run_bpd_eval(args, split):
     script_dir = os.path.dirname(os.path.abspath(__file__))
     nll_script = os.path.join(script_dir, "nll.py")
+    os.makedirs(args.nll_out_dir, exist_ok=True)
     cmd = [
         sys.executable,
         nll_script,
@@ -169,6 +249,7 @@ def main():
     training_args['batch_size'] = args.batch_size
     args.__dict__.update(training_args)
     args.sigma_small = True
+    set_seed(int(getattr(args, "seed", 101)))
 
     # args.diffusion_steps = 200 #500  # DEBUG
 
@@ -225,6 +306,31 @@ def main():
     print(args.num_samples)
     model3 = get_weights(model2, args)
     model3 = model3.to(dist_util.dev())
+    pad_token_id = None
+    if isinstance(tokenizer, dict):
+        pad_token_id = tokenizer.get("PAD")
+        token_to_id = {tok: idx for idx, tok in tokenizer.items()}
+    elif hasattr(tokenizer, "pad_token_id"):
+        pad_token_id = tokenizer.pad_token_id
+        token_to_id = {}
+    else:
+        token_to_id = {}
+
+    if args.rounding_block_special_tokens and args.clamp == "clamp":
+        block_ids = []
+        for name in ("START", "PAD", "UNK"):
+            if name in token_to_id:
+                block_ids.append(token_to_id[name])
+        if not args.rounding_allow_end_token and "END" in token_to_id:
+            block_ids.append(token_to_id["END"])
+        args.rounding_block_token_ids = sorted(set(block_ids))
+        if len(args.rounding_block_token_ids) > 0:
+            logger.log(
+                f"rounding will avoid token ids {args.rounding_block_token_ids} "
+                f"(topk={args.rounding_topk}, temp={args.rounding_temperature}, start_t={args.rounding_start_t})"
+            )
+    else:
+        args.rounding_block_token_ids = []
 
     model_base_name = os.path.basename(os.path.split(args.model_path)[0]) + f'.{os.path.split(args.model_path)[1]}'
     total_target = args.num_samples * args.mbr_sample
@@ -252,6 +358,15 @@ def main():
 
     generated_so_far = 0
     batch_idx = 0
+    fast_metrics_state = {
+        "num_sequences": 0,
+        "sum_lengths": 0,
+        "unigrams_total": 0,
+        "bigrams_total": 0,
+        "unigrams_unique": set(),
+        "bigrams_unique": set(),
+        "unique_sequences": set(),
+    }
     sample_start_time = time.time()
     while generated_so_far < total_target:
         batch_idx += 1
@@ -321,12 +436,26 @@ def main():
 
         gathered_samples = [th.zeros_like(sample) for _ in range(dist.get_world_size())]
         dist.all_gather(gathered_samples, sample)  # gather not supported with NCCL
-        batch_np = np.concatenate([sample.cpu().numpy() for sample in gathered_samples], axis=0)
+        gathered_batch = th.cat(gathered_samples, dim=0)
+        batch_np = gathered_batch.cpu().numpy()
         remaining = total_target - generated_so_far
         take_count = min(remaining, batch_np.shape[0])
         if take_count <= 0:
             break
         batch_np = batch_np[:take_count]
+        if args.fast_metrics_every > 0 and dist.get_rank() == 0:
+            batch_for_metrics = gathered_batch[:take_count]
+            token_ids = _nearest_token_ids(batch_for_metrics, model3.weight).detach().cpu()
+            current_metrics = _update_fast_metrics(fast_metrics_state, token_ids, pad_token_id)
+            if batch_idx % args.fast_metrics_every == 0:
+                logger.log(
+                    "fast metrics | "
+                    f"n={current_metrics['num_generated']} "
+                    f"avg_len={current_metrics['avg_length']:.2f} "
+                    f"d1={current_metrics['distinct_1']:.6f} "
+                    f"d2={current_metrics['distinct_2']:.6f} "
+                    f"uniq={current_metrics['unique_sequence_ratio']:.4f}"
+                )
         all_images.append(batch_np)
 
         if dist.get_rank() == 0 and partial_arr is not None:
@@ -420,12 +549,13 @@ def main():
         if diffusion.training_mode.startswith('e2e'):
             word_lst = word_lst_e2e
         else:
-            set_seed(101)
+            set_seed(int(getattr(args, "seed", 101)))
             model, tokenizer = load_models(args.modality, args.experiment, args.model_name_or_path, args.in_channel,
                                            os.path.split(args.model_path)[0])
             print('rounding')
             word_lst = rounding_func(args.experiment, arr, model, tokenizer,
                                      emb_scale_factor=args.emb_scale_factor)
+            word_lst = _postprocess_generated_texts(word_lst, args)
 
         out_path2 = os.path.join(args.out_dir, f"{model_base_name}.samples_{args.top_p}.txt")
         fout = open(out_path2, 'w')
@@ -495,7 +625,8 @@ def create_argparser():
         model_path="",
         model_arch='conv-unet',
         verbose='yes',
-        out_dir="generation_outputs"
+        out_dir="generation_outputs",
+        fast_metrics_every=2,
     )
     text_defaults = dict(modality='text',
                          dataset_name='wikitext',
@@ -504,6 +635,11 @@ def create_argparser():
                          experiment='gpt2_pre_compress', model_arch='trans-unet',
                          preprocessing_num_workers=1,
                          emb_scale_factor=1.0, top_p=-1., split='valid', clamp='clamp',
+                         rounding_start_t=300, rounding_topk=4, rounding_temperature=0.8,
+                         rounding_mix_ratio=1.0, rounding_block_special_tokens=True,
+                         rounding_allow_end_token=False, rounding_block_penalty=1e6,
+                         postprocess_generated_text=True, strip_special_tokens=True,
+                         truncate_at_end_token=True, max_consecutive_repeats=3,
                          compute_all_metrics=False, compute_valid_bpd=False, compute_train_bpd=False,
                          compute_ar_ppl=False, ar_model_path="",
                          nll_batch_size=64, nll_num_samples=256, nll_out_dir="scores", nll_clamp="clamp")

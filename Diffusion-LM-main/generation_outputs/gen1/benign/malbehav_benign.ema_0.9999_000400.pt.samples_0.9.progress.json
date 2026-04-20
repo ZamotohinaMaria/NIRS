@@ -1,0 +1,7 @@
+{
+  "partial_file": "generation_outputs/gen1/benign\\malbehav_benign.ema_0.9999_000400.pt.samples_0.9.partial.npy",
+  "written_samples": 1000,
+  "target_samples": 1000,
+  "completed": true,
+  "final_npz": "generation_outputs/gen1/benign\\malbehav_benign.ema_0.9999_000400.pt.samples_0.9.npz"
+}

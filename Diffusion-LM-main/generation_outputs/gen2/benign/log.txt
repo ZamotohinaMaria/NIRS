@@ -1,0 +1,15 @@
+Logging to generation_outputs/gen2/benign
+creating model and diffusion...
+the parameter count is 87140384
+sampling...
+streaming partial samples to generation_outputs/gen2/benign\malbehav_benign.ema_0.9999_000400.pt.samples_0.95.partial.npy
+created 64/300 samples (21.3%) | batch_time=695.8s | eta=46.4m
+fast metrics | n=128 avg_len=169.00 d1=0.000370 d2=0.001674 uniq=1.0000
+created 128/300 samples (42.7%) | batch_time=441.7s | eta=28.4m
+created 192/300 samples (64.0%) | batch_time=450.1s | eta=17.6m
+fast metrics | n=256 avg_len=169.00 d1=0.000185 d2=0.000930 uniq=1.0000
+created 256/300 samples (85.3%) | batch_time=451.0s | eta=8.5m
+created 300/300 samples (100.0%) | batch_time=451.6s | eta=0.0m
+saving to generation_outputs/gen2/benign\malbehav_benign.ema_0.9999_000400.pt.samples_0.95.npz
+sampling complete
+decode by rounding. 

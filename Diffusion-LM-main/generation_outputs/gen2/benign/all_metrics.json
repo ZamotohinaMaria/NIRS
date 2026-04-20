@@ -1,0 +1,60 @@
+{
+  "model_path": "diffusion_models/1gen/malbehav_benign/ema_0.9999_000400.pt",
+  "generated_json": "generation_outputs/gen2/benign/malbehav_benign.ema_0.9999_000400.pt.samples_0.95.json",
+  "nll_out_dir": "scores",
+  "valid_score_valid_ppl_token": 4626.335205078125,
+  "valid_score_valid_ppl_dim": 144.5729751586914,
+  "valid_break_down_valid_dim": [
+    0.0678618997335434,
+    0.08368869125843048,
+    0.10659589618444443,
+    0.14462780952453613,
+    0.2127157747745514,
+    0.3546139597892761,
+    0.8082610368728638,
+    49.60973358154297
+  ],
+  "valid_last_10_valid_dim": [
+    0.7824674844741821,
+    0.9370802640914917,
+    1.1488531827926636,
+    1.453052282333374,
+    1.9161630868911743,
+    2.6796481609344482,
+    4.107143402099609,
+    7.385972023010254,
+    19.074153900146484,
+    93.18460083007812
+  ],
+  "valid_source_file": "scores\\malbehav_benign.ema_0.9999_000400.pt.xstart_mse_valid_clamp_terms.npz",
+  "valid_num_samples": 256,
+  "train_score_train_ppl_token": 4627.7562255859375,
+  "train_score_train_ppl_dim": 144.61738204956055,
+  "train_break_down_train_dim": [
+    0.06788601726293564,
+    0.08372758328914642,
+    0.10665839165449142,
+    0.14469397068023682,
+    0.21280546486377716,
+    0.35479599237442017,
+    0.8086840510368347,
+    49.6279182434082
+  ],
+  "train_last_10_train_dim": [
+    0.782686710357666,
+    0.9371886253356934,
+    1.149271845817566,
+    1.4536678791046143,
+    1.9167379140853882,
+    2.6813230514526367,
+    4.107544898986816,
+    7.390054702758789,
+    19.08047103881836,
+    93.20993041992188
+  ],
+  "train_source_file": "scores\\malbehav_benign.ema_0.9999_000400.pt.xstart_mse_train_clamp_terms.npz",
+  "train_num_samples": 256,
+  "ar_score_decode": 7.678572654724121,
+  "ar_source_decode": "generation_outputs/gen2/benign/malbehav_benign.ema_0.9999_000400.pt.samples_0.95.json",
+  "ar_ar_perplexity": 2161.532315998995
+}

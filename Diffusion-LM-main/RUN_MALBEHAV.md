@@ -63,6 +63,11 @@ python scripts/text_sample.py `
   --num_samples 500 `
   --out_dir generation_outputs `
   --top_p -1.0 `
+  --rounding_start_t 300 `
+  --rounding_topk 4 `
+  --rounding_temperature 0.8 `
+  --rounding_block_special_tokens True `
+  --postprocess_generated_text True `
   --verbose yes
 ```
 

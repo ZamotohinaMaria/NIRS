@@ -49,7 +49,7 @@ def main():
             # print(x)
             tokenized_x = [reverse_tokenizer[s] for s in x]
             # print(tokenized_x)
-            tokenized_x = torch.LongTensor(tokenized_x).to(device)
+            tokenized_x = torch.LongTensor(tokenized_x).unsqueeze(0).to(device)
             labels = tokenized_x.clone()
             labels[labels==reverse_tokenizer['PAD']] = -100
             model_output = model(tokenized_x, labels=labels)
@@ -112,6 +112,7 @@ def generate_gpt2(args, device):
 
     agg_loss = []
     for tokenized_x in sample_out:
+        tokenized_x = tokenized_x.unsqueeze(0)
         labels = tokenized_x.clone()
         labels[labels == tokenizer.eos_token_id] = -100
         model_output = model(tokenized_x, labels=labels)
@@ -176,7 +177,7 @@ def generate(args, device):
     for idx, x in enumerate(text_samples):
         # print(x)
         tokenized_x = [reverse_tokenizer[s] for s in x]
-        tokenized_x = torch.LongTensor(tokenized_x).to(device)
+        tokenized_x = torch.LongTensor(tokenized_x).unsqueeze(0).to(device)
         # print(tokenized_x)
         # print(sample_out[idx])
         # print((tokenized_x == sample_out[idx]).all())

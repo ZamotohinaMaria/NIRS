@@ -152,10 +152,11 @@ def run_bpd_evaluation(model, diffusion, data, num_samples, clip_denoised, args,
                    f"per token={np.mean(all_bpd) * args.in_channel} ", args.model_path)
         temp_cat = np.mean(np.stack(all_metrics['vb']), axis=0)
         if len(temp_cat) % 8 == 0:
-            print([y.sum() for y in np.split(np.mean(np.stack(all_metrics['vb']), axis=0), 8)])
+            print([y.sum() for y in np.split(temp_cat, 8)])
         else:
             print(temp_cat[0].sum())
-            print([y.sum() for y in np.split(temp_cat[1:-1], 8)])
+            # Use array_split to avoid ValueError when length is not divisible by 8.
+            print([y.sum() for y in np.array_split(temp_cat[1:-1], 8)])
             print(temp_cat[-1].sum())
         vb_temp = np.mean(np.stack(all_metrics['vb']), axis=0)
         print(vb_temp.shape, vb_temp.sum())
@@ -183,14 +184,13 @@ def run_bpd_evaluation(model, diffusion, data, num_samples, clip_denoised, args,
 
     print(f'written to {json_path}')
     temp_cat = np.mean(np.stack(all_metrics['vb']), axis=0)
-    if len(temp_cat) % 8 == 0:
-        temp_cat = temp_cat
-    else:
+    if len(temp_cat) % 8 != 0:
         temp_cat = temp_cat[1:-1]
+    breakdown_chunks = np.array_split(temp_cat, 8)
     json_dict = {
         f'score_{args.split}_ppl_token': np.mean(all_bpd) * args.in_channel,
         f'score_{args.split}_ppl_dim': np.mean(all_bpd),
-        f'break_down_{args.split}_dim' : [y.sum().item() for y in np.split(temp_cat, 8)],
+        f'break_down_{args.split}_dim' : [y.sum().item() for y in breakdown_chunks],
         f'last_10_{args.split}_dim': vb_temp[-10:].tolist(),
         'source_file': out_path,
         'num_samples':num_samples,

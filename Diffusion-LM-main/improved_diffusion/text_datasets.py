@@ -2,7 +2,6 @@
 # import blobfile as bf
 import numpy as np
 from torch.utils.data import DataLoader, Dataset
-from transformers import AutoTokenizer, PreTrainedTokenizerFast
 from datasets import load_dataset
 import os
 import torch
@@ -10,6 +9,17 @@ import torch
 # from custom_trainer import GPT2LMHeadModelCompress, BERTModelCompress, AutoEncoderWithNoise
 from collections import Counter, defaultdict
 from itertools import chain
+
+
+def _model_device(model):
+    if hasattr(model, "device"):
+        return model.device
+    if hasattr(model, "weight"):
+        return model.weight.device
+    try:
+        return next(model.parameters()).device
+    except StopIteration:
+        return torch.device("cpu")
 
 
 def load_data_text(
@@ -71,6 +81,7 @@ def load_data_text(
                                             load_vocab=load_vocab)
 
     elif task_mode == 'book':
+        from transformers import AutoTokenizer
         tokenizer = AutoTokenizer.from_pretrained('bert-base-uncased')
         training_data, model = get_corpus_book(data_args, tokenizer, model, image_size,
                                               padding_mode=padding_mode, split=split,)
@@ -139,9 +150,10 @@ def helper_tokenize_encode_cond(sentence_lst, vocab_dict, model, seqlen, data_ar
         for input_ids, src_ids, src_mask in zip(group_lst['word_ids'], group_lst['src_ids'],
                                       group_lst['src_mask']):
             if data_args.experiment.startswith('random'):
-                hidden_state = model(torch.tensor(input_ids))
+                input_ids2 = torch.as_tensor(input_ids, dtype=torch.long, device=_model_device(model))
+                hidden_state = model(input_ids2)
             elif data_args.experiment == 'gpt2_pre_compress':
-                input_ids2 = torch.tensor(input_ids).to(model.device)
+                input_ids2 = torch.as_tensor(input_ids, dtype=torch.long, device=_model_device(model))
                 input_embs = model.transformer.wte(input_ids2)  # input_embs
                 hidden_state = model.down_proj(input_embs)
                 hidden_state = hidden_state * data_args.emb_scale_factor
@@ -166,9 +178,11 @@ def helper_tokenize_stream(sentence_lst, vocab_dict, model, seqlen, data_args, p
     def tokenize_function(examples):
         if isinstance(vocab_dict, dict):
             input_ids = [[0] + [vocab_dict.get(x, vocab_dict['UNK']) for x in seq] + [1] for seq in examples['text']]
-        elif isinstance(vocab_dict, PreTrainedTokenizerFast):
+        elif hasattr(vocab_dict, "__call__"):
             examples['text'] = [" ".join(seq) for seq in examples['text']]
             input_ids = vocab_dict(examples['text'], add_special_tokens=True)['input_ids']
+        else:
+            raise TypeError("Unsupported vocab/tokenizer type in tokenize_function")
         result_dict = {'input_ids': input_ids}
         # clm input could be much much longer than block_size
         return result_dict
@@ -262,14 +276,16 @@ def helper_tokenize_encode(sentence_lst, vocab_dict, model, seqlen, data_args, p
 
         for input_ids in group_lst['word_ids']:
             if data_args.experiment.startswith('random'):
-                hidden_state = model(torch.tensor(input_ids))
+                input_ids2 = torch.as_tensor(input_ids, dtype=torch.long, device=_model_device(model))
+                hidden_state = model(input_ids2)
             elif data_args.experiment == 'gpt2_pre_compress':
-                input_ids2 = torch.tensor(input_ids).to(model.device)
+                input_ids2 = torch.as_tensor(input_ids, dtype=torch.long, device=_model_device(model))
                 input_embs = model.transformer.wte(input_ids2)  # input_embs
                 hidden_state = model.down_proj(input_embs)
                 hidden_state = hidden_state * data_args.emb_scale_factor
             elif data_args.experiment == 'glove':
-                hidden_state = model(torch.tensor(input_ids))
+                input_ids2 = torch.as_tensor(input_ids, dtype=torch.long, device=_model_device(model))
+                hidden_state = model(input_ids2)
             result_train_lst.append({'input_ids': input_ids, 'hidden_states': hidden_state.cpu().tolist()})
 
     return result_train_lst
@@ -551,6 +567,7 @@ def get_corpus_rocstory(data_args, model, image_size, padding_mode='block',
                 vocab_dict[k] = len(vocab_dict)
         print(len(counter), len(vocab_dict))
 
+        os.makedirs(data_args.checkpoint_path, exist_ok=True)
         path_save_vocab = f'{data_args.checkpoint_path}/vocab.json'
         print(f'save the vocab to {path_save_vocab}')
         with open(path_save_vocab, 'w') as f:
@@ -560,11 +577,12 @@ def get_corpus_rocstory(data_args, model, image_size, padding_mode='block',
         path_save_vocab = f'{data_args.checkpoint_path}/vocab.json'
         if not os.path.exists(path_save_vocab):
             print(f'save the vocab to {path_save_vocab}')
+            os.makedirs(data_args.checkpoint_path, exist_ok=True)
             if isinstance(vocab_dict, dict):
                 with open(path_save_vocab, 'w') as f:
                     json.dump(vocab_dict, f)
                 assert vocab_dict['START'] == 0
-            elif isinstance(vocab_dict, PreTrainedTokenizerFast):
+            elif hasattr(vocab_dict, "save_pretrained"):
                 vocab_dict.save_pretrained(data_args.checkpoint_path)
             else:
                 assert False, "invalid type of vocab_dict"
@@ -837,12 +855,13 @@ class TextDataset_NoCache(Dataset):
             input_ids = self.text_datasets['train'][idx]['input_ids']
             model = self.model_emb
             if self.data_args.experiment.startswith('random'):
-                hidden_state = model(torch.tensor(input_ids))
+                input_ids2 = torch.as_tensor(input_ids, dtype=torch.long, device=_model_device(model))
+                hidden_state = model(input_ids2)
             elif self.data_args.experiment == 'gpt2_pre_compress':
-                input_ids2 = torch.tensor(input_ids).to(model.device)
+                input_ids2 = torch.as_tensor(input_ids, dtype=torch.long, device=_model_device(model))
                 input_embs = model.transformer.wte(input_ids2)  # input_embs
                 hidden_state = model.down_proj(input_embs)
-                hidden_state = hidden_state * data_args.emb_scale_factor
+                hidden_state = hidden_state * self.data_args.emb_scale_factor
 
             if self.model_arch == 'conv-unet':
                 arr = np.array(hidden_state,

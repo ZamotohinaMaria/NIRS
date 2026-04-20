@@ -44,10 +44,9 @@ def get_weights(model, args):
     return model
 
 def denoised_fn_round(args, model, text_emb, t):
-    # thresh_t = 50
-    # # print(thresh_t)
-    # if thresh_t is not None and t[0] > thresh_t:
-    #     return text_emb
+    rounding_start_t = getattr(args, "rounding_start_t", -1)
+    if rounding_start_t is not None and rounding_start_t >= 0 and t[0].item() > rounding_start_t:
+        return text_emb
 
     if args.model_arch == '1d-unet':
         text_emb = text_emb.permute(0, 2, 1)
@@ -60,9 +59,15 @@ def denoised_fn_round(args, model, text_emb, t):
     down_proj_emb = model.weight  # input_embs
     # print(t)
     old_shape = text_emb.shape
+    text_emb_src = text_emb
     old_device = text_emb.device
+    rounding_topk = int(max(1, getattr(args, "rounding_topk", 1)))
+    rounding_temperature = float(getattr(args, "rounding_temperature", 1.0))
+    rounding_mix_ratio = float(getattr(args, "rounding_mix_ratio", 1.0))
+    block_token_ids = getattr(args, "rounding_block_token_ids", None)
+    block_penalty = float(getattr(args, "rounding_block_penalty", 1e6))
 
-    def get_efficient_knn(down_proj_emb, text_emb, dist='l2'):
+    def get_efficient_knn(down_proj_emb, text_emb, dist='l2', k=1):
         if dist == 'l2':
             emb_norm = (down_proj_emb**2).sum(-1).view(-1, 1) #vocab
             text_emb_t = th.transpose(text_emb.view(-1, text_emb.size(-1)), 0, 1) #d, bsz*seqlen
@@ -70,8 +75,13 @@ def denoised_fn_round(args, model, text_emb, t):
             # print(emb_norm.shape, arr_norm.shape)
             dist = emb_norm + arr_norm.transpose(0, 1) - 2.0 * th.mm(down_proj_emb, text_emb_t) #(vocab, d) x (d, bsz*seqlen)
             dist = th.clamp(dist, 0.0, np.inf)
+            if block_token_ids:
+                valid_ids = [x for x in block_token_ids if 0 <= x < dist.shape[0]]
+                if len(valid_ids) > 0:
+                    dist[valid_ids, :] = dist[valid_ids, :] + block_penalty
             # print(dist.shape)
-        topk_out = th.topk(-dist, k=1, dim=0)
+        k = max(1, min(k, dist.shape[0]))
+        topk_out = th.topk(-dist, k=k, dim=0)
         #     adjacency = down_proj_emb.unsqueeze(1).expand(-1, text_emb.size(0), -1) - text_emb.unsqueeze(0).expand(
         #         down_proj_emb.size(0), -1, -1)
         #     adjacency = -th.norm(adjacency, dim=-1)
@@ -96,10 +106,32 @@ def denoised_fn_round(args, model, text_emb, t):
     # val, indices = get_knn(down_proj_emb,
     #                        text_emb.to(down_proj_emb.device), dist=dist)
     val, indices = get_efficient_knn(down_proj_emb,
-                           text_emb.to(down_proj_emb.device), dist=dist)
-    rounded_tokens = indices[0]
+                           text_emb.to(down_proj_emb.device), dist=dist, k=rounding_topk)
+    if rounding_topk <= 1:
+        rounded_tokens = indices[0]
+    else:
+        top_vals = val.transpose(0, 1)
+        top_idx = indices.transpose(0, 1)
+        if rounding_temperature <= 0:
+            choice = th.zeros(top_vals.size(0), dtype=th.long, device=top_vals.device)
+        else:
+            logits = top_vals / rounding_temperature
+            probs = th.softmax(logits, dim=-1)
+            if not th.isfinite(probs).all():
+                probs = th.nan_to_num(probs, nan=0.0, posinf=0.0, neginf=0.0)
+            row_sums = probs.sum(dim=-1, keepdim=True)
+            probs = probs / row_sums.clamp_min(1e-12)
+            zero_rows = row_sums.squeeze(-1) <= 0
+            if zero_rows.any():
+                probs[zero_rows, :] = 0.0
+                probs[zero_rows, 0] = 1.0
+            choice = th.multinomial(probs, num_samples=1).squeeze(-1)
+        rounded_tokens = top_idx.gather(dim=1, index=choice.unsqueeze(-1)).squeeze(-1)
     # print(rounded_tokens.shape)
     new_embeds = model(rounded_tokens).view(old_shape).to(old_device)
+    if rounding_mix_ratio < 1.0:
+        mix = max(0.0, min(1.0, rounding_mix_ratio))
+        new_embeds = mix * new_embeds + (1.0 - mix) * text_emb_src
     if args.model_arch == '1d-unet':
         new_embeds = new_embeds.permute(0, 2, 1)
     return new_embeds

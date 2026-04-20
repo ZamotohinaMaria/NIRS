@@ -110,10 +110,27 @@ python scripts/train_ar.py ^
 python scripts/text_sample.py ^
   --model_path diffusion_models/1gen/malbehav_benign/ema_0.9999_000400.pt ^
   --batch_size 64 ^
-  --num_samples 1000 ^
-  --out_dir generation_outputs/gen1/benign ^
-  --top_p 0.9 ^
+  --num_samples 300 ^
+  --out_dir generation_outputs/gen2/benign ^
+  --top_p 0.95 ^
   --verbose yes ^
   --compute_all_metrics True ^
-  --ar_model_path ar_models/benign_ar_lm/best ^
-  --use_ddim True
+  --ar_model_path ar_models/benign_ar_lm/best
+
+
+Еще одна генерация после большого патча чатика
+
+python scripts/text_sample.py ^
+  --model_path diffusion_models/1gen/malbehav_benign/ema_0.9999_000400.pt ^
+  --batch_size 64 ^
+  --num_samples 300 ^
+  --out_dir generation_outputs/gen2/benign ^
+  --top_p -1.0 ^
+  --rounding_start_t 300 ^
+  --rounding_topk 4 ^
+  --rounding_temperature 0.8 ^
+  --rounding_block_special_tokens True ^
+  --postprocess_generated_text True ^
+  --verbose yes ^
+  --compute_all_metrics True ^
+  --ar_model_path ar_models/benign_ar_lm/best

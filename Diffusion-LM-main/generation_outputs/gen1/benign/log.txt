@@ -1,0 +1,24 @@
+Logging to generation_outputs/gen1/benign
+creating model and diffusion...
+the parameter count is 87140384
+sampling...
+streaming partial samples to generation_outputs/gen1/benign\malbehav_benign.ema_0.9999_000400.pt.samples_0.9.partial.npy
+created 64/1000 samples (6.4%) | batch_time=434.9s | eta=108.7m
+created 128/1000 samples (12.8%) | batch_time=445.3s | eta=102.7m
+created 192/1000 samples (19.2%) | batch_time=449.3s | eta=96.0m
+created 256/1000 samples (25.6%) | batch_time=448.4s | eta=88.9m
+created 320/1000 samples (32.0%) | batch_time=447.7s | eta=81.6m
+created 384/1000 samples (38.4%) | batch_time=447.4s | eta=74.3m
+created 448/1000 samples (44.8%) | batch_time=447.7s | eta=66.9m
+created 512/1000 samples (51.2%) | batch_time=447.1s | eta=59.5m
+created 576/1000 samples (57.6%) | batch_time=447.6s | eta=52.1m
+created 640/1000 samples (64.0%) | batch_time=447.1s | eta=44.6m
+created 704/1000 samples (70.4%) | batch_time=446.0s | eta=37.2m
+created 768/1000 samples (76.8%) | batch_time=445.7s | eta=29.7m
+created 832/1000 samples (83.2%) | batch_time=445.5s | eta=22.3m
+created 896/1000 samples (89.6%) | batch_time=444.9s | eta=14.9m
+created 960/1000 samples (96.0%) | batch_time=445.2s | eta=7.4m
+created 1000/1000 samples (100.0%) | batch_time=445.5s | eta=0.0m
+saving to generation_outputs/gen1/benign\malbehav_benign.ema_0.9999_000400.pt.samples_0.9.npz
+sampling complete
+decode by rounding. 
