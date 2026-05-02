@@ -28,6 +28,7 @@ from utils import set_seed
 
 
 def parse_args() -> argparse.Namespace:
+    default_output_root = os.path.join(os.path.dirname(__file__), "runs", "multi_split_eval")
     parser = argparse.ArgumentParser(
         description="Run multiple train/eval splits and save aggregated metrics"
     )
@@ -67,7 +68,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--output-root",
         type=str,
-        default="runs/multi_split_eval",
+        default=default_output_root,
         help="A new experiment folder will be created inside this root",
     )
     parser.add_argument(

@@ -19,6 +19,7 @@ from model import GINEMalwareClassifier
 
 
 def parse_args() -> argparse.Namespace:
+    default_output_dir = os.path.join(os.path.dirname(__file__), "runs")
     parser = argparse.ArgumentParser(description="Predict malware probability with trained GINE")
     parser.add_argument("--model-path", type=str, required=True, help="Path to .pt model checkpoint")
     parser.add_argument("--vocab-path", type=str, required=True, help="Path to api_vocab.json")
@@ -61,7 +62,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--device", type=str, default="cuda" if torch.cuda.is_available() else "cpu")
     parser.add_argument("--threshold", type=float, default=0.5, help="Probability threshold for malware class")
 
-    parser.add_argument("--output-dir", type=str, default="runs")
+    parser.add_argument("--output-dir", type=str, default=default_output_dir)
     parser.add_argument(
         "--predictions-path",
         type=str,

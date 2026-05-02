@@ -1,9 +1,11 @@
 import argparse
+import os
 
 import torch
 
 
 def parse_args() -> argparse.Namespace:
+    default_output_dir = os.path.join(os.path.dirname(__file__), "runs")
     parser = argparse.ArgumentParser(description="Train GINE on MalbehavD-V1-like dataset")
     parser.add_argument("--csv", type=str, required=True, help="Path to CSV file")
     parser.add_argument(
@@ -72,7 +74,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--output-dir",
         type=str,
-        default="runs",
+        default=default_output_dir,
         help="Base directory for outputs (used for relative --save-path, --vocab-path, --results-path)",
     )
     parser.add_argument(
