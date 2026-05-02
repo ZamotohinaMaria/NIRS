@@ -1,0 +1,7 @@
+Logging to runs/models\malbehav_full_balanced_v1_trf_ic16_bs16_s101_20260502-200831
+console tee logging to runs/models\malbehav_full_balanced_v1_trf_ic16_bs16_s101_20260502-200831\console.log
+creating model and diffusion...
+the parameter count is 86870898
+saving the hyperparameters to runs/models\malbehav_full_balanced_v1_trf_ic16_bs16_s101_20260502-200831/training_args.json
+wandb disabled (use_wandb=no)
+creating data loader...

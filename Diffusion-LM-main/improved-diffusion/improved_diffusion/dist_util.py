@@ -26,17 +26,18 @@ def setup_dist():
         return
 
     comm = MPI.COMM_WORLD
-    backend = "gloo" if not th.cuda.is_available() else "nccl"
+    backend = os.environ.get("DIST_BACKEND", "gloo").strip().lower()
+    if backend not in {"gloo", "nccl"}:
+        backend = "gloo"
 
-    if backend == "gloo":
-        hostname = "localhost"
-    else:
-        hostname = socket.gethostbyname(socket.getfqdn())
+    # Use localhost by default for robust single-machine startup on Windows.
+    hostname = os.environ.get("MASTER_ADDR", "localhost")
     os.environ["MASTER_ADDR"] = comm.bcast(hostname, root=0)
     os.environ["RANK"] = str(comm.rank)
     os.environ["WORLD_SIZE"] = str(comm.size)
 
-    port = comm.bcast(_find_free_port(), root=0)
+    port = int(os.environ.get("MASTER_PORT", "0")) or _find_free_port()
+    port = comm.bcast(port, root=0)
     os.environ["MASTER_PORT"] = str(port)
     dist.init_process_group(backend=backend, init_method="env://")
 

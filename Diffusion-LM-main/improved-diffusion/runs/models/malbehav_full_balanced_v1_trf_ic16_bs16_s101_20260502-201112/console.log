@@ -1,0 +1,283 @@
+Logging to runs/models\malbehav_full_balanced_v1_trf_ic16_bs16_s101_20260502-201112
+console tee logging to runs/models\malbehav_full_balanced_v1_trf_ic16_bs16_s101_20260502-201112\console.log
+auto vocab_size from malbehav_train: 250
+creating model and diffusion...
+creating model, based on transformer
+BertConfig {
+  "_name_or_path": "bert-base-uncased",
+  "architectures": [
+    "BertForMaskedLM"
+  ],
+  "attention_probs_dropout_prob": 0.1,
+  "classifier_dropout": null,
+  "gradient_checkpointing": false,
+  "hidden_act": "gelu",
+  "hidden_dropout_prob": 0.2,
+  "hidden_size": 768,
+  "initializer_range": 0.02,
+  "intermediate_size": 3072,
+  "layer_norm_eps": 1e-12,
+  "max_position_embeddings": 512,
+  "model_type": "bert",
+  "num_attention_heads": 12,
+  "num_hidden_layers": 12,
+  "pad_token_id": 0,
+  "position_embedding_type": "absolute",
+  "transformers_version": "4.17.0.dev0",
+  "type_vocab_size": 2,
+  "use_cache": true,
+  "vocab_size": 30522
+}
+
+LossType.E2E_MSE False
+training mode is  e2e
+training mode is  e2e
+the parameter count is 86874026
+saving the hyperparameters to runs/models\malbehav_full_balanced_v1_trf_ic16_bs16_s101_20260502-201112/training_args.json
+wandb disabled (use_wandb=no)
+creating data loader...
+load data **************************************************
+hello loading text data. 
+hello loading malbehav 
+loading dataset from MalbehavD-V1
+[['LABEL_1', 'CreateToolhelp32Snapshot', 'NtDuplicateObject', 'RegCloseKey', 'OpenServiceA', 'GetNativeSystemInfo', 'GetShortPathNameW', 'EnumWindows', 'GetSystemWindowsDirectoryW', 'NtQueryValueKey', 'GetFileAttributesW', 'RegQueryValueExW', 'NtFreeVirtualMemory', 'Process32NextW', 'NtCreateThreadEx', 'RegOpenKeyExW', 'NtDelayExecution', 'SetErrorMode', 'ShellExecuteExW', 'NtAllocateVirtualMemory', 'RegOpenKeyExA', 'NtWriteFile', 'NtMapViewOfSection', 'Process32FirstW', 'LdrUnloadDll', 'GetVolumePathNamesForVolumeNameW', 'NtResumeThread', 'NtOpenFile', 'CreateThread', 'SetFilePointer', 'GetSystemDirectoryW', 'NtQueryDirectoryFile', 'LoadStringW', 'NtCreateFile', 'GetVolumeNameForVolumeMountPointW', 'GetSystemTimeAsFileTime', 'FindFirstFileExW', 'NtCreateMutant', 'NtCreateSection', 'EnumServicesStatusA', 'NtOpenKey', 'NtOpenMutant', 'LdrGetProcedureAddress', 'RegSetValueExA', 'GetFileType', 'LdrLoadDll', 'OpenSCManagerA', 'CreateProcessInternalW', 'NtClose'], ['LABEL_0', 'LdrUnloadDll', 'CoUninitialize', 'GetForegroundWindow', 'DrawTextExW', 'GetSystemInfo', 'IsDebuggerPresent', 'GetSystemWindowsDirectoryW', 'NtQueryValueKey', 'RegCloseKey', 'RegQueryValueExW', 'NtMapViewOfSection', 'GetSystemMetrics', 'RegOpenKeyExW', 'NtAllocateVirtualMemory', 'NtFreeVirtualMemory', 'FindResourceExA', 'GetSystemDirectoryW', 'FindResourceExW', 'NtCreateFile', 'NtCreateSection', 'CoInitializeEx', 'LdrGetDllHandle', 'GlobalMemoryStatus', 'NtOpenKey', 'NtOpenMutant', 'LoadResource', 'LdrGetProcedureAddress', 'NtOpenDirectoryObject', 'GetFileType', 'LdrLoadDll', 'NtTerminateProcess', 'NtClose']] dataset size= 2620
+293 250
+save the vocab to runs/models\malbehav_full_balanced_v1_trf_ic16_bs16_s101_20260502-201112/vocab.json
+initializing the random embeddings Embedding(250, 16)
+save the random encoder to runs/models\malbehav_full_balanced_v1_trf_ic16_bs16_s101_20260502-201112/random_emb.torch
+[[0, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 1], [0, 53, 28, 54, 55, 56, 57, 58, 12, 13, 7, 15, 26, 59, 19, 23, 16, 60, 34, 61, 37, 42, 62, 63, 64, 44, 45, 65, 46, 66, 48, 49, 67, 52, 1]]
+padding mode is pad
+13
+loading from runs/models\malbehav_full_balanced_v1_trf_ic16_bs16_s101_20260502-201112/vocab.json
+250
+loading from runs/models\malbehav_full_balanced_v1_trf_ic16_bs16_s101_20260502-201112/vocab.json
+250
+Embedding(250, 16) False
+training...
+------------------------
+| grad_norm | 4.12     |
+| loss      | 1.54     |
+| loss_q0   | 1.5      |
+| loss_q1   | 1.52     |
+| loss_q2   | 1.56     |
+| loss_q3   | 1.58     |
+| mse       | 0.736    |
+| mse_q0    | 0.781    |
+| mse_q1    | 0.765    |
+| mse_q2    | 0.717    |
+| mse_q3    | 0.687    |
+| samples   | 16       |
+| step      | 0        |
+------------------------
+hello loading text data. 
+loading initialized random embeddings. 
+hello loading malbehav 
+loading dataset from MalbehavD-V1
+[['LABEL_1', 'CreateToolhelp32Snapshot', 'NtDuplicateObject', 'RegCloseKey', 'OpenServiceA', 'GetNativeSystemInfo', 'GetShortPathNameW', 'EnumWindows', 'GetSystemWindowsDirectoryW', 'NtQueryValueKey', 'GetFileAttributesW', 'RegQueryValueExW', 'NtFreeVirtualMemory', 'Process32NextW', 'NtCreateThreadEx', 'RegOpenKeyExW', 'NtDelayExecution', 'SetErrorMode', 'ShellExecuteExW', 'NtAllocateVirtualMemory', 'RegOpenKeyExA', 'NtWriteFile', 'NtMapViewOfSection', 'Process32FirstW', 'LdrUnloadDll', 'GetVolumePathNamesForVolumeNameW', 'NtResumeThread', 'NtOpenFile', 'CreateThread', 'SetFilePointer', 'GetSystemDirectoryW', 'NtQueryDirectoryFile', 'LoadStringW', 'NtCreateFile', 'GetVolumeNameForVolumeMountPointW', 'GetSystemTimeAsFileTime', 'FindFirstFileExW', 'NtCreateMutant', 'NtCreateSection', 'EnumServicesStatusA', 'NtOpenKey', 'NtOpenMutant', 'LdrGetProcedureAddress', 'RegSetValueExA', 'GetFileType', 'LdrLoadDll', 'OpenSCManagerA', 'CreateProcessInternalW', 'NtClose'], ['LABEL_0', 'LdrUnloadDll', 'CoUninitialize', 'GetForegroundWindow', 'DrawTextExW', 'GetSystemInfo', 'IsDebuggerPresent', 'GetSystemWindowsDirectoryW', 'NtQueryValueKey', 'RegCloseKey', 'RegQueryValueExW', 'NtMapViewOfSection', 'GetSystemMetrics', 'RegOpenKeyExW', 'NtAllocateVirtualMemory', 'NtFreeVirtualMemory', 'FindResourceExA', 'GetSystemDirectoryW', 'FindResourceExW', 'NtCreateFile', 'NtCreateSection', 'CoInitializeEx', 'LdrGetDllHandle', 'GlobalMemoryStatus', 'NtOpenKey', 'NtOpenMutant', 'LoadResource', 'LdrGetProcedureAddress', 'NtOpenDirectoryObject', 'GetFileType', 'LdrLoadDll', 'NtTerminateProcess', 'NtClose']] dataset size= 25
+[[0, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 1], [0, 53, 28, 54, 55, 56, 57, 58, 12, 13, 7, 15, 26, 59, 19, 23, 16, 60, 34, 61, 37, 42, 62, 63, 64, 44, 45, 65, 46, 66, 48, 49, 67, 52, 1]]
+padding mode is pad
+13
+saving new best model at step=0, eval_loss=1.255145
+[EVAL] step=0 eval_loss_mean=1.255145 best_eval_loss=1.255145 no_improve=0/5
+------------------------------------
+| eval_loss             | 1.26     |
+| eval_loss_mean        | 1.26     |
+| eval_loss_q0          | 1.24     |
+| eval_loss_q1          | 1.25     |
+| eval_loss_q2          | 1.26     |
+| eval_loss_q3          | 1.26     |
+| eval_mse              | 0.481    |
+| eval_mse_q0           | 0.456    |
+| eval_mse_q1           | 0.479    |
+| eval_mse_q2           | 0.494    |
+| eval_mse_q3           | 0.494    |
+| eval_no_improve_count | 0        |
+------------------------------------
+saving model 0...
+writing to runs/models\malbehav_full_balanced_v1_trf_ic16_bs16_s101_20260502-201112\model000000.pt
+writing to runs/models\malbehav_full_balanced_v1_trf_ic16_bs16_s101_20260502-201112\model000000.pt
+saving model 0.9999...
+writing to runs/models\malbehav_full_balanced_v1_trf_ic16_bs16_s101_20260502-201112\ema_0.9999_000000.pt
+writing to runs/models\malbehav_full_balanced_v1_trf_ic16_bs16_s101_20260502-201112\ema_0.9999_000000.pt
+[PROGRESS] [##----------------------------] 10/101 (9.90%)
+------------------------
+| grad_norm | 2.3      |
+| loss      | 1.19     |
+| loss_q0   | 1.17     |
+| loss_q1   | 1.18     |
+| loss_q2   | 1.19     |
+| loss_q3   | 1.21     |
+| mse       | 0.414    |
+| mse_q0    | 0.389    |
+| mse_q1    | 0.41     |
+| mse_q2    | 0.407    |
+| mse_q3    | 0.446    |
+| samples   | 176      |
+| step      | 10       |
+------------------------
+[PROGRESS] [#####-------------------------] 20/101 (19.80%)
+------------------------
+| grad_norm | 2.13     |
+| loss      | 1.1      |
+| loss_q0   | 1.08     |
+| loss_q1   | 1.07     |
+| loss_q2   | 1.11     |
+| loss_q3   | 1.12     |
+| mse       | 0.318    |
+| mse_q0    | 0.309    |
+| mse_q1    | 0.257    |
+| mse_q2    | 0.356    |
+| mse_q3    | 0.348    |
+| samples   | 336      |
+| step      | 20       |
+------------------------
+[PROGRESS] [########----------------------] 30/101 (29.70%)
+------------------------
+| grad_norm | 2.04     |
+| loss      | 1.07     |
+| loss_q0   | 1.04     |
+| loss_q1   | 1.07     |
+| loss_q2   | 1.06     |
+| loss_q3   | 1.1      |
+| mse       | 0.305    |
+| mse_q0    | 0.3      |
+| mse_q1    | 0.324    |
+| mse_q2    | 0.261    |
+| mse_q3    | 0.324    |
+| samples   | 496      |
+| step      | 30       |
+------------------------
+[PROGRESS] [###########-------------------] 40/101 (39.60%)
+------------------------
+| grad_norm | 2.01     |
+| loss      | 1.05     |
+| loss_q0   | 1.01     |
+| loss_q1   | 1.02     |
+| loss_q2   | 1.06     |
+| loss_q3   | 1.09     |
+| mse       | 0.28     |
+| mse_q0    | 0.283    |
+| mse_q1    | 0.223    |
+| mse_q2    | 0.305    |
+| mse_q3    | 0.328    |
+| samples   | 656      |
+| step      | 40       |
+------------------------
+[PROGRESS] [##############----------------] 50/101 (49.50%)
+------------------------
+| grad_norm | 1.97     |
+| loss      | 1.03     |
+| loss_q0   | 0.984    |
+| loss_q1   | 1.01     |
+| loss_q2   | 1.04     |
+| loss_q3   | 1.08     |
+| mse       | 0.263    |
+| mse_q0    | 0.218    |
+| mse_q1    | 0.246    |
+| mse_q2    | 0.296    |
+| mse_q3    | 0.306    |
+| samples   | 816      |
+| step      | 50       |
+------------------------
+[PROGRESS] [#################-------------] 60/101 (59.41%)
+------------------------
+| grad_norm | 2        |
+| loss      | 1.02     |
+| loss_q0   | 0.97     |
+| loss_q1   | 0.992    |
+| loss_q2   | 1.02     |
+| loss_q3   | 1.09     |
+| mse       | 0.264    |
+| mse_q0    | 0.226    |
+| mse_q1    | 0.222    |
+| mse_q2    | 0.236    |
+| mse_q3    | 0.345    |
+| samples   | 976      |
+| step      | 60       |
+------------------------
+[PROGRESS] [####################----------] 70/101 (69.31%)
+------------------------
+| grad_norm | 1.88     |
+| loss      | 1.02     |
+| loss_q0   | 0.968    |
+| loss_q1   | 0.986    |
+| loss_q2   | 1.04     |
+| loss_q3   | 1.07     |
+| mse       | 0.275    |
+| mse_q0    | 0.264    |
+| mse_q1    | 0.214    |
+| mse_q2    | 0.298    |
+| mse_q3    | 0.327    |
+| samples   | 1.14e+03 |
+| step      | 70       |
+------------------------
+[PROGRESS] [#######################-------] 80/101 (79.21%)
+------------------------
+| grad_norm | 1.84     |
+| loss      | 1.01     |
+| loss_q0   | 0.953    |
+| loss_q1   | 1        |
+| loss_q2   | 1.03     |
+| loss_q3   | 1.07     |
+| mse       | 0.28     |
+| mse_q0    | 0.209    |
+| mse_q1    | 0.293    |
+| mse_q2    | 0.322    |
+| mse_q3    | 0.33     |
+| samples   | 1.3e+03  |
+| step      | 80       |
+------------------------
+[PROGRESS] [##########################----] 90/101 (89.11%)
+------------------------
+| grad_norm | 1.93     |
+| loss      | 1        |
+| loss_q0   | 0.943    |
+| loss_q1   | 0.986    |
+| loss_q2   | 1.02     |
+| loss_q3   | 1.06     |
+| mse       | 0.257    |
+| mse_q0    | 0.21     |
+| mse_q1    | 0.256    |
+| mse_q2    | 0.276    |
+| mse_q3    | 0.276    |
+| samples   | 1.46e+03 |
+| step      | 90       |
+------------------------
+[PROGRESS] [#############################-] 100/101 (99.01%)
+------------------------
+| grad_norm | 1.98     |
+| loss      | 0.997    |
+| loss_q0   | 0.943    |
+| loss_q1   | 0.98     |
+| loss_q2   | 1.01     |
+| loss_q3   | 1.07     |
+| mse       | 0.235    |
+| mse_q0    | 0.175    |
+| mse_q1    | 0.22     |
+| mse_q2    | 0.263    |
+| mse_q3    | 0.294    |
+| samples   | 1.62e+03 |
+| step      | 100      |
+------------------------
+saving new best model at step=100, eval_loss=1.014704
+[EVAL] step=100 eval_loss_mean=1.014704 best_eval_loss=1.014704 no_improve=0/5
+------------------------------------
+| eval_loss             | 1.01     |
+| eval_loss_mean        | 1.01     |
+| eval_loss_q0          | 0.941    |
+| eval_loss_q1          | 0.986    |
+| eval_loss_q2          | 1.03     |
+| eval_loss_q3          | 1.09     |
+| eval_mse              | 0.288    |
+| eval_mse_q0           | 0.215    |
+| eval_mse_q1           | 0.227    |
+| eval_mse_q2           | 0.331    |
+| eval_mse_q3           | 0.375    |
+| eval_no_improve_count | 0        |
+------------------------------------
+saving model 0...
+writing to runs/models\malbehav_full_balanced_v1_trf_ic16_bs16_s101_20260502-201112\model000100.pt
+writing to runs/models\malbehav_full_balanced_v1_trf_ic16_bs16_s101_20260502-201112\model000100.pt
+saving model 0.9999...
+writing to runs/models\malbehav_full_balanced_v1_trf_ic16_bs16_s101_20260502-201112\ema_0.9999_000100.pt
+writing to runs/models\malbehav_full_balanced_v1_trf_ic16_bs16_s101_20260502-201112\ema_0.9999_000100.pt

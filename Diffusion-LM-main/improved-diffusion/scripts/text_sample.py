@@ -41,6 +41,7 @@ class TeeStream:
     def __init__(self, stream, filepath):
         self.stream = stream
         self.file = open(filepath, "a", encoding="utf-8")
+        self.encoding = getattr(stream, "encoding", "utf-8")
 
     def write(self, data):
         self.stream.write(data)
@@ -51,6 +52,11 @@ class TeeStream:
     def flush(self):
         self.stream.flush()
         self.file.flush()
+
+    def read(self, *args, **kwargs):
+        if hasattr(self.stream, "read"):
+            return self.stream.read(*args, **kwargs)
+        return ""
 
 
 def setup_console_tee(log_dir, filename):

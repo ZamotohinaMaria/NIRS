@@ -5,7 +5,6 @@ import numpy as np
 from torch.utils.data import DataLoader, Dataset
 from transformers import AutoModelForCausalLM, AutoConfig, AutoTokenizer, default_data_collator, PreTrainedTokenizerFast, \
     PreTrainedTokenizer
-from datasets import load_dataset
 import sys, os
 import torch
 # sys.path.insert(0, os.path.join(sys.path[0], '../../transformers/examples/pytorch/language-modeling'))
@@ -83,7 +82,7 @@ def load_data_text(
         training_data, model = get_corpus_book(data_args, tokenizer, model, image_size,
                                               padding_mode=padding_mode, split=split,)
 
-    if data_args.modality in ['roc-aug', 'roc', 'book', 'yelp', 'commonGen', 'commonGen-aug', 'malbehav'] and data_args.cache_mode=='no':
+    if data_args.modality in ['roc-aug', 'roc', 'book', 'yelp', 'commonGen', 'commonGen-aug'] and data_args.cache_mode=='no':
         dataset = TextDataset_NoCache(
             training_data,
             image_size,
@@ -709,6 +708,7 @@ def read_e2e_files(path, args, tokenizer):
 def get_corpus_book(data_args, tokenizer, model, image_size, padding_mode='block', split='train',):
     max_length = image_size ** 2
     import os
+    from datasets import load_dataset
     assert padding_mode == 'block'
     raw_datasets = load_dataset('bookcorpus')
     if "validation" not in raw_datasets.keys():

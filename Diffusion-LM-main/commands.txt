@@ -1,6 +1,15 @@
 Обучение
 cd C:\Users\Marishka\Desktop\code\NIRS\Diffusion-LM-main\improved-diffusion
 
+Смысл:
+
+TensorFlow включил оптимизации oneDNN на CPU.
+Из-за этого возможны очень маленькие различия в числах (порядок вычислений другой).
+На обучение это обычно не влияет критично.
+Если хочешь убрать эти строки:
+
+set TF_ENABLE_ONEDNN_OPTS=0
+
 set APP=--predict_xstart True ^
         --training_mode e2e ^
         --malbehav_train ../../MalbehavD-V1-main/prepared_for_diffusionlm/malbehav_train.txt ^
@@ -19,18 +28,20 @@ python scripts/run_train.py ^
   --noise_schedule sqrt ^
   --weight_decay 0.01 ^
   --image_size 13 ^
-  --hidden_size 256 ^
-  --in_channel 64 ^
+  --bsz 16 ^
+  --hidden_size 64 ^
+  --in_channel 16 ^
   --m 3 ^
   --k 32 ^
-  --lr_anneal_steps 120000 ^
+  --lr_anneal_steps 20000 ^
   --lr 5e-5 ^
-  --diff_steps 2000 ^
-  --save_interval 100 ^
+  --diff_steps 1500 ^
+  --save_interval 500 ^
   --eval_interval 100 ^
   --eval_num_batches 8 ^
   --padding_mode pad ^
   --seed 101 ^
+  --dropout 0.2 ^
   --notes malbehav_full_balanced_v1 ^
   --app "%APP%"
 

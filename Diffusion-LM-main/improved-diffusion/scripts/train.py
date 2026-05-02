@@ -7,6 +7,8 @@ import json, torch, os
 import numpy as np
 import tempfile
 import sys
+import csv
+from collections import Counter
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.dirname(CURRENT_DIR)
@@ -17,6 +19,19 @@ if os.path.isdir(LOCAL_TRANSFORMERS_SRC) and LOCAL_TRANSFORMERS_SRC not in sys.p
     sys.path.insert(0, LOCAL_TRANSFORMERS_SRC)
 if PROJECT_ROOT not in sys.path:
     sys.path.insert(0, PROJECT_ROOT)
+
+try:
+    import huggingface_hub as _hf_hub
+    if not hasattr(_hf_hub, "HfFolder"):
+        raise RuntimeError(
+            "Incompatible huggingface_hub version. "
+            "Please run: pip install huggingface_hub==0.4.0"
+        )
+except Exception as _e:
+    raise RuntimeError(
+        f"huggingface_hub compatibility check failed: {_e}. "
+        "Please run: pip install huggingface_hub==0.4.0"
+    )
 
 from improved_diffusion import dist_util, logger
 from improved_diffusion.image_datasets import load_data
@@ -42,6 +57,7 @@ class TeeStream:
     def __init__(self, stream, filepath):
         self.stream = stream
         self.file = open(filepath, "a", encoding="utf-8")
+        self.encoding = getattr(stream, "encoding", "utf-8")
 
     def write(self, data):
         self.stream.write(data)
@@ -52,6 +68,12 @@ class TeeStream:
     def flush(self):
         self.stream.flush()
         self.file.flush()
+
+    # Compatibility for logger.HumanOutputFormat that asserts hasattr(stream, "read").
+    def read(self, *args, **kwargs):
+        if hasattr(self.stream, "read"):
+            return self.stream.read(*args, **kwargs)
+        return ""
 
 
 def setup_console_tee(log_dir):
@@ -90,16 +112,69 @@ def validate_training_paths(args):
             ensure_file_exists(args.malbehav_test, "malbehav_test")
 
 
+def infer_malbehav_vocab_size(args):
+    train_path = args.malbehav_train
+    if train_path is None or str(train_path).strip() == "":
+        return args.vocab_size
+    train_path = os.path.expanduser(train_path)
+    if not os.path.exists(train_path):
+        return args.vocab_size
+
+    counter = Counter()
+    if train_path.endswith(".csv"):
+        skip_cols = {
+            x.strip() for x in str(args.malbehav_skip_columns).split(",")
+            if x.strip() != ""
+        }
+        include_label = str(args.malbehav_include_label).lower() == "yes"
+        label_col = args.malbehav_label_column
+        with open(train_path, "r", newline="", encoding="utf-8") as f:
+            reader = csv.DictReader(f)
+            fieldnames = reader.fieldnames if reader.fieldnames is not None else []
+            for row in reader:
+                tokens = []
+                if include_label:
+                    label_val = str(row.get(label_col, "")).strip()
+                    if label_val != "":
+                        tokens.append(f"LABEL_{label_val}")
+                for col in fieldnames:
+                    if col in skip_cols:
+                        continue
+                    val = str(row.get(col, "")).strip()
+                    if val == "" or val.lower() == "nan":
+                        continue
+                    tokens.append(val)
+                counter.update(tokens)
+    else:
+        with open(train_path, "r", encoding="utf-8") as f:
+            for line in f:
+                tokens = [x for x in line.strip().split() if x != ""]
+                counter.update(tokens)
+
+    # Keep behavior consistent with text_datasets.py:
+    # vocab = {START, END, UNK, PAD} + tokens with count > 10
+    inferred = 4 + sum(1 for _, c in counter.items() if c > 10)
+    if inferred <= 4:
+        return args.vocab_size
+    return inferred
+
+
 def main():
     args = create_argparser().parse_args()
     set_seed(args.seed) 
     dist_util.setup_dist() # DEBUG **
     validate_training_paths(args)
+    if args.use_wandb != "yes":
+        os.environ["WANDB_MODE"] = "disabled"
     if dist.get_rank() == 0:
         setup_console_tee(args.checkpoint_path)
     logger.configure(dir=args.checkpoint_path)
     if dist.get_rank() == 0:
         logger.log(f"console tee logging to {os.path.join(args.checkpoint_path, 'console.log')}")
+    if args.modality == "malbehav":
+        inferred_vocab = infer_malbehav_vocab_size(args)
+        args.vocab_size = inferred_vocab
+        logger.log(f"auto vocab_size from malbehav_train: {args.vocab_size}")
 
 
     logger.log("creating model and diffusion...")
@@ -118,11 +193,14 @@ def main():
     with open(f'{args.checkpoint_path}/training_args.json', 'w') as f:
         json.dump(args.__dict__, f, indent=2)
 
-    wandb.init(
-        project=os.getenv("WANDB_PROJECT", "diffusion_lm"),
-        name=args.checkpoint_path,
-    )
-    wandb.config.update(args.__dict__, allow_val_change=True)
+    if args.use_wandb == "yes":
+        wandb.init(
+            project=os.getenv("WANDB_PROJECT", "diffusion_lm"),
+            name=args.checkpoint_path,
+        )
+        wandb.config.update(args.__dict__, allow_val_change=True)
+    else:
+        logger.log("wandb disabled (use_wandb=no)")
 
     if args.experiment_mode == 'conditional_gen':
         assert args.modality in ['e2e']
@@ -265,6 +343,7 @@ def create_argparser():
         save_best_model='yes',
         best_model_filename='best_model.pt',
         save_optimizer_state='yes',
+        use_wandb='no',
     )
     text_defaults = dict(modality='text',
                          dataset_name='wikitext',

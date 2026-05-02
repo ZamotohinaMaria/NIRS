@@ -1,0 +1,5 @@
+{
+  "step": 5000,
+  "eval_loss": 0.15355943143367767,
+  "best_model_filename": "best_model.pt"
+}

@@ -1,0 +1,92 @@
+Logging to runs/models\malbehav_full_balanced_v1_trf_ic16_bs16_s101_20260502-201722
+console tee logging to runs/models\malbehav_full_balanced_v1_trf_ic16_bs16_s101_20260502-201722\console.log
+auto vocab_size from malbehav_train: 250
+creating model and diffusion...
+the parameter count is 86874026
+saving the hyperparameters to runs/models\malbehav_full_balanced_v1_trf_ic16_bs16_s101_20260502-201722/training_args.json
+wandb disabled (use_wandb=no)
+creating data loader...
+training...
+[PROGRESS] [------------------------------] 0/20000 (0.00%)
+saving new best model at step=0, eval_loss=1.255145
+[EVAL] step=0 eval_loss_mean=1.255145 best_eval_loss=1.255145 no_improve=0/5
+------------------------------------
+| eval_loss             | 1.26     |
+| eval_loss_mean        | 1.26     |
+| eval_loss_q0          | 1.24     |
+| eval_loss_q1          | 1.25     |
+| eval_loss_q2          | 1.26     |
+| eval_loss_q3          | 1.26     |
+| eval_mse              | 0.481    |
+| eval_mse_q0           | 0.456    |
+| eval_mse_q1           | 0.479    |
+| eval_mse_q2           | 0.494    |
+| eval_mse_q3           | 0.494    |
+| eval_no_improve_count | 0        |
+| grad_norm             | 4.12     |
+| loss                  | 1.54     |
+| loss_q0               | 1.5      |
+| loss_q1               | 1.52     |
+| loss_q2               | 1.56     |
+| loss_q3               | 1.58     |
+| mse                   | 0.736    |
+| mse_q0                | 0.781    |
+| mse_q1                | 0.765    |
+| mse_q2                | 0.717    |
+| mse_q3                | 0.687    |
+| samples               | 16       |
+| step                  | 0        |
+------------------------------------
+saving model 0...
+saving model 0.9999...
+[PROGRESS] [------------------------------] 10/20000 (0.05%)
+[PROGRESS] [------------------------------] 20/20000 (0.10%)
+[PROGRESS] [------------------------------] 30/20000 (0.15%)
+[PROGRESS] [------------------------------] 40/20000 (0.20%)
+[PROGRESS] [------------------------------] 50/20000 (0.25%)
+[PROGRESS] [------------------------------] 60/20000 (0.30%)
+[PROGRESS] [------------------------------] 70/20000 (0.35%)
+[PROGRESS] [------------------------------] 80/20000 (0.40%)
+[PROGRESS] [------------------------------] 90/20000 (0.45%)
+[PROGRESS] [------------------------------] 100/20000 (0.50%)
+saving new best model at step=100, eval_loss=0.957664
+[EVAL] step=100 eval_loss_mean=0.957664 best_eval_loss=0.957664 no_improve=0/5
+------------------------------------
+| eval_loss             | 0.958    |
+| eval_loss_mean        | 0.958    |
+| eval_loss_q0          | 0.86     |
+| eval_loss_q1          | 0.926    |
+| eval_loss_q2          | 0.982    |
+| eval_loss_q3          | 1.05     |
+| eval_mse              | 0.258    |
+| eval_mse_q0           | 0.161    |
+| eval_mse_q1           | 0.195    |
+| eval_mse_q2           | 0.308    |
+| eval_mse_q3           | 0.362    |
+| eval_no_improve_count | 0        |
+| grad_norm             | 2.01     |
+| loss                  | 1.03     |
+| loss_q0               | 0.973    |
+| loss_q1               | 1.01     |
+| loss_q2               | 1.04     |
+| loss_q3               | 1.09     |
+| mse                   | 0.278    |
+| mse_q0                | 0.233    |
+| mse_q1                | 0.252    |
+| mse_q2                | 0.293    |
+| mse_q3                | 0.333    |
+| samples               | 1.62e+03 |
+| step                  | 100      |
+------------------------------------
+saving model 0...
+saving model 0.9999...
+[PROGRESS] [------------------------------] 110/20000 (0.55%)
+[PROGRESS] [------------------------------] 120/20000 (0.60%)
+[PROGRESS] [------------------------------] 130/20000 (0.65%)
+[PROGRESS] [------------------------------] 140/20000 (0.70%)
+[PROGRESS] [------------------------------] 150/20000 (0.75%)
+[PROGRESS] [------------------------------] 160/20000 (0.80%)
+[PROGRESS] [------------------------------] 170/20000 (0.85%)
+[PROGRESS] [------------------------------] 180/20000 (0.90%)
+[PROGRESS] [------------------------------] 190/20000 (0.95%)
+[PROGRESS] [------------------------------] 200/20000 (1.00%)

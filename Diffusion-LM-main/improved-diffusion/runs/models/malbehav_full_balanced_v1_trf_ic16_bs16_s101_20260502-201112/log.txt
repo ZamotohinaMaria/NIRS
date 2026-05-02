@@ -1,0 +1,220 @@
+Logging to runs/models\malbehav_full_balanced_v1_trf_ic16_bs16_s101_20260502-201112
+console tee logging to runs/models\malbehav_full_balanced_v1_trf_ic16_bs16_s101_20260502-201112\console.log
+auto vocab_size from malbehav_train: 250
+creating model and diffusion...
+the parameter count is 86874026
+saving the hyperparameters to runs/models\malbehav_full_balanced_v1_trf_ic16_bs16_s101_20260502-201112/training_args.json
+wandb disabled (use_wandb=no)
+creating data loader...
+training...
+------------------------
+| grad_norm | 4.12     |
+| loss      | 1.54     |
+| loss_q0   | 1.5      |
+| loss_q1   | 1.52     |
+| loss_q2   | 1.56     |
+| loss_q3   | 1.58     |
+| mse       | 0.736    |
+| mse_q0    | 0.781    |
+| mse_q1    | 0.765    |
+| mse_q2    | 0.717    |
+| mse_q3    | 0.687    |
+| samples   | 16       |
+| step      | 0        |
+------------------------
+saving new best model at step=0, eval_loss=1.255145
+[EVAL] step=0 eval_loss_mean=1.255145 best_eval_loss=1.255145 no_improve=0/5
+------------------------------------
+| eval_loss             | 1.26     |
+| eval_loss_mean        | 1.26     |
+| eval_loss_q0          | 1.24     |
+| eval_loss_q1          | 1.25     |
+| eval_loss_q2          | 1.26     |
+| eval_loss_q3          | 1.26     |
+| eval_mse              | 0.481    |
+| eval_mse_q0           | 0.456    |
+| eval_mse_q1           | 0.479    |
+| eval_mse_q2           | 0.494    |
+| eval_mse_q3           | 0.494    |
+| eval_no_improve_count | 0        |
+------------------------------------
+saving model 0...
+saving model 0.9999...
+[PROGRESS] [##----------------------------] 10/101 (9.90%)
+------------------------
+| grad_norm | 2.3      |
+| loss      | 1.19     |
+| loss_q0   | 1.17     |
+| loss_q1   | 1.18     |
+| loss_q2   | 1.19     |
+| loss_q3   | 1.21     |
+| mse       | 0.414    |
+| mse_q0    | 0.389    |
+| mse_q1    | 0.41     |
+| mse_q2    | 0.407    |
+| mse_q3    | 0.446    |
+| samples   | 176      |
+| step      | 10       |
+------------------------
+[PROGRESS] [#####-------------------------] 20/101 (19.80%)
+------------------------
+| grad_norm | 2.13     |
+| loss      | 1.1      |
+| loss_q0   | 1.08     |
+| loss_q1   | 1.07     |
+| loss_q2   | 1.11     |
+| loss_q3   | 1.12     |
+| mse       | 0.318    |
+| mse_q0    | 0.309    |
+| mse_q1    | 0.257    |
+| mse_q2    | 0.356    |
+| mse_q3    | 0.348    |
+| samples   | 336      |
+| step      | 20       |
+------------------------
+[PROGRESS] [########----------------------] 30/101 (29.70%)
+------------------------
+| grad_norm | 2.04     |
+| loss      | 1.07     |
+| loss_q0   | 1.04     |
+| loss_q1   | 1.07     |
+| loss_q2   | 1.06     |
+| loss_q3   | 1.1      |
+| mse       | 0.305    |
+| mse_q0    | 0.3      |
+| mse_q1    | 0.324    |
+| mse_q2    | 0.261    |
+| mse_q3    | 0.324    |
+| samples   | 496      |
+| step      | 30       |
+------------------------
+[PROGRESS] [###########-------------------] 40/101 (39.60%)
+------------------------
+| grad_norm | 2.01     |
+| loss      | 1.05     |
+| loss_q0   | 1.01     |
+| loss_q1   | 1.02     |
+| loss_q2   | 1.06     |
+| loss_q3   | 1.09     |
+| mse       | 0.28     |
+| mse_q0    | 0.283    |
+| mse_q1    | 0.223    |
+| mse_q2    | 0.305    |
+| mse_q3    | 0.328    |
+| samples   | 656      |
+| step      | 40       |
+------------------------
+[PROGRESS] [##############----------------] 50/101 (49.50%)
+------------------------
+| grad_norm | 1.97     |
+| loss      | 1.03     |
+| loss_q0   | 0.984    |
+| loss_q1   | 1.01     |
+| loss_q2   | 1.04     |
+| loss_q3   | 1.08     |
+| mse       | 0.263    |
+| mse_q0    | 0.218    |
+| mse_q1    | 0.246    |
+| mse_q2    | 0.296    |
+| mse_q3    | 0.306    |
+| samples   | 816      |
+| step      | 50       |
+------------------------
+[PROGRESS] [#################-------------] 60/101 (59.41%)
+------------------------
+| grad_norm | 2        |
+| loss      | 1.02     |
+| loss_q0   | 0.97     |
+| loss_q1   | 0.992    |
+| loss_q2   | 1.02     |
+| loss_q3   | 1.09     |
+| mse       | 0.264    |
+| mse_q0    | 0.226    |
+| mse_q1    | 0.222    |
+| mse_q2    | 0.236    |
+| mse_q3    | 0.345    |
+| samples   | 976      |
+| step      | 60       |
+------------------------
+[PROGRESS] [####################----------] 70/101 (69.31%)
+------------------------
+| grad_norm | 1.88     |
+| loss      | 1.02     |
+| loss_q0   | 0.968    |
+| loss_q1   | 0.986    |
+| loss_q2   | 1.04     |
+| loss_q3   | 1.07     |
+| mse       | 0.275    |
+| mse_q0    | 0.264    |
+| mse_q1    | 0.214    |
+| mse_q2    | 0.298    |
+| mse_q3    | 0.327    |
+| samples   | 1.14e+03 |
+| step      | 70       |
+------------------------
+[PROGRESS] [#######################-------] 80/101 (79.21%)
+------------------------
+| grad_norm | 1.84     |
+| loss      | 1.01     |
+| loss_q0   | 0.953    |
+| loss_q1   | 1        |
+| loss_q2   | 1.03     |
+| loss_q3   | 1.07     |
+| mse       | 0.28     |
+| mse_q0    | 0.209    |
+| mse_q1    | 0.293    |
+| mse_q2    | 0.322    |
+| mse_q3    | 0.33     |
+| samples   | 1.3e+03  |
+| step      | 80       |
+------------------------
+[PROGRESS] [##########################----] 90/101 (89.11%)
+------------------------
+| grad_norm | 1.93     |
+| loss      | 1        |
+| loss_q0   | 0.943    |
+| loss_q1   | 0.986    |
+| loss_q2   | 1.02     |
+| loss_q3   | 1.06     |
+| mse       | 0.257    |
+| mse_q0    | 0.21     |
+| mse_q1    | 0.256    |
+| mse_q2    | 0.276    |
+| mse_q3    | 0.276    |
+| samples   | 1.46e+03 |
+| step      | 90       |
+------------------------
+[PROGRESS] [#############################-] 100/101 (99.01%)
+------------------------
+| grad_norm | 1.98     |
+| loss      | 0.997    |
+| loss_q0   | 0.943    |
+| loss_q1   | 0.98     |
+| loss_q2   | 1.01     |
+| loss_q3   | 1.07     |
+| mse       | 0.235    |
+| mse_q0    | 0.175    |
+| mse_q1    | 0.22     |
+| mse_q2    | 0.263    |
+| mse_q3    | 0.294    |
+| samples   | 1.62e+03 |
+| step      | 100      |
+------------------------
+saving new best model at step=100, eval_loss=1.014704
+[EVAL] step=100 eval_loss_mean=1.014704 best_eval_loss=1.014704 no_improve=0/5
+------------------------------------
+| eval_loss             | 1.01     |
+| eval_loss_mean        | 1.01     |
+| eval_loss_q0          | 0.941    |
+| eval_loss_q1          | 0.986    |
+| eval_loss_q2          | 1.03     |
+| eval_loss_q3          | 1.09     |
+| eval_mse              | 0.288    |
+| eval_mse_q0           | 0.215    |
+| eval_mse_q1           | 0.227    |
+| eval_mse_q2           | 0.331    |
+| eval_mse_q3           | 0.375    |
+| eval_no_improve_count | 0        |
+------------------------------------
+saving model 0...
+saving model 0.9999...

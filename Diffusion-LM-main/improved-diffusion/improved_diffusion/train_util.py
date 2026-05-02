@@ -191,7 +191,7 @@ class TrainLoop:
             batch, cond = next(self.data)
             self.run_step(batch, cond)
             if self.step % self.log_interval == 0:
-                logger.dumpkvs()
+                self.log_progress()
             if self.eval_data is not None and self.eval_interval > 0 and self.step % self.eval_interval == 0:
                 eval_loss = self.evaluate()
                 if eval_loss is not None:
@@ -233,14 +233,13 @@ class TrainLoop:
                 if os.environ.get("DIFFUSION_TRAINING_TEST", "") and self.step > 0:
                     return
             self.step += 1
-            self.log_progress()
         # Save the last checkpoint if it wasn't already saved.
         if (self.step - 1) % self.save_interval != 0:
             self.save()
 
     def log_progress(self):
         current_step = self.step + self.resume_step
-        if current_step % 10 != 0:
+        if self.log_interval <= 0 or current_step % self.log_interval != 0:
             return
         if self.lr_anneal_steps > 0:
             total = self.lr_anneal_steps

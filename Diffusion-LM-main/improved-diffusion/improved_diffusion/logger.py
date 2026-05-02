@@ -366,8 +366,13 @@ class Logger(object):
             )
             if self.comm.rank != 0:
                 d["dummy"] = 1  # so we don't get a warning about empty dict
-        # LISA
-        wandb.log({**d})
+        # Optional wandb logging.
+        try:
+            if os.environ.get("WANDB_MODE", "").lower() != "disabled":
+                wandb.log({**d})
+        except Exception:
+            # Never fail training due to external logger issues.
+            pass
         out = d.copy()  # Return the dict for unit testing purposes
         for fmt in self.output_formats:
             if isinstance(fmt, KVWriter):

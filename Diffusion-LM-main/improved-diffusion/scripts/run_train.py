@@ -31,6 +31,23 @@ def ensure_modules_available(module_names):
             + f"pip install {' '.join(missing)}"
         )
 
+
+def ensure_huggingface_hub_compat():
+    try:
+        import huggingface_hub as hf_hub
+    except Exception as e:
+        raise ModuleNotFoundError(
+            f"Failed to import huggingface_hub: {e}. "
+            "Install compatible version: pip install huggingface_hub==0.4.0"
+        )
+    if not hasattr(hf_hub, "HfFolder"):
+        ver = getattr(hf_hub, "__version__", "unknown")
+        raise RuntimeError(
+            "Incompatible huggingface_hub version detected: "
+            f"{ver}. This project expects API with HfFolder.\n"
+            "Run: pip install huggingface_hub==0.4.0"
+        )
+
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description='training args.')
@@ -80,6 +97,7 @@ if __name__ == '__main__':
         "spacy",
         "wandb",
     ])
+    ensure_huggingface_hub_compat()
 
     folder_name = args.checkpoint_root
     ensure_dir_writable(folder_name, "checkpoint_root")
@@ -133,10 +151,14 @@ if __name__ == '__main__':
                      f"_s{args.num_res_blocks}_sd{args.seed}"
 
     ts = datetime.now().strftime("%Y%m%d-%H%M%S")
-    run_name = Model_FILE
-    run_name += f"_bs{args.bsz}"
-    if args.notes:
-        run_name += f'_{args.notes}'
+    arch_short = {"transformer": "trf", "conv-unet": "cunet", "1d-unet": "u1d"}.get(args.model_arch, args.model_arch)
+    prefix = args.notes if args.notes else args.modality
+    run_name = (
+        f"{prefix}_{arch_short}"
+        f"_ic{args.in_channel}"
+        f"_bs{args.bsz}"
+        f"_s{args.seed}"
+    )
     run_name += f"_{ts}"
     Model_FILE = os.path.join(folder_name, run_name)
     ensure_dir_writable(Model_FILE, "run_dir")
@@ -186,7 +208,10 @@ if __name__ == '__main__':
     env["OPENAI_LOGDIR"] = Model_FILE
     env["TOKENIZERS_PARALLELISM"] = "false"
 
-    with open(os.path.join(Model_FILE, 'train_command.sh'), 'w') as f:
+    with open(os.path.join(Model_FILE, 'train_command.cmd'), 'w') as f:
+        print(" ".join(command_list), file=f)
+
+    with open(os.path.join(Model_FILE, 'train_command.txt'), 'w') as f:
         print(" ".join(command_list), file=f)
 
     print(" ".join(command_list))
@@ -194,14 +219,5 @@ if __name__ == '__main__':
         subprocess.run(command_list, env=env, cwd=project_dir, check=False)
     # #
     elif args.submit == 'yes':
-        if args.use_big == 'no':
-            full_command = "nlprun  -g 1 -n {} -x jagupard10,jagupard11,jagupard12,jagupard13,jagupard14,jagupard15,jagupard16,jagupard17,jagupard20 \'{}\'".format(
-                Model_FILE, " ".join(command_list))
-        elif True:
-            full_command = "nlprun  -g 1 -n {} -x " \
-                           "jagupard10,jagupard11,jagupard12,jagupard13,jagupard14,jagupard15,jagupard16,jagupard17,jagupard18," \
-                           "jagupard19,jagupard20,jagupard21,jagupard22,jagupard23," \
-                           "jagupard24,jagupard25\'{}\'".format(Model_FILE, " ".join(command_list))
-
-        print(full_command)
-        os.system(full_command)
+        print("submit=yes is remapped to local run in this Windows-default build.")
+        subprocess.run(command_list, env=env, cwd=project_dir, check=False)

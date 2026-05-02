@@ -1,0 +1,60 @@
+Logging to runs/models\malbehav_full_balanced_v1_trf_ic16_bs16_s101_20260502-200831
+console tee logging to runs/models\malbehav_full_balanced_v1_trf_ic16_bs16_s101_20260502-200831\console.log
+creating model and diffusion...
+creating model, based on transformer
+BertConfig {
+  "_name_or_path": "bert-base-uncased",
+  "architectures": [
+    "BertForMaskedLM"
+  ],
+  "attention_probs_dropout_prob": 0.1,
+  "classifier_dropout": null,
+  "gradient_checkpointing": false,
+  "hidden_act": "gelu",
+  "hidden_dropout_prob": 0.2,
+  "hidden_size": 768,
+  "initializer_range": 0.02,
+  "intermediate_size": 3072,
+  "layer_norm_eps": 1e-12,
+  "max_position_embeddings": 512,
+  "model_type": "bert",
+  "num_attention_heads": 12,
+  "num_hidden_layers": 12,
+  "pad_token_id": 0,
+  "position_embedding_type": "absolute",
+  "transformers_version": "4.17.0.dev0",
+  "type_vocab_size": 2,
+  "use_cache": true,
+  "vocab_size": 30522
+}
+
+LossType.E2E_MSE False
+training mode is  e2e
+training mode is  e2e
+the parameter count is 86870898
+saving the hyperparameters to runs/models\malbehav_full_balanced_v1_trf_ic16_bs16_s101_20260502-200831/training_args.json
+wandb disabled (use_wandb=no)
+creating data loader...
+load data **************************************************
+hello loading text data. 
+loading dataset from ROCStory
+loading from diffusion_lm/ROCstory
+loading form the TRAIN set
+[rank0]: Traceback (most recent call last):
+[rank0]:   File "C:\Users\Marishka\Desktop\code\NIRS\Diffusion-LM-main\improved-diffusion\scripts\train.py", line 376, in <module>
+[rank0]:     main()
+[rank0]:     ~~~~^^
+[rank0]:   File "C:\Users\Marishka\Desktop\code\NIRS\Diffusion-LM-main\improved-diffusion\scripts\train.py", line 255, in main
+[rank0]:     next(data)
+[rank0]:     ~~~~^^^^^^
+[rank0]:   File "C:\Users\Marishka\Desktop\code\NIRS\Diffusion-LM-main\improved-diffusion\improved_diffusion\text_datasets.py", line 45, in load_data_text
+[rank0]:     training_data, model = get_corpus_rocstory(data_args, model, image_size,
+[rank0]:                            ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank0]:                                         padding_mode=padding_mode, split=split,
+[rank0]:                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank0]:                                         load_vocab=load_vocab)
+[rank0]:                                         ^^^^^^^^^^^^^^^^^^^^^^
+[rank0]:   File "C:\Users\Marishka\Desktop\code\NIRS\Diffusion-LM-main\improved-diffusion\improved_diffusion\text_datasets.py", line 336, in get_corpus_rocstory
+[rank0]:     with open(path, 'r') as roc_reader:
+[rank0]:          ~~~~^^^^^^^^^^^
+[rank0]: FileNotFoundError: [Errno 2] No such file or directory: 'diffusion_lm/ROCstory/roc_train.json'
