@@ -65,6 +65,13 @@ def parse_args():
         default=2,
         help="Minimum token length to keep a sequence.",
     )
+    parser.add_argument(
+        "--use_all_for_train",
+        type=str,
+        default="no",
+        choices=["yes", "no"],
+        help="If yes, put all sequences into train and mirror a tiny subset into valid/test.",
+    )
     return parser.parse_args()
 
 
@@ -101,11 +108,6 @@ def write_split(path, sequences):
 
 def main():
     args = parse_args()
-    if args.train_ratio <= 0 or args.valid_ratio < 0:
-        raise ValueError("train_ratio must be > 0 and valid_ratio must be >= 0")
-    if args.train_ratio + args.valid_ratio >= 1.0:
-        raise ValueError("train_ratio + valid_ratio must be < 1.0")
-
     skip_columns = {x.strip() for x in args.skip_columns.split(",") if x.strip() != ""}
     sequences, label_counter = build_sequences(
         input_csv=args.input_csv,
@@ -122,13 +124,23 @@ def main():
     random.shuffle(sequences)
 
     n_total = len(sequences)
-    n_train = int(n_total * args.train_ratio)
-    n_valid = int(n_total * args.valid_ratio)
-    n_test = n_total - n_train - n_valid
-
-    train_data = sequences[:n_train]
-    valid_data = sequences[n_train:n_train + n_valid]
-    test_data = sequences[n_train + n_valid:]
+    if args.use_all_for_train == "yes":
+        train_data = sequences
+        # Keep non-empty eval splits to avoid empty-dataloader issues in training loop.
+        n_valid = max(1, int(n_total * 0.01))
+        n_test = max(1, int(n_total * 0.01))
+        valid_data = sequences[:n_valid]
+        test_data = sequences[n_valid:n_valid + n_test]
+    else:
+        if args.train_ratio <= 0 or args.valid_ratio < 0:
+            raise ValueError("train_ratio must be > 0 and valid_ratio must be >= 0")
+        if args.train_ratio + args.valid_ratio >= 1.0:
+            raise ValueError("train_ratio + valid_ratio must be < 1.0")
+        n_train = int(n_total * args.train_ratio)
+        n_valid = int(n_total * args.valid_ratio)
+        train_data = sequences[:n_train]
+        valid_data = sequences[n_train:n_train + n_valid]
+        test_data = sequences[n_train + n_valid:]
 
     os.makedirs(args.output_dir, exist_ok=True)
     train_path = os.path.join(args.output_dir, "malbehav_train.txt")

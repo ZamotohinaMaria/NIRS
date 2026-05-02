@@ -5,6 +5,18 @@ numpy array. This can be used to produce samples for FID evaluation.
 
 import argparse
 import os, json
+import tempfile
+import sys
+
+CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+PROJECT_ROOT = os.path.dirname(CURRENT_DIR)
+REPO_ROOT = os.path.dirname(PROJECT_ROOT)
+LOCAL_TRANSFORMERS_SRC = os.path.join(REPO_ROOT, "transformers", "src")
+
+if os.path.isdir(LOCAL_TRANSFORMERS_SRC) and LOCAL_TRANSFORMERS_SRC not in sys.path:
+    sys.path.insert(0, LOCAL_TRANSFORMERS_SRC)
+if PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, PROJECT_ROOT)
 
 import numpy as np
 import torch as th
@@ -25,21 +37,70 @@ from improved_diffusion.script_util import (
 )
 
 
+class TeeStream:
+    def __init__(self, stream, filepath):
+        self.stream = stream
+        self.file = open(filepath, "a", encoding="utf-8")
+
+    def write(self, data):
+        self.stream.write(data)
+        self.file.write(data)
+        self.stream.flush()
+        self.file.flush()
+
+    def flush(self):
+        self.stream.flush()
+        self.file.flush()
+
+
+def setup_console_tee(log_dir, filename):
+    os.makedirs(log_dir, exist_ok=True)
+    log_path = os.path.join(log_dir, filename)
+    sys.stdout = TeeStream(sys.stdout, log_path)
+    sys.stderr = TeeStream(sys.stderr, log_path)
+
+
+def ensure_file_exists(path, name):
+    if path is None or str(path).strip() == "":
+        raise ValueError(f"{name} is empty")
+    if not os.path.isfile(path):
+        raise FileNotFoundError(f"{name} not found: {path}")
+
+
+def ensure_dir_writable(path, name):
+    if path is None or str(path).strip() == "":
+        raise ValueError(f"{name} is empty")
+    os.makedirs(path, exist_ok=True)
+    try:
+        with tempfile.NamedTemporaryFile(dir=path, prefix="._write_test_", delete=True):
+            pass
+    except Exception as e:
+        raise PermissionError(f"{name} is not writable: {path}. Error: {e}")
+
+
 def main():
-    set_seed(101)
     args = create_argparser().parse_args()
+    cli_seed = args.seed
+
+    ensure_file_exists(args.model_path, "model_path")
+    ensure_dir_writable(args.out_dir, "out_dir")
 
     dist_util.setup_dist()
-    logger.configure()
+    if dist.get_rank() == 0:
+        setup_console_tee(args.out_dir, "generation_console.log")
+    logger.configure(dir=args.out_dir)
 
     # load configurations.
     config_path = os.path.join(os.path.split(args.model_path)[0], "training_args.json")
+    ensure_file_exists(config_path, "training_args.json")
     print(config_path)
     # sys.setdefaultencoding('utf-8')
     with open(config_path, 'rb', ) as f:
         training_args = json.load(f)
     training_args['batch_size'] = args.batch_size
     args.__dict__.update(training_args)
+    args.seed = cli_seed
+    set_seed(args.seed)
     args.sigma_small = True
 
     # args.diffusion_steps = 200 #500  # DEBUG
@@ -258,7 +319,8 @@ def create_argparser():
         model_path="",
         model_arch='conv-unet',
         verbose='yes',
-        out_dir="diffusion_lm/improved_diffusion/out_gen"
+        out_dir="diffusion_lm/improved_diffusion/out_gen",
+        seed=101,
     )
     text_defaults = dict(modality='text',
                          dataset_name='wikitext',

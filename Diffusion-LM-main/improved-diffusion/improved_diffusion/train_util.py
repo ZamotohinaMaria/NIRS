@@ -1,5 +1,6 @@
 import copy
 import functools
+import json
 import os
 
 import blobfile as bf
@@ -49,6 +50,12 @@ class TrainLoop:
         gradient_clipping=-1.,
         eval_data=None,
         eval_interval=-1,
+        eval_num_batches=1,
+        early_stop_patience_eval=5,
+        early_stop_min_delta=0.0,
+        save_best_model=True,
+        best_model_filename="best_model.pt",
+        save_optimizer_state=True,
     ):
         self.model = model
         self.diffusion = diffusion
@@ -64,6 +71,9 @@ class TrainLoop:
         )
         self.log_interval = log_interval
         self.eval_interval = eval_interval
+        self.eval_num_batches = max(1, int(eval_num_batches))
+        self.early_stop_patience_eval = int(early_stop_patience_eval)
+        self.early_stop_min_delta = float(early_stop_min_delta)
         self.save_interval = save_interval
         self.resume_checkpoint = resume_checkpoint
         self.use_fp16 = use_fp16
@@ -83,6 +93,12 @@ class TrainLoop:
         self.sync_cuda = th.cuda.is_available()
 
         self.checkpoint_path = checkpoint_path # DEBUG **
+        self.save_best_model = save_best_model
+        self.best_model_filename = best_model_filename
+        self.save_optimizer_state = save_optimizer_state
+        self.best_eval_loss = None
+        self.best_step = None
+        self.no_improve_eval_count = 0
 
         self._load_and_sync_parameters()
         if self.use_fp16:
@@ -176,10 +192,40 @@ class TrainLoop:
             self.run_step(batch, cond)
             if self.step % self.log_interval == 0:
                 logger.dumpkvs()
-            if self.eval_data is not None and self.step % self.eval_interval == 0:
-                batch_eval, cond_eval = next(self.eval_data)
-                self.forward_only(batch, cond)
-                print('eval on validation set')
+            if self.eval_data is not None and self.eval_interval > 0 and self.step % self.eval_interval == 0:
+                eval_loss = self.evaluate()
+                if eval_loss is not None:
+                    logger.logkv("eval_loss_mean", eval_loss)
+                    improved = (
+                        self.best_eval_loss is None
+                        or eval_loss < (self.best_eval_loss - self.early_stop_min_delta)
+                    )
+                    if improved:
+                        self.best_eval_loss = eval_loss
+                        self.best_step = self.step + self.resume_step
+                        self.no_improve_eval_count = 0
+                        if self.save_best_model:
+                            self.save_best(eval_loss)
+                    else:
+                        self.no_improve_eval_count += 1
+                    logger.logkv("eval_no_improve_count", self.no_improve_eval_count)
+                    logger.log(
+                        f"[EVAL] step={self.step + self.resume_step} "
+                        f"eval_loss_mean={eval_loss:.6f} "
+                        f"best_eval_loss={self.best_eval_loss:.6f} "
+                        f"no_improve={self.no_improve_eval_count}/{self.early_stop_patience_eval}"
+                    )
+                    if (
+                        self.early_stop_patience_eval > 0
+                        and self.no_improve_eval_count >= self.early_stop_patience_eval
+                    ):
+                        logger.log(
+                            "early stopping triggered: "
+                            f"no eval improvement for {self.no_improve_eval_count} checks"
+                        )
+                        if self.step % self.save_interval != 0:
+                            self.save()
+                        return
                 logger.dumpkvs()
             if self.step % self.save_interval == 0:
                 self.save()
@@ -187,9 +233,25 @@ class TrainLoop:
                 if os.environ.get("DIFFUSION_TRAINING_TEST", "") and self.step > 0:
                     return
             self.step += 1
+            self.log_progress()
         # Save the last checkpoint if it wasn't already saved.
         if (self.step - 1) % self.save_interval != 0:
             self.save()
+
+    def log_progress(self):
+        current_step = self.step + self.resume_step
+        if current_step % 10 != 0:
+            return
+        if self.lr_anneal_steps > 0:
+            total = self.lr_anneal_steps
+            done = min(current_step, total)
+            progress = done / total
+            bar_size = 30
+            done_chars = int(progress * bar_size)
+            bar = "#" * done_chars + "-" * (bar_size - done_chars)
+            logger.log(f"[PROGRESS] [{bar}] {done}/{total} ({progress * 100:.2f}%)")
+        else:
+            logger.log(f"[PROGRESS] step={current_step}")
 
     def run_step(self, batch, cond):
         self.forward_backward(batch, cond)
@@ -200,6 +262,8 @@ class TrainLoop:
         self.log_step()
 
     def forward_only(self, batch, cond):
+        total_eval_loss = 0.0
+        total_eval_count = 0
         with th.no_grad():
             zero_grad(self.model_params)
             for i in range(0, batch.shape[0], self.microbatch):
@@ -228,6 +292,24 @@ class TrainLoop:
                 log_loss_dict(
                     self.diffusion, t, {f"eval_{k}": v * weights for k, v in losses.items()}
                 )
+                if "loss" in losses:
+                    weighted_eval_loss = (losses["loss"] * weights).detach()
+                    total_eval_loss += weighted_eval_loss.sum().item()
+                    total_eval_count += weighted_eval_loss.numel()
+        if total_eval_count == 0:
+            return None
+        return total_eval_loss / total_eval_count
+
+    def evaluate(self):
+        eval_losses = []
+        for _ in range(self.eval_num_batches):
+            batch_eval, cond_eval = next(self.eval_data)
+            one_eval_loss = self.forward_only(batch_eval, cond_eval)
+            if one_eval_loss is not None:
+                eval_losses.append(one_eval_loss)
+        if len(eval_losses) == 0:
+            return None
+        return float(np.mean(eval_losses))
 
 
     def forward_backward(self, batch, cond):
@@ -353,13 +435,33 @@ class TrainLoop:
         for rate, params in zip(self.ema_rate, self.ema_params):
             save_checkpoint(rate, params)
 
-        # if dist.get_rank() == 0: # DEBUG **
-        #     with bf.BlobFile(
-        #         bf.join(get_blob_logdir(), f"opt{(self.step+self.resume_step):06d}.pt"),
-        #         "wb",
-        #     ) as f:
-        #         th.save(self.opt.state_dict(), f)
+        if self.save_optimizer_state and dist.get_rank() == 0:
+            with bf.BlobFile(
+                bf.join(self.checkpoint_path, f"opt{(self.step+self.resume_step):06d}.pt"),
+                "wb",
+            ) as f:
+                th.save(self.opt.state_dict(), f)
 
+        dist.barrier()
+
+    def save_best(self, eval_loss):
+        if dist.get_rank() == 0:
+            logger.log(
+                f"saving new best model at step={self.step + self.resume_step}, "
+                f"eval_loss={eval_loss:.6f}"
+            )
+            state_dict = self._master_params_to_state_dict(self.master_params)
+            best_model_path = bf.join(self.checkpoint_path, self.best_model_filename)
+            with bf.BlobFile(best_model_path, "wb") as f:
+                th.save(state_dict, f)
+
+            best_meta = {
+                "step": self.step + self.resume_step,
+                "eval_loss": float(eval_loss),
+                "best_model_filename": self.best_model_filename,
+            }
+            with bf.BlobFile(bf.join(self.checkpoint_path, "best_model_meta.json"), "wb") as f:
+                f.write(json.dumps(best_meta, indent=2).encode("utf-8"))
         dist.barrier()
 
     def _master_params_to_state_dict(self, master_params):

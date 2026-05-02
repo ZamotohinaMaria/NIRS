@@ -1,8 +1,8 @@
 {
   "total_sequences": 2570,
-  "train_sequences": 2313,
-  "valid_sequences": 128,
-  "test_sequences": 129,
+  "train_sequences": 2570,
+  "valid_sequences": 25,
+  "test_sequences": 25,
   "unique_tokens": 293,
   "estimated_vocab_size_threshold_gt10": 250,
   "label_counts": {

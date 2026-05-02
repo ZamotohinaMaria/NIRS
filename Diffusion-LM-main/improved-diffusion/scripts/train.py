@@ -5,6 +5,19 @@ Train a diffusion model on images.
 import argparse
 import json, torch, os
 import numpy as np
+import tempfile
+import sys
+
+CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+PROJECT_ROOT = os.path.dirname(CURRENT_DIR)
+REPO_ROOT = os.path.dirname(PROJECT_ROOT)
+LOCAL_TRANSFORMERS_SRC = os.path.join(REPO_ROOT, "transformers", "src")
+
+if os.path.isdir(LOCAL_TRANSFORMERS_SRC) and LOCAL_TRANSFORMERS_SRC not in sys.path:
+    sys.path.insert(0, LOCAL_TRANSFORMERS_SRC)
+if PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, PROJECT_ROOT)
+
 from improved_diffusion import dist_util, logger
 from improved_diffusion.image_datasets import load_data
 from improved_diffusion.text_datasets import load_data_text
@@ -24,11 +37,69 @@ from improved_diffusion.rounding import load_models, load_tokenizer
 import torch.distributed as dist
 import wandb
 
+
+class TeeStream:
+    def __init__(self, stream, filepath):
+        self.stream = stream
+        self.file = open(filepath, "a", encoding="utf-8")
+
+    def write(self, data):
+        self.stream.write(data)
+        self.file.write(data)
+        self.stream.flush()
+        self.file.flush()
+
+    def flush(self):
+        self.stream.flush()
+        self.file.flush()
+
+
+def setup_console_tee(log_dir):
+    os.makedirs(log_dir, exist_ok=True)
+    tee_path = os.path.join(log_dir, "console.log")
+    sys.stdout = TeeStream(sys.stdout, tee_path)
+    sys.stderr = TeeStream(sys.stderr, tee_path)
+
+
+def ensure_file_exists(path, name):
+    if path is None or str(path).strip() == "":
+        raise ValueError(f"{name} is empty")
+    if not os.path.isfile(path):
+        raise FileNotFoundError(f"{name} not found: {path}")
+
+
+def ensure_dir_writable(path, name):
+    if path is None or str(path).strip() == "":
+        raise ValueError(f"{name} is empty")
+    os.makedirs(path, exist_ok=True)
+    try:
+        with tempfile.NamedTemporaryFile(dir=path, prefix="._write_test_", delete=True):
+            pass
+    except Exception as e:
+        raise PermissionError(f"{name} is not writable: {path}. Error: {e}")
+
+
+def validate_training_paths(args):
+    ensure_dir_writable(args.checkpoint_path, "checkpoint_path")
+
+    if args.modality == "malbehav":
+        ensure_file_exists(args.malbehav_train, "malbehav_train")
+        if str(args.malbehav_valid).strip() != "":
+            ensure_file_exists(args.malbehav_valid, "malbehav_valid")
+        if str(args.malbehav_test).strip() != "":
+            ensure_file_exists(args.malbehav_test, "malbehav_test")
+
+
 def main():
     args = create_argparser().parse_args()
     set_seed(args.seed) 
     dist_util.setup_dist() # DEBUG **
-    logger.configure()
+    validate_training_paths(args)
+    if dist.get_rank() == 0:
+        setup_console_tee(args.checkpoint_path)
+    logger.configure(dir=args.checkpoint_path)
+    if dist.get_rank() == 0:
+        logger.log(f"console tee logging to {os.path.join(args.checkpoint_path, 'console.log')}")
 
 
     logger.log("creating model and diffusion...")
@@ -159,7 +230,13 @@ def main():
         checkpoint_path=args.checkpoint_path,
         gradient_clipping=args.gradient_clipping,
         eval_data=data_valid,
-        eval_interval=args.eval_interval
+        eval_interval=args.eval_interval,
+        eval_num_batches=args.eval_num_batches,
+        early_stop_patience_eval=args.early_stop_patience_eval,
+        early_stop_min_delta=args.early_stop_min_delta,
+        save_best_model=(args.save_best_model == "yes"),
+        best_model_filename=args.best_model_filename,
+        save_optimizer_state=(args.save_optimizer_state == "yes"),
     ).run_loop()
 
 
@@ -181,7 +258,13 @@ def create_argparser():
         seed=101,
         gradient_clipping=-1.0,
         eval_interval=2000,
-        checkpoint_path='diff_models'
+        eval_num_batches=4,
+        early_stop_patience_eval=5,
+        early_stop_min_delta=0.0,
+        checkpoint_path='diff_models',
+        save_best_model='yes',
+        best_model_filename='best_model.pt',
+        save_optimizer_state='yes',
     )
     text_defaults = dict(modality='text',
                          dataset_name='wikitext',

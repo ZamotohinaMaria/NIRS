@@ -1,0 +1,36 @@
+Обучение
+cd C:\Users\Marishka\Desktop\code\NIRS\Diffusion-LM-main\improved-diffusion
+
+set APP=--predict_xstart True ^
+        --training_mode e2e ^
+        --malbehav_train ../../MalbehavD-V1-main/prepared_for_diffusionlm/malbehav_train.txt ^
+        --malbehav_valid ../../MalbehavD-V1-main/prepared_for_diffusionlm/malbehav_valid.txt ^
+        --malbehav_test ../../MalbehavD-V1-main/prepared_for_diffusionlm/malbehav_test.txt ^
+        --cache_mode no ^
+        --save_best_model yes ^
+        --best_model_filename best_model.pt ^
+        --save_optimizer_state yes ^
+        --log_interval 10
+
+python scripts/run_train.py ^
+  --experiment random ^
+  --model_arch transformer ^
+  --modality malbehav ^
+  --noise_schedule sqrt ^
+  --weight_decay 0.01 ^
+  --image_size 13 ^
+  --hidden_size 256 ^
+  --in_channel 64 ^
+  --m 3 ^
+  --k 32 ^
+  --lr_anneal_steps 120000 ^
+  --lr 5e-5 ^
+  --diff_steps 2000 ^
+  --save_interval 100 ^
+  --eval_interval 100 ^
+  --eval_num_batches 8 ^
+  --padding_mode pad ^
+  --seed 101 ^
+  --notes malbehav_full_balanced_v1 ^
+  --app "%APP%"
+

@@ -397,8 +397,14 @@ def get_corpus_rocstory(data_args, model, image_size, padding_mode='block',
                 path = data_args.malbehav_train
             elif split == 'valid':
                 path = data_args.malbehav_valid
+                if path == "":
+                    # Allow training on the full dataset without a dedicated valid split.
+                    path = data_args.malbehav_train
             elif split == 'test':
                 path = data_args.malbehav_test
+                if path == "":
+                    # Allow training on the full dataset without a dedicated test split.
+                    path = data_args.malbehav_train
             else:
                 assert False, "invalid split for malbehav dataset"
 

@@ -9,8 +9,7 @@ python improved-diffusion/scripts/prepare_malbehav_data.py `
   --input_csv ../MalbehavD-V1-main/MalBehavD-V1-dataset.csv `
   --output_dir ../MalbehavD-V1-main/prepared_for_diffusionlm `
   --include_label_token yes `
-  --train_ratio 0.9 `
-  --valid_ratio 0.05 `
+  --use_all_for_train yes `
   --seed 101
 ```
 
@@ -22,6 +21,7 @@ python improved-diffusion/scripts/prepare_malbehav_data.py `
 - `malbehav_stats.json`
 
 В `malbehav_stats.json` есть поле `estimated_vocab_size_threshold_gt10`. Используйте его в `--vocab_size`.
+При `--use_all_for_train yes` весь датасет идет в train.
 
 ## 2) Обучение Diffusion-LM на MalbehavD-V1
 
@@ -30,6 +30,12 @@ python improved-diffusion/scripts/prepare_malbehav_data.py `
 ```powershell
 python scripts/run_train.py `
   --diff_steps 2000 `
+  --save_interval 5000 `
+  --checkpoint_root runs/models `
+  --eval_interval 2000 `
+  --eval_num_batches 4 `
+  --early_stop_patience_eval 5 `
+  --early_stop_min_delta 0.0 `
   --model_arch transformer `
   --lr 0.0001 `
   --lr_anneal_steps 300000 `
@@ -45,23 +51,35 @@ python scripts/run_train.py `
 ```
 
 При желании можно заменить `--vocab_size 250` на актуальное значение из `malbehav_stats.json`, если вы измените параметры подготовки данных.
+Чекпоинты будут сохраняться в `runs/models/<имя_запуска>/` каждые `save_interval` шагов, а лучшая модель по `eval_loss_mean` — в `best_model.pt`.
+Если `eval_loss_mean` не улучшается 5 проверок подряд (`early_stop_patience_eval=5`), обучение автоматически остановится.
+Перед запуском теперь выполняются preflight-проверки путей и прав записи; при ошибке отсутствующей папки/файла процесс завершится сразу, а не через часы обучения.
+Логи дублируются в терминал и файл `runs/models/<имя_запуска>/console.log`. Табличные метрики пишутся в `log.txt/progress.csv` в той же папке.
+Каждые `eval_interval` выводится строка `[EVAL] ...`, а прогресс обучения печатается каждые 10 шагов как `[PROGRESS] ...`.
 
-## 3) Генерация новых последовательностей API
+## 3) Генерация `benign` и `malware` за один запуск
 
 1. Найдите последний чекпоинт в папке `improved-diffusion/diffusion_models/...`.
 2. Запустите:
 
 ```powershell
-python scripts/text_sample.py `
+python scripts/generate_malbehav_by_label.py `
   --model_path diffusion_models/<ваша_папка_модели>/ema_0.9999_300000.pt `
-  --batch_size 64 `
+  --target_label both `
   --num_samples 5000 `
+  --samples_per_round 512 `
+  --batch_size 64 `
   --top_p -1 `
-  --out_dir generation_outputs `
-  --verbose yes
+  --max_rounds 50 `
+  --out_dir generation_outputs
 ```
 
-Текстовые сэмплы будут в `generation_outputs/*.txt`.
+Скрипт остановится только когда наберет оба класса:
+- `LABEL_0` (benign) в `malbehav_label0_*.txt`
+- `LABEL_1` (malware) в `malbehav_label1_*.txt`
+Лог генерации дублируется в `generation_outputs/generation_by_label_console.log`.
+
+Если нужен один класс, можно указать `--target_label 0` или `--target_label 1`.
 
 ## 4) Конвертация сэмплов в CSV-формат MalbehavD-V1
 
