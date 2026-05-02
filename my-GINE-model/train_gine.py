@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+import contextlib
 import json
 import os
 import re
+import sys
 from collections import Counter
+from datetime import datetime
 from hashlib import sha1
 
 import numpy as np
@@ -17,6 +20,28 @@ from graph_data import make_graph_dataset, print_dataset_stats, split_dataset
 from model import GINEMalwareClassifier
 from trainer import evaluate, train_model
 from utils import set_seed
+
+
+class TeeStream:
+    def __init__(self, primary_stream, mirror_stream=None):
+        self.primary_stream = primary_stream
+        self.mirror_stream = mirror_stream
+
+    def write(self, data: str) -> None:
+        self.primary_stream.write(data)
+        if self.mirror_stream is not None:
+            try:
+                self.mirror_stream.write(data)
+            except Exception:
+                self.mirror_stream = None
+
+    def flush(self) -> None:
+        self.primary_stream.flush()
+        if self.mirror_stream is not None:
+            try:
+                self.mirror_stream.flush()
+            except Exception:
+                self.mirror_stream = None
 
 
 def resolve_output_path(path: str, output_dir: str) -> str:
@@ -138,8 +163,14 @@ def format_split_block(split_name: str, stats: dict) -> list[str]:
     ]
 
 
-def main():
-    args = parse_args()
+def build_auto_train_log_path(args, output_dir: str) -> str:
+    dataset_name = _sanitize_token(os.path.splitext(os.path.basename(args.csv))[0]) or "dataset"
+    started_at = datetime.now().strftime("%M-%H__%d-%m-%Y")
+    file_name = f"{dataset_name}+e{args.epochs}+b{args.batch_size}+{started_at}.txt"
+    return os.path.join(output_dir, "models", file_name)
+
+
+def run_training(args) -> None:
     set_seed(args.seed)
 
     auto_model_name = args.save_path is None
@@ -323,6 +354,32 @@ def main():
         f.write("\n".join(report_lines) + "\n")
 
     print(f"Saved run summary to: {results_path}")
+
+
+def main():
+    args = parse_args()
+    train_log_path = build_auto_train_log_path(args, output_dir=args.output_dir)
+    log_file = None
+    try:
+        ensure_parent_dir(train_log_path)
+        log_file = open(train_log_path, "w", encoding="utf-8")
+    except Exception as exc:
+        print(
+            f"[warn] Failed to create training log file '{train_log_path}': {exc}. "
+            "Continuing without file logging.",
+            file=sys.stderr,
+        )
+
+    if log_file is None:
+        run_training(args)
+        return
+
+    with log_file:
+        stdout_tee = TeeStream(sys.stdout, log_file)
+        stderr_tee = TeeStream(sys.stderr, log_file)
+        with contextlib.redirect_stdout(stdout_tee), contextlib.redirect_stderr(stderr_tee):
+            print(f"Training log file: {train_log_path}")
+            run_training(args)
 
 
 if __name__ == "__main__":

@@ -7,6 +7,7 @@ Merge generated goodware and malware CSV files into one MalbehavD-V1-like CSV.
 import argparse
 import csv
 import os
+import random
 
 
 def parse_args():
@@ -14,6 +15,7 @@ def parse_args():
     parser.add_argument("--goodware_csv", required=True)
     parser.add_argument("--malware_csv", required=True)
     parser.add_argument("--output_csv", required=True)
+    parser.add_argument("--shuffle-seed", type=int, default=42, help="Random seed for merged rows shuffle")
     return parser.parse_args()
 
 
@@ -32,14 +34,20 @@ def main():
     if h1 != h2:
         raise ValueError("Headers do not match between CSV files.")
 
+    merged_rows = r1 + r2
+    rng = random.Random(args.shuffle_seed)
+    rng.shuffle(merged_rows)
+
     os.makedirs(os.path.dirname(os.path.abspath(args.output_csv)), exist_ok=True)
     with open(args.output_csv, "w", encoding="utf-8", newline="") as f:
         writer = csv.writer(f)
         writer.writerow(h1)
-        writer.writerows(r1)
-        writer.writerows(r2)
+        writer.writerows(merged_rows)
 
-    print(f"[ok] merged {len(r1)} + {len(r2)} rows -> {os.path.abspath(args.output_csv)}")
+    print(
+        f"[ok] merged {len(r1)} + {len(r2)} rows, shuffled with seed={args.shuffle_seed} "
+        f"-> {os.path.abspath(args.output_csv)}"
+    )
 
 
 if __name__ == "__main__":

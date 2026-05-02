@@ -1,5 +1,8 @@
 # 1) Обучение (быстрый старт, MalBehavD-V1)  - лучше!!!!!!!!!!!!!
-python .\my-GINE-model\train_gine.py --csv .\MalbehavD-V1-main\MalBehavD-V1-dataset.csv --dataset-format auto --include-unnamed-api-cols --epochs 30 --batch-size 64
+python .\my-GINE-model\train_gine.py ^
+    --csv .\MalbehavD-V1-main\MalBehavD-V1-dataset.csv ^
+    --dataset-format auto --include-unnamed-api-cols --epochs 40 --batch-size 64^
+    --test-size 0.01 --val-size 0.1
 
 # 2) Обучение без внутреннего split
 python .\my-GINE-model\train_gine.py --csv .\my-GINE-model\runs\splits\train_1300.csv --dataset-format auto --include-unnamed-api-cols --no-internal-split
@@ -14,7 +17,13 @@ python .\my-GINE-model\train_gine.py --help
 python .\my-GINE-model\predict_gine.py --model-path .\my-GINE-model\runs\models\...pt --vocab-path .\my-GINE-model\runs\vocab\api_vocab.json --input-seq "NtOpenFile NtReadFile NtClose"
 
 # 6) Предсказание по CSV + метрики - лучше!!!!!!!!!!!!!
-python .\my-GINE-model\predict_gine.py --model-path .\my-GINE-model\runs\models\g_h128l3_b64e30_lr0p001_s42_75f7c4ab_be22_vf950.pt --vocab-path .\my-GINE-model\runs\vocab\api_vocab.json --input-csv .\TextGAN-PyTorch-master\generated\MalBehavD-V1-generated-200x2.csv --dataset-format auto --include-unnamed-api-cols --label-col labels
+python .\my-GINE-model\predict_gine.py ^
+    --model-path .\my-GINE-model\runs\models\g_h128l3_b64e40_lr0p001_s42_270b5a10_be22_vf964.pt ^
+    --vocab-path .\my-GINE-model\runs\vocab\api_vocab.json ^
+    --input-csv .\MalbehavD-V1-main\MalBehavD-V1-generated-5000x2.csv ^
+    --dataset-format auto ^
+    --include-unnamed-api-cols ^
+    --label-col labels
 
 # 7) Multi-split benchmark
 python .\my-GINE-model\run_splits.py --csv .\MalbehavD-V1-main\MalBehavD-V1-dataset.csv --label-col labels --dataset-format auto --include-unnamed-api-cols --train-per-class 650 --num-runs 5 --base-seed 42

@@ -15,17 +15,34 @@ $good_ckpt = (Get-ChildItem -Recurse -File .\save | Where-Object { $_.Name -like
 $mal_ckpt  = (Get-ChildItem -Recurse -File .\save | Where-Object { $_.Name -like 'gen_ADV_*.pt' -and $_.FullName -like '*MalbehavD-V1_malware*' }  | Sort-Object LastWriteTime -Descending | Select-Object -First 1).FullName
 
 # 5) Сгенерировать тестово по 128 строк на класс
-python .\tools\generate_relgan_samples.py --dataset MalbehavD-V1_goodware --checkpoint "$good_ckpt" --output_txt .\generated\goodware_128.txt --num_samples 128 --batch_size 32
-python .\tools\generate_relgan_samples.py --dataset MalbehavD-V1_malware  --checkpoint "$mal_ckpt"  --output_txt .\generated\malware_128.txt  --num_samples 128 --batch_size 32
+python .\tools\generate_relgan_samples.py --dataset MalbehavD-V1_goodware ^
+    --checkpoint save/20260412/MalbehavD-V1_goodware/relgan_vanilla_dt-Ra_lt-rsgan_mt-ra_et-Ra_sl153_temp40_lfd0.0_T0412_1811_20/models/gen_ADV_best.pt ^
+    --output_txt .\generated\goodware_5000.txt --num_samples 5000 --batch_size 32
+python .\tools\generate_relgan_samples.py --dataset MalbehavD-V1_malware ^
+     --checkpoint save/20260412/MalbehavD-V1_malware/relgan_vanilla_dt-Ra_lt-rsgan_mt-ra_et-Ra_sl175_temp40_lfd0.0_T0412_2011_17/models/gen_ADV_best.pt ^
+     --output_txt .\generated\malware_5000.txt  --num_samples 5000 --batch_size 32
 
 # 6) Вернуть в исходный CSV-формат MalbehavD
-python .\tools\export_relgan_samples_to_csv.py --samples_txt .\generated\goodware_2000.txt --template_csv ..\MalbehavD-V1-main\MalBehavD-V1-dataset.csv --output_csv .\generated\goodware_2000.csv --label 0
-python .\tools\export_relgan_samples_to_csv.py --samples_txt .\generated\malware_2000.txt  --template_csv ..\MalbehavD-V1-main\MalBehavD-V1-dataset.csv --output_csv .\generated\malware_2000.csv  --label 1
+python .\tools\export_relgan_samples_to_csv.py ^
+    --samples_txt .\generated\goodware_5000.txt ^
+    --template_csv ..\MalbehavD-V1-main\MalBehavD-V1-dataset.csv ^
+    --output_csv .\generated\goodware_5000.csv --label 0
+python .\tools\export_relgan_samples_to_csv.py ^
+    --samples_txt .\generated\malware_5000.txt  ^
+    --template_csv ..\MalbehavD-V1-main\MalBehavD-V1-dataset.csv ^
+    --output_csv .\generated\malware_5000.csv  --label 1
 
 # 7) (Опционально) объединить в один CSV
-python .\tools\merge_generated_csv.py --goodware_csv .\generated\goodware_2000.csv --malware_csv .\generated\malware_2000.csv --output_csv .\generated\MalBehavD-V1-generated-2000x2.csv
+python .\tools\merge_generated_csv.py ^
+    --goodware_csv .\generated\goodware_5000.csv ^
+    --malware_csv .\generated\malware_5000.csv ^
+    --output_csv ..\MalbehavD-V1-main\MalBehavD-V1-generated-5000x2.csv ^
+    --shuffle-seed 142
 
-python .\tools\merge_generated_csv.py --goodware_csv .\generated\MalBehavD-V1-generated-200x2.csv --malware_csv ..\MalbehavD-V1-main\MalBehavD-V1-dataset.csv --output_csv ..\MalbehavD-V1-main\MalBehavD-V1-merged_200.csv
+python .\tools\merge_generated_csv.py ^
+    --goodware_csv .\generated\MalBehavD-V1-generated-200x2.csv ^
+    --malware_csv ..\MalbehavD-V1-main\MalBehavD-V1-dataset.csv ^
+    --output_csv ..\MalbehavD-V1-main\MalBehavD-V1-merged_200.csv
 
 
 Лучший запуск для текущей модели

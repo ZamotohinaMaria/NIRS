@@ -6,8 +6,15 @@ Generate synthetic API-call sequences from a trained RelGAN generator checkpoint
 
 import argparse
 import os
+import sys
+from pathlib import Path
 
 import torch
+
+# Allow running as: python .\tools\generate_relgan_samples.py
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
 
 import config as cfg
 from models.RelGAN_G import RelGAN_G
