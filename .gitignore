@@ -4,7 +4,6 @@
 Diffusion-LM-main/wandb/
 Diffusion-LM-main/ar_models/
 Diffusion-LM-main/diffusion_models/
-Diffusion-LM-main/diffusion_lm/ROCstory/
 *.pt
 *.pth
 *.safetensors

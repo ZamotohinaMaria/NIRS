@@ -38,6 +38,14 @@ def _infer_roc_vocab_size(roc_train_dir: str, min_token_freq: int):
 
     min_token_freq = max(1, int(min_token_freq))
     counter = Counter()
+    tokenizer = None
+    try:
+        # Match dataset tokenization so inferred vocab_size stays in sync with ids.
+        from spacy.lang.en import English
+        tokenizer = English().tokenizer
+    except Exception:
+        tokenizer = None
+
     with open(train_path, "r", encoding="utf-8") as f:
         for line in f:
             line = line.strip()
@@ -53,7 +61,10 @@ def _infer_roc_vocab_size(roc_train_dir: str, min_token_freq: int):
                 text = payload
             else:
                 continue
-            counter.update(tok for tok in text.split() if tok)
+            if tokenizer is not None:
+                counter.update(tok.text for tok in tokenizer(text))
+            else:
+                counter.update(tok for tok in text.split() if tok)
 
     kept_tokens = sum(1 for _, freq in counter.items() if freq >= min_token_freq)
     # START/END/UNK/PAD
