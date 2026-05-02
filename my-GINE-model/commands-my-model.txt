@@ -13,6 +13,13 @@ python .\my-GINE-model\train_gine.py --csv .\data\your_dataset.csv --dataset-for
 # 4) Полная справка по аргументам
 python .\my-GINE-model\train_gine.py --help
 
+# Проверка качества генерации
+python .\my-GINE-model\generation_quality_checks.py ^
+  --real-csv .\MalbehavD-V1-main\MalBehavD-V1-dataset.csv ^
+  --synthetic-csv .\MalbehavD-V1-main\MalBehavD-V1-generated-5000x2.csv ^
+  --include-unnamed-api-cols ^
+  --seeds 42,43,44,45,46
+
 # 5) Предсказание по одной последовательности
 python .\my-GINE-model\predict_gine.py --model-path .\my-GINE-model\runs\models\...pt --vocab-path .\my-GINE-model\runs\vocab\api_vocab.json --input-seq "NtOpenFile NtReadFile NtClose"
 

@@ -1,0 +1,48 @@
+1) Генерация TextGAN
+
+Использованные модели:
+python .\tools\generate_relgan_samples.py --dataset MalbehavD-V1_goodware ^
+    --checkpoint save/20260412/MalbehavD-V1_goodware/relgan_vanilla_dt-Ra_lt-rsgan_mt-ra_et-Ra_sl153_temp40_lfd0.0_T0412_1811_20/models/gen_ADV_best.pt ^
+    --output_txt .\generated\goodware_5000.txt --num_samples 5000 --batch_size 32
+python .\tools\generate_relgan_samples.py --dataset MalbehavD-V1_malware ^
+     --checkpoint save/20260412/MalbehavD-V1_malware/relgan_vanilla_dt-Ra_lt-rsgan_mt-ra_et-Ra_sl175_temp40_lfd0.0_T0412_2011_17/models/gen_ADV_best.pt ^
+     --output_txt .\generated\malware_5000.txt  --num_samples 5000 --batch_size 32
+
+Результат генерации:
+
+MalbehavD-V1-main\MalBehavD-V1-generated-5000x2.csv
+
+2) Обучение чисто на MalBehavD-V1
+
+python .\my-GINE-model\train_gine.py ^
+    --csv .\MalbehavD-V1-main\MalBehavD-V1-dataset.csv ^
+    --dataset-format auto --include-unnamed-api-cols --epochs 40 --batch-size 64^
+    --test-size 0.01 --val-size 0.1
+
+Результаты обучения:
+.\my-GINE-model\runs\models\g_h128l3_b64e40_lr0p001_s42_270b5a10_be22_vf964.pt
+
+Логи обучения
+MalBehavD-V1-dataset+e40+b64+00-11__02-05-2026.txt
+
+3) Классификация
+
+python .\my-GINE-model\predict_gine.py ^
+    --model-path .\my-GINE-model\runs\models\g_h128l3_b64e40_lr0p001_s42_270b5a10_be22_vf964.pt ^
+    --vocab-path .\my-GINE-model\runs\vocab\api_vocab.json ^
+    --input-csv .\MalbehavD-V1-main\MalBehavD-V1-generated-5000x2.csv ^
+    --dataset-format auto ^
+    --include-unnamed-api-cols ^
+    --label-col labels
+
+Результаты классификации:
+metrics_g_h128l3_b64e40_lr0p001_s42_270b5a10_be22_vf964_MalBehavD-V1-generated-5000x2_2e232814.txt
+
+Логи классификации (на всякий):
+log pred 5000.txt
+
+
+4) Результат проверки 5000х2 на качесвто генерации:
+
+C:\Users\Marishka\Desktop\code\NIRS\my-GINE-model\runs\generation_quality\gen_quality_20260502_163608.json
+C:\Users\Marishka\Desktop\code\NIRS\my-GINE-model\runs\generation_quality\gen_quality_20260502_163608.txt

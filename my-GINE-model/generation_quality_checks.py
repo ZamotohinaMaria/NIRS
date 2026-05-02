@@ -371,16 +371,23 @@ def distribution_closeness(real_df: pd.DataFrame, synth_df: pd.DataFrame, mmd_sa
     vec = TfidfVectorizer(ngram_range=(1, 2), max_features=6000)
     X = vec.fit_transform(real_sample + synth_sample)
     X = normalize(X, norm="l2")
-    xr = X[:n].toarray()
-    xs = X[n : 2 * n].toarray()
+    xr = X[:n].toarray().astype(np.float32, copy=False)
+    xs = X[n : 2 * n].toarray().astype(np.float32, copy=False)
+
+    def sq_euclidean_matrix(a: np.ndarray, b: np.ndarray) -> np.ndarray:
+        # Memory-safe pairwise squared distances: ||a||^2 + ||b||^2 - 2ab
+        a2 = np.sum(a * a, axis=1, keepdims=True)
+        b2 = np.sum(b * b, axis=1, keepdims=True).T
+        d2 = a2 + b2 - 2.0 * (a @ b.T)
+        return np.maximum(d2, 0.0)
     # median heuristic for gamma
     joined = np.vstack([xr[: min(n, 250)], xs[: min(n, 250)]])
-    d2 = np.sum((joined[:, None, :] - joined[None, :, :]) ** 2, axis=2)
+    d2 = sq_euclidean_matrix(joined, joined)
     median_sq_dist = np.median(d2[d2 > 0]) if np.any(d2 > 0) else 1.0
     gamma = 1.0 / max(median_sq_dist, 1e-9)
-    k_xx = np.exp(-gamma * np.sum((xr[:, None, :] - xr[None, :, :]) ** 2, axis=2))
-    k_yy = np.exp(-gamma * np.sum((xs[:, None, :] - xs[None, :, :]) ** 2, axis=2))
-    k_xy = np.exp(-gamma * np.sum((xr[:, None, :] - xs[None, :, :]) ** 2, axis=2))
+    k_xx = np.exp(-gamma * sq_euclidean_matrix(xr, xr))
+    k_yy = np.exp(-gamma * sq_euclidean_matrix(xs, xs))
+    k_xy = np.exp(-gamma * sq_euclidean_matrix(xr, xs))
     mmd2 = float(k_xx.mean() + k_yy.mean() - 2.0 * k_xy.mean())
 
     return {
