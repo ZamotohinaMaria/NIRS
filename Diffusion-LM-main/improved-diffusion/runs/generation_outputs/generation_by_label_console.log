@@ -19,3 +19,5 @@ Traceback (most recent call last):
     ~~~~~~~~~~~~~~~~~^^^^^^^^^
 KeyboardInterrupt
 RUN: C:\Users\Marishka\anaconda3\python.exe scripts/text_sample.py --model_path runs\models\malbehav_full_balanced_v1_trf_ic16_bs16_s101_20260502-202533\best_model.pt --batch_size 32 --num_samples 64 --top_p 0.95 --out_dir generation_outputs/_tmp_label_sampling --verbose yes --seed 101
+round=1/80 seed=101 label0=0/500 label1=0/500 seen=64
+RUN: C:\Users\Marishka\anaconda3\python.exe scripts/text_sample.py --model_path runs\models\malbehav_full_balanced_v1_trf_ic16_bs16_s101_20260502-202533\best_model.pt --batch_size 32 --num_samples 64 --top_p 0.95 --out_dir generation_outputs/_tmp_label_sampling --verbose yes --seed 102
