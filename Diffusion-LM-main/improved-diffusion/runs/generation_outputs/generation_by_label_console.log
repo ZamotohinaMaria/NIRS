@@ -21,3 +21,32 @@ KeyboardInterrupt
 RUN: C:\Users\Marishka\anaconda3\python.exe scripts/text_sample.py --model_path runs\models\malbehav_full_balanced_v1_trf_ic16_bs16_s101_20260502-202533\best_model.pt --batch_size 32 --num_samples 64 --top_p 0.95 --out_dir generation_outputs/_tmp_label_sampling --verbose yes --seed 101
 round=1/80 seed=101 label0=0/500 label1=0/500 seen=64
 RUN: C:\Users\Marishka\anaconda3\python.exe scripts/text_sample.py --model_path runs\models\malbehav_full_balanced_v1_trf_ic16_bs16_s101_20260502-202533\best_model.pt --batch_size 32 --num_samples 64 --top_p 0.95 --out_dir generation_outputs/_tmp_label_sampling --verbose yes --seed 102
+round=2/80 seed=102 label0=0/500 label1=0/500 seen=128
+RUN: C:\Users\Marishka\anaconda3\python.exe scripts/text_sample.py --model_path runs\models\malbehav_full_balanced_v1_trf_ic16_bs16_s101_20260502-202533\best_model.pt --batch_size 32 --num_samples 64 --top_p 0.95 --out_dir generation_outputs/_tmp_label_sampling --verbose yes --seed 103
+round=3/80 seed=103 label0=0/500 label1=0/500 seen=192
+RUN: C:\Users\Marishka\anaconda3\python.exe scripts/text_sample.py --model_path runs\models\malbehav_full_balanced_v1_trf_ic16_bs16_s101_20260502-202533\best_model.pt --batch_size 32 --num_samples 64 --top_p 0.95 --out_dir generation_outputs/_tmp_label_sampling --verbose yes --seed 104
+Traceback (most recent call last):
+  File "C:\Users\Marishka\Desktop\code\NIRS\Diffusion-LM-main\improved-diffusion\scripts\generate_malbehav_by_label.py", line 177, in <module>
+    main()
+    ~~~~^^
+  File "C:\Users\Marishka\Desktop\code\NIRS\Diffusion-LM-main\improved-diffusion\scripts\generate_malbehav_by_label.py", line 128, in main
+    proc = subprocess.run(cmd, capture_output=True, text=True)
+  File "C:\Users\Marishka\anaconda3\Lib\subprocess.py", line 556, in run
+    stdout, stderr = process.communicate(input, timeout=timeout)
+                     ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Marishka\anaconda3\Lib\subprocess.py", line 1222, in communicate
+    stdout, stderr = self._communicate(input, endtime, timeout)
+                     ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Marishka\anaconda3\Lib\subprocess.py", line 1644, in _communicate
+    self.stdout_thread.join(self._remaining_time(endtime))
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Marishka\anaconda3\Lib\threading.py", line 1094, in join
+    self._handle.join(timeout)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^
+KeyboardInterrupt
+RUN: C:\Users\Marishka\anaconda3\python.exe scripts/text_sample.py --model_path runs\models\malbehav_full_balanced_v1_trf_ic16_bs16_s101_20260502-202533\best_model.pt --batch_size 32 --num_samples 64 --top_p 0.95 --out_dir generation_outputs/_tmp_label_sampling --verbose yes --seed 101
+round=1/80 seed=101 label0=20/20 label1=20/20 seen=64
+saved=runs\generation_outputs\malbehav_label0_20_20260505_232849.txt
+label=0 accepted=20 total_seen=64 acceptance_rate=31.25%
+saved=runs\generation_outputs\malbehav_label1_20_20260505_232849.txt
+label=1 accepted=20 total_seen=64 acceptance_rate=31.25%

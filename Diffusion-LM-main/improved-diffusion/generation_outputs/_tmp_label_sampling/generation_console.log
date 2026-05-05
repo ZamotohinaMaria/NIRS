@@ -42,3 +42,14 @@ sampling...
 torch.Size([32, 169, 16])
 created 32 samples
 (32, 169, 16)
+torch.Size([32, 169, 16])
+created 64 samples
+(64, 169, 16) full shape
+decoding for e2e
+(64, 169, 16)
+saving to generation_outputs/_tmp_label_sampling\malbehav_full_balanced_v1_trf_ic16_bs16_s101_20260502-202533.best_model.pt.samples_0.95.npz
+sampling complete
+decode by rounding. 
+load_models
+written the decoded output to generation_outputs/_tmp_label_sampling\malbehav_full_balanced_v1_trf_ic16_bs16_s101_20260502-202533.best_model.pt.samples_0.95.txt
+written the decoded output to generation_outputs/_tmp_label_sampling\malbehav_full_balanced_v1_trf_ic16_bs16_s101_20260502-202533.best_model.pt.samples_0.95.json

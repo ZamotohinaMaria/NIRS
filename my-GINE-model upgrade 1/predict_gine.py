@@ -6,11 +6,19 @@ import json
 import os
 import re
 from hashlib import sha1
-from typing import List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 import pandas as pd
 import torch
-from sklearn.metrics import accuracy_score, confusion_matrix, precision_recall_fscore_support, roc_auc_score
+from sklearn.metrics import (
+    accuracy_score,
+    average_precision_score,
+    brier_score_loss,
+    confusion_matrix,
+    matthews_corrcoef,
+    precision_recall_fscore_support,
+    roc_auc_score,
+)
 from torch_geometric.loader import DataLoader
 
 from data_io import guess_label_column, guess_sequence_column
@@ -49,8 +57,9 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--id-col", type=str, default=None, help="Optional ID column (kept for compatibility)")
 
-    parser.add_argument("--hidden-dim", type=int, default=None, help="Model hidden dim (if not parsable from filename)")
-    parser.add_argument("--num-layers", type=int, default=None, help="Model layers (if not parsable from filename)")
+    parser.add_argument("--hidden-dim", type=int, default=None, help="Model hidden dim (if not available in checkpoint)")
+    parser.add_argument("--num-layers", type=int, default=None, help="Model layers (if not available in checkpoint)")
+    parser.add_argument("--edge-dim", type=int, default=None, help="Edge feature size (if not available in checkpoint)")
     parser.add_argument("--dropout", type=float, default=0.3)
 
     parser.add_argument("--delimiter-regex", type=str, default=r"[,\s;|>]+")
@@ -60,7 +69,8 @@ def parse_args() -> argparse.Namespace:
 
     parser.add_argument("--batch-size", type=int, default=128)
     parser.add_argument("--device", type=str, default="cuda" if torch.cuda.is_available() else "cpu")
-    parser.add_argument("--threshold", type=float, default=0.5, help="Probability threshold for malware class")
+    parser.add_argument("--threshold", type=float, default=None, help="Probability threshold for malware class")
+    parser.add_argument("--temperature", type=float, default=None, help="Temperature scaling value override")
 
     parser.add_argument("--output-dir", type=str, default=default_output_dir)
     parser.add_argument(
@@ -94,6 +104,38 @@ def parse_arch_from_model_name(model_path: str) -> Tuple[Optional[int], Optional
     if not match:
         return None, None
     return int(match.group(1)), int(match.group(2))
+
+
+def is_checkpoint_dict(payload: Any) -> bool:
+    return isinstance(payload, dict) and "state_dict" in payload and isinstance(payload["state_dict"], dict)
+
+
+def infer_model_meta_from_state_dict(state_dict: Dict[str, torch.Tensor]) -> Dict[str, Optional[int]]:
+    meta: Dict[str, Optional[int]] = {
+        "hidden_dim": None,
+        "num_layers": None,
+        "edge_dim": None,
+        "num_node_features": None,
+    }
+
+    node_w = state_dict.get("node_encoder.weight")
+    if node_w is not None and hasattr(node_w, "shape") and len(node_w.shape) == 2:
+        meta["hidden_dim"] = int(node_w.shape[0])
+        meta["num_node_features"] = int(node_w.shape[1])
+
+    conv_indices = []
+    for k in state_dict.keys():
+        m = re.match(r"convs\.(\d+)\.", k)
+        if m:
+            conv_indices.append(int(m.group(1)))
+    if conv_indices:
+        meta["num_layers"] = max(conv_indices) + 1
+
+    edge_w = state_dict.get("convs.0.lin.weight")
+    if edge_w is not None and hasattr(edge_w, "shape") and len(edge_w.shape) == 2:
+        meta["edge_dim"] = int(edge_w.shape[1])
+
+    return meta
 
 
 def collect_wide_api_cols(
@@ -206,22 +248,36 @@ def build_graphs_from_sequences(
 
 
 @torch.no_grad()
-def predict_graphs(model, graphs, batch_size: int, device: torch.device) -> List[float]:
+def predict_graphs(
+    model,
+    graphs,
+    batch_size: int,
+    device: torch.device,
+    temperature: float = 1.0,
+) -> List[float]:
     loader = DataLoader(graphs, batch_size=batch_size, shuffle=False)
     probs: List[float] = []
     model.eval()
+    temp = max(float(temperature), 1e-6)
     for batch in loader:
         batch = batch.to(device)
         logits = model(batch.x, batch.edge_index, batch.edge_attr, batch.batch)
-        p = torch.softmax(logits, dim=1)[:, 1].detach().cpu().tolist()
+        p = torch.softmax(logits / temp, dim=1)[:, 1].detach().cpu().tolist()
         probs.extend([float(x) for x in p])
     return probs
 
 
-def build_auto_predictions_path(args: argparse.Namespace, output_dir: str) -> str:
+def build_auto_predictions_path(
+    args: argparse.Namespace,
+    output_dir: str,
+    threshold: float,
+    temperature: float,
+) -> str:
     model_tag = sanitize_token(os.path.splitext(os.path.basename(args.model_path))[0]) or "model"
     input_tag = sanitize_token(os.path.splitext(os.path.basename(args.input_csv))[0]) if args.input_csv else "single"
-    signature = f"{model_tag}|{input_tag}|{args.threshold}|{args.max_seq_len}|{int(args.undirected)}|{int(args.add_skip_edges)}"
+    threshold_tag = f"{threshold:g}"
+    temp_tag = f"{temperature:g}"
+    signature = f"{model_tag}|{input_tag}|{threshold_tag}|{temp_tag}|{args.max_seq_len}|{int(args.undirected)}|{int(args.add_skip_edges)}"
     sig_hash = sha1(signature.encode("utf-8")).hexdigest()[:8]
     filename = f"metrics_{model_tag}_{input_tag}_{sig_hash}.txt"
     return os.path.join(output_dir, "predictions", filename)
@@ -235,6 +291,7 @@ def build_metrics_report(
     rows_in_csv: int,
     rows_non_empty: int,
     threshold: float,
+    temperature: float,
     probs_all: List[float],
     preds_all: List[int],
     y_true_eval: Optional[List[int]],
@@ -249,6 +306,7 @@ def build_metrics_report(
     lines.append(f"Rows in CSV: {rows_in_csv}")
     lines.append(f"Rows with non-empty sequence: {rows_non_empty}")
     lines.append(f"Threshold: {threshold:.4f}")
+    lines.append(f"Temperature: {temperature:.4f}")
     lines.append(f"Predicted benign (0): {pred_benign}")
     lines.append(f"Predicted malware (1): {pred_malware}")
     lines.append(f"Mean malware probability: {sum(probs_all) / max(len(probs_all), 1):.4f}")
@@ -274,6 +332,18 @@ def build_metrics_report(
         auc = roc_auc_score(y_true_eval, y_prob_eval)
     except Exception:
         auc = float("nan")
+    try:
+        pr_auc = average_precision_score(y_true_eval, y_prob_eval)
+    except Exception:
+        pr_auc = float("nan")
+    try:
+        mcc = matthews_corrcoef(y_true_eval, y_pred_eval)
+    except Exception:
+        mcc = float("nan")
+    try:
+        brier = brier_score_loss(y_true_eval, y_prob_eval)
+    except Exception:
+        brier = float("nan")
 
     tn, fp, fn, tp = confusion_matrix(y_true_eval, y_pred_eval, labels=[0, 1]).ravel()
     true_benign = int(sum(1 for x in y_true_eval if x == 0))
@@ -286,6 +356,9 @@ def build_metrics_report(
     lines.append(f"recall: {format_float(float(recall))}")
     lines.append(f"f1: {format_float(float(f1))}")
     lines.append(f"roc_auc: {format_float(float(auc))}" if auc == auc else "roc_auc: nan")
+    lines.append(f"pr_auc: {format_float(float(pr_auc))}" if pr_auc == pr_auc else "pr_auc: nan")
+    lines.append(f"mcc: {format_float(float(mcc))}" if mcc == mcc else "mcc: nan")
+    lines.append(f"brier: {format_float(float(brier))}" if brier == brier else "brier: nan")
 
     lines.append("")
     lines.append("[Confusion matrix]")
@@ -310,30 +383,82 @@ def main():
     if bool(args.input_seq) == bool(args.input_csv):
         raise ValueError("Set exactly one input source: --input-seq OR --input-csv")
 
-    hidden_dim, num_layers = parse_arch_from_model_name(args.model_path)
-    if args.hidden_dim is not None:
-        hidden_dim = args.hidden_dim
-    if args.num_layers is not None:
-        num_layers = args.num_layers
+    raw_payload = torch.load(args.model_path, map_location="cpu")
+    if is_checkpoint_dict(raw_payload):
+        checkpoint = raw_payload
+        state_dict = checkpoint["state_dict"]
+        model_args = checkpoint.get("model_args", {}) if isinstance(checkpoint.get("model_args"), dict) else {}
+        checkpoint_threshold = checkpoint.get("threshold", None)
+        checkpoint_temperature = checkpoint.get("temperature", None)
+        checkpoint_vocab_size = checkpoint.get("vocab_size", None)
+    elif isinstance(raw_payload, dict):
+        checkpoint = None
+        state_dict = raw_payload
+        model_args = {}
+        checkpoint_threshold = None
+        checkpoint_temperature = None
+        checkpoint_vocab_size = None
+    else:
+        raise ValueError("Unsupported model file format")
+
+    inferred_meta = infer_model_meta_from_state_dict(state_dict)
+    file_hidden_dim, file_num_layers = parse_arch_from_model_name(args.model_path)
+
+    hidden_dim = (
+        args.hidden_dim
+        if args.hidden_dim is not None
+        else model_args.get("hidden_dim", inferred_meta.get("hidden_dim", file_hidden_dim))
+    )
+    num_layers = (
+        args.num_layers
+        if args.num_layers is not None
+        else model_args.get("num_layers", inferred_meta.get("num_layers", file_num_layers))
+    )
+    edge_dim = (
+        args.edge_dim
+        if args.edge_dim is not None
+        else model_args.get("edge_dim", inferred_meta.get("edge_dim", 3))
+    )
+    num_classes = int(model_args.get("num_classes", 2))
+    dropout = float(model_args.get("dropout", args.dropout))
+
     if hidden_dim is None or num_layers is None:
         raise ValueError(
-            "Could not infer hidden_dim/num_layers from model filename. "
+            "Could not infer hidden_dim/num_layers from checkpoint or filename. "
             "Pass --hidden-dim and --num-layers explicitly."
+        )
+    if edge_dim is None:
+        raise ValueError(
+            "Could not infer edge_dim from checkpoint/state_dict. Pass --edge-dim explicitly."
         )
 
     with open(args.vocab_path, "r", encoding="utf-8") as f:
         vocab = json.load(f)
 
+    expected_vocab_size = model_args.get("num_node_features", checkpoint_vocab_size)
+    if expected_vocab_size is not None and int(expected_vocab_size) != len(vocab):
+        raise ValueError(
+            f"Vocab size mismatch: checkpoint expects {int(expected_vocab_size)} features, "
+            f"but vocab file has {len(vocab)} tokens."
+        )
+
+    threshold = args.threshold
+    if threshold is None:
+        threshold = float(checkpoint_threshold) if checkpoint_threshold is not None else 0.5
+    temperature = args.temperature
+    if temperature is None:
+        temperature = float(checkpoint_temperature) if checkpoint_temperature is not None else 1.0
+
     device = torch.device(args.device)
     model = GINEMalwareClassifier(
         num_node_features=len(vocab),
-        edge_dim=3,
-        hidden_dim=hidden_dim,
-        num_layers=num_layers,
-        num_classes=2,
-        dropout=args.dropout,
+        edge_dim=int(edge_dim),
+        hidden_dim=int(hidden_dim),
+        num_layers=int(num_layers),
+        num_classes=num_classes,
+        dropout=dropout,
     ).to(device)
-    model.load_state_dict(torch.load(args.model_path, map_location=device))
+    model.load_state_dict(state_dict)
 
     if args.input_seq:
         graphs, _ = build_graphs_from_sequences(
@@ -346,8 +471,14 @@ def main():
         )
         if not graphs:
             raise ValueError("Input sequence became empty after tokenization")
-        prob = predict_graphs(model=model, graphs=graphs, batch_size=1, device=device)[0]
-        pred = int(prob >= args.threshold)
+        prob = predict_graphs(
+            model=model,
+            graphs=graphs,
+            batch_size=1,
+            device=device,
+            temperature=temperature,
+        )[0]
+        pred = int(prob >= threshold)
         print(f"malware_prob: {prob:.6f}")
         print(f"pred_label: {pred}")
         return
@@ -376,8 +507,14 @@ def main():
     if not graphs:
         raise ValueError("No valid sequences for prediction")
 
-    probs = predict_graphs(model=model, graphs=graphs, batch_size=args.batch_size, device=device)
-    preds = [int(p >= args.threshold) for p in probs]
+    probs = predict_graphs(
+        model=model,
+        graphs=graphs,
+        batch_size=args.batch_size,
+        device=device,
+        temperature=temperature,
+    )
+    preds = [int(p >= threshold) for p in probs]
 
     y_true_eval: Optional[List[int]] = None
     y_pred_eval: Optional[List[int]] = None
@@ -402,7 +539,8 @@ def main():
     report_lines = build_metrics_report(
         rows_in_csv=len(sequences),
         rows_non_empty=len(graphs),
-        threshold=args.threshold,
+        threshold=threshold,
+        temperature=temperature,
         probs_all=probs,
         preds_all=preds,
         y_true_eval=y_true_eval,
@@ -415,7 +553,12 @@ def main():
     if args.predictions_path:
         pred_path = resolve_output_path(args.predictions_path, args.output_dir)
     else:
-        pred_path = build_auto_predictions_path(args, output_dir=args.output_dir)
+        pred_path = build_auto_predictions_path(
+            args,
+            output_dir=args.output_dir,
+            threshold=threshold,
+            temperature=temperature,
+        )
     ensure_parent_dir(pred_path)
     with open(pred_path, "w", encoding="utf-8") as f:
         f.write("\n".join(report_lines) + "\n")

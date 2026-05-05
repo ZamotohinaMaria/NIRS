@@ -1,0 +1,86 @@
+Что исправлено:
+
+1) Убрать хрупкость чекпоинтов и инференса (самое срочное).
+    Сейчас predict_gine.py хардкодит edge_dim=3 и парсит архитектуру из имени файла, это ломает расширения модели и рискованно даже для текущей.
+    Сначала перейти на checkpoint-словарь: state_dict + model_args + vocab_size + edge_dim + threshold (+ temperature позже).
+
+    
+
+2) Добавить operational-слой для решения (быстрый прирост качества без тяжёлого рефакторинга).
+    Ввести threshold tuning на validation и сохранять лучший порог в checkpoint.
+    Дальше добавить temperature scaling и метрики PR-AUC/MCC/Brier (ECE опционально).
+    Это обычно даёт заметный прирост практических метрик при почти той же архитектуре.
+
+3) Заменить one-hot фронтенд на embedding + компактные numeric features.
+    Текущий one-hot в graph_data.py — главный bottleneck по памяти и обобщению.
+    Минимум: api_id -> nn.Embedding, плюс позиция i/L и log1p(freq) как числовые признаки.
+    Это базис для всех следующих улучшений.
+
+4) После этого усиливать граф (multi-scale edges + более умный pooling).
+    Сделать skip-strides вместо одного i->i+2, и перейти от global_add_pool к attention pooling/JK.
+    Это важный шаг, но я бы делал его после пп. 1–3, чтобы не усложнять отладку сразу по всем слоям.
+
+
+#1 
+
+Сделал пункт 1: перевёл сохранение/загрузку модели на устойчивый checkpoint-формат с обратной совместимостью.
+
+Что изменено
+В training теперь после выбора лучшей модели сохраняется checkpoint-словарь, а не “голый” state_dict:
+schema_version
+state_dict
+model_args (num_node_features, edge_dim, hidden_dim, num_layers, num_classes, dropout)
+vocab_size
+threshold (пока 0.5)
+
+В predict_gine.py убран хардкод edge_dim=3:
+сначала читается checkpoint (или legacy-файл),
+архитектура берётся из model_args, иначе автоматически выводится из state_dict,
+только потом fallback на имя файла.
+
+Порог теперь берётся из checkpoint, если не передан в CLI:
+--threshold сделал default=None,
+итоговый threshold = CLI override или checkpoint или 0.5.
+
+Добавил защиту от несоответствия словаря:
+если vocab_size из checkpoint не совпадает с переданным vocab.json, выдаётся явная ошибка.
+
+Добавлен --edge-dim как ручной fallback для редких случаев.
+
+Совместимость
+Старые .pt с state_dict продолжают работать.
+
+Новые тренировки сохраняются уже в новом формате checkpoint.
+
+
+#2
+
+Что добавлено
+
+Operational-метрики в train/eval
+    PR-AUC, MCC, Brier добавлены в расчёт метрик:
+
+Threshold tuning на validation
+    Подбор лучшего порога по сетке (--threshold-grid) и метрике (--select-metric f1|mcc):
+
+Temperature scaling
+    Добавлен temperature scaling по validation logits:
+
+Сохранение tuned threshold/temperature в checkpoint
+    В checkpoint теперь сохраняются threshold и temperature:
+
+Inference использует checkpoint threshold/temperature
+    predict_gine.py теперь применяет softmax(logits / temperature) и порог из checkpoint (если не override через CLI):
+
+Новые CLI-аргументы
+
+--select-metric, --threshold-grid, --calibration (только none|temperature):
+В prediction добавлен --temperature override
+
+
+#3
+
+
+
+
+#4

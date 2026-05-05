@@ -141,11 +141,28 @@ def main():
                 if seq == "":
                     continue
                 total_seen += 1
+                toks = seq.split()
+                if len(toks) == 0:
+                    continue
+
+                # text_sample.py usually emits: START LABEL_X ... END PAD PAD ...
+                # Normalize to: LABEL_X ... (without START/END/PAD tail).
+                if toks[0] == "START":
+                    toks = toks[1:]
+                if len(toks) == 0:
+                    continue
+                if "END" in toks:
+                    toks = toks[:toks.index("END")]
+                toks = [t for t in toks if t != "PAD"]
+                if len(toks) == 0:
+                    continue
+
+                normalized = " ".join(toks)
                 for label in targets:
                     target_prefix = f"LABEL_{label}"
-                    if seq.startswith(target_prefix + " ") or seq == target_prefix:
+                    if normalized.startswith(target_prefix + " ") or normalized == target_prefix:
                         if len(accepted[label]) < args.num_samples:
-                            accepted[label].append(seq)
+                            accepted[label].append(normalized)
                         break
 
         progress = " ".join(

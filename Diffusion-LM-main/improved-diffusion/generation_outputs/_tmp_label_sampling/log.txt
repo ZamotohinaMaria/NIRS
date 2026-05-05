@@ -3,3 +3,7 @@ creating model and diffusion...
 the parameter count is 86874026
 sampling...
 created 32 samples
+created 64 samples
+saving to generation_outputs/_tmp_label_sampling\malbehav_full_balanced_v1_trf_ic16_bs16_s101_20260502-202533.best_model.pt.samples_0.95.npz
+sampling complete
+decode by rounding. 

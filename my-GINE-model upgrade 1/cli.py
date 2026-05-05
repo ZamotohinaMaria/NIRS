@@ -61,6 +61,26 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--epochs", type=int, default=30)
     parser.add_argument("--lr", type=float, default=1e-3)
     parser.add_argument("--weight-decay", type=float, default=1e-4)
+    parser.add_argument(
+        "--select-metric",
+        type=str,
+        default="f1",
+        choices=["f1", "mcc"],
+        help="Validation metric used for best-checkpoint selection and threshold tuning",
+    )
+    parser.add_argument(
+        "--threshold-grid",
+        type=str,
+        default="0.05:0.95:37",
+        help="Threshold grid spec for tuning: start:end:points or comma-separated values",
+    )
+    parser.add_argument(
+        "--calibration",
+        type=str,
+        default="temperature",
+        choices=["none", "temperature"],
+        help="Probability calibration method on validation logits",
+    )
     parser.add_argument("--test-size", type=float, default=0.2)
     parser.add_argument("--val-size", type=float, default=0.1, help="Validation fraction from train+val")
     parser.add_argument(

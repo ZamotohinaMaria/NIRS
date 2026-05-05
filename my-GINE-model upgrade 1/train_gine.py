@@ -9,6 +9,7 @@ import sys
 from collections import Counter
 from datetime import datetime
 from hashlib import sha1
+from typing import Any, Dict
 
 import numpy as np
 import torch
@@ -18,7 +19,13 @@ from cli import parse_args
 from dataset_adapters import load_and_prepare_with_adapter
 from graph_data import make_graph_dataset, print_dataset_stats, split_dataset
 from model import GINEMalwareClassifier
-from trainer import evaluate, train_model
+from trainer import (
+    evaluate,
+    find_best_threshold,
+    fit_temperature_scaler,
+    probs_from_logits,
+    train_model,
+)
 from utils import set_seed
 
 
@@ -69,6 +76,35 @@ def _metric_tag(value: float) -> str:
     if value != value:  # nan
         return "na"
     return f"{int(round(value * 1000)):03d}"
+
+
+def parse_threshold_grid(spec: str) -> np.ndarray:
+    spec = (spec or "").strip()
+    if not spec:
+        raise ValueError("Empty --threshold-grid")
+
+    if ":" in spec:
+        parts = [p.strip() for p in spec.split(":")]
+        if len(parts) != 3:
+            raise ValueError(
+                f"Invalid --threshold-grid '{spec}'. Expected start:end:points format."
+            )
+        start = float(parts[0])
+        end = float(parts[1])
+        points = int(parts[2])
+        if points < 2:
+            raise ValueError("--threshold-grid points must be >= 2")
+        grid = np.linspace(start, end, points)
+    else:
+        values = [float(p.strip()) for p in spec.split(",") if p.strip()]
+        if not values:
+            raise ValueError("No threshold values parsed from --threshold-grid")
+        grid = np.array(values, dtype=float)
+
+    valid = [float(v) for v in grid if 0.0 < float(v) < 1.0]
+    if not valid:
+        raise ValueError("Threshold grid must contain values strictly between 0 and 1")
+    return np.array(sorted(set(valid)), dtype=float)
 
 
 def build_auto_model_path(args, output_dir: str) -> str:
@@ -168,6 +204,37 @@ def build_auto_train_log_path(args, output_dir: str) -> str:
     started_at = datetime.now().strftime("%M-%H__%d-%m-%Y")
     file_name = f"{dataset_name}+e{args.epochs}+b{args.batch_size}+{started_at}.txt"
     return os.path.join(output_dir, "models", file_name)
+
+
+def _is_checkpoint_dict(payload: Any) -> bool:
+    return isinstance(payload, dict) and "state_dict" in payload and isinstance(payload["state_dict"], dict)
+
+
+def _extract_state_dict(payload: Any) -> Dict[str, torch.Tensor]:
+    if _is_checkpoint_dict(payload):
+        return payload["state_dict"]
+    if isinstance(payload, dict):
+        return payload
+    raise ValueError("Unsupported checkpoint format: expected state_dict or checkpoint dict with 'state_dict'.")
+
+
+def save_checkpoint_dict(
+    path: str,
+    state_dict: Dict[str, torch.Tensor],
+    model_args: Dict[str, Any],
+    vocab_size: int,
+    threshold: float = 0.5,
+    temperature: float = 1.0,
+) -> None:
+    checkpoint = {
+        "schema_version": 1,
+        "state_dict": state_dict,
+        "model_args": model_args,
+        "vocab_size": int(vocab_size),
+        "threshold": float(threshold),
+        "temperature": float(temperature),
+    }
+    torch.save(checkpoint, path)
 
 
 def run_training(args) -> None:
@@ -286,7 +353,7 @@ def run_training(args) -> None:
         weight_decay=args.weight_decay,
     )
 
-    best_epoch, best_val_f1 = train_model(
+    best_epoch, best_val_score = train_model(
         model=model,
         train_loader=train_loader,
         val_loader=val_loader,
@@ -294,22 +361,92 @@ def run_training(args) -> None:
         device=device,
         epochs=args.epochs,
         save_path=save_path,
+        monitor_metric=args.select_metric,
     )
+
+    tuned_threshold = 0.5
+    tuned_temperature = 1.0
+    tuned_val_metrics = None
+    threshold_metric_score = float("nan")
+
+    if val_loader is not None:
+        model.load_state_dict(_extract_state_dict(torch.load(save_path, map_location=device)))
+        _, val_details = evaluate(
+            model=model,
+            loader=val_loader,
+            device=device,
+            threshold=0.5,
+            temperature=1.0,
+            return_details=True,
+        )
+        val_y_true = val_details["y_true"]
+        val_logits = val_details["logits"]
+
+        if args.calibration == "temperature":
+            tuned_temperature = fit_temperature_scaler(
+                logits=val_logits,
+                y_true=val_y_true,
+                device=device,
+            )
+        val_probs = probs_from_logits(val_logits, temperature=tuned_temperature)
+        threshold_grid = parse_threshold_grid(args.threshold_grid)
+        tuned_threshold, threshold_metric_score = find_best_threshold(
+            y_true=val_y_true,
+            y_prob=val_probs,
+            metric=args.select_metric,
+            threshold_grid=threshold_grid,
+        )
+        tuned_val_metrics = evaluate(
+            model=model,
+            loader=val_loader,
+            device=device,
+            threshold=tuned_threshold,
+            temperature=tuned_temperature,
+        )
 
     print(f"\nBest epoch: {best_epoch}")
     if val_loader is not None:
-        print(f"Best val F1: {best_val_f1:.4f}")
+        print(f"Best val {args.select_metric.upper()}: {best_val_score:.4f}")
+        print(f"Tuned threshold ({args.select_metric}): {tuned_threshold:.4f}")
+        print(f"Temperature: {tuned_temperature:.4f}")
+        if tuned_val_metrics is not None:
+            print(
+                "Tuned val metrics | "
+                f"f1={tuned_val_metrics['f1']:.4f} "
+                f"mcc={tuned_val_metrics['mcc']:.4f} "
+                f"pr_auc={tuned_val_metrics['pr_auc']:.4f} "
+                f"brier={tuned_val_metrics['brier']:.4f}"
+            )
     else:
-        print("Best val F1: n/a (no internal split)")
+        print(f"Best val {args.select_metric.upper()}: n/a (no internal split)")
 
     if auto_model_name:
-        save_path = finalize_auto_model_path(save_path, best_epoch=best_epoch, best_val_f1=best_val_f1)
+        save_path = finalize_auto_model_path(save_path, best_epoch=best_epoch, best_val_f1=best_val_score)
+
+    raw_payload = torch.load(save_path, map_location="cpu")
+    state_dict = _extract_state_dict(raw_payload)
+    save_checkpoint_dict(
+        path=save_path,
+        state_dict=state_dict,
+        model_args={
+            "num_node_features": int(num_node_features),
+            "edge_dim": int(edge_dim),
+            "hidden_dim": int(args.hidden_dim),
+            "num_layers": int(args.num_layers),
+            "num_classes": 2,
+            "dropout": float(args.dropout),
+        },
+        vocab_size=len(vocab),
+        threshold=tuned_threshold,
+        temperature=tuned_temperature,
+    )
 
     print(f"Saved best model to: {save_path}")
     test_metrics = None
     if test_loader is not None:
         print("\nEvaluating best checkpoint on test...")
-        model.load_state_dict(torch.load(save_path, map_location=device))
+        best_payload = torch.load(save_path, map_location=device)
+        model.load_state_dict(_extract_state_dict(best_payload))
         test_metrics = evaluate(model, test_loader, device)
 
         print("\n[Test metrics]")
@@ -335,9 +472,18 @@ def run_training(args) -> None:
     report_lines.append("")
     report_lines.append(f"Best epoch: {best_epoch}")
     if val_loader is not None:
-        report_lines.append(f"Best val F1: {best_val_f1:.4f}")
+        report_lines.append(f"Best val {args.select_metric.upper()}: {best_val_score:.4f}")
+        report_lines.append(f"Tuned threshold ({args.select_metric}): {tuned_threshold:.4f}")
+        report_lines.append(f"Temperature: {tuned_temperature:.4f}")
+        if threshold_metric_score == threshold_metric_score:
+            report_lines.append(f"Tuning score: {threshold_metric_score:.4f}")
+        if tuned_val_metrics is not None:
+            report_lines.append("")
+            report_lines.append("[Validation metrics @ tuned threshold]")
+            for k, v in tuned_val_metrics.items():
+                report_lines.append(f"{k}: {v:.4f}")
     else:
-        report_lines.append("Best val F1: n/a (no internal split)")
+        report_lines.append(f"Best val {args.select_metric.upper()}: n/a (no internal split)")
     report_lines.append(f"Saved best model to: {save_path}")
     if test_metrics is not None:
         report_lines.append("")
