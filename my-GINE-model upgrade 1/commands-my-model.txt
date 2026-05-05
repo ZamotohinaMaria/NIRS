@@ -1,0 +1,47 @@
+# 1) Обучение (быстрый старт, MalBehavD-V1)  - лучше!!!!!!!!!!!!!
+python .\my-GINE-model\train_gine.py ^
+    --csv .\MalbehavD-V1-main\MalBehavD-V1-dataset.csv ^
+    --dataset-format auto --include-unnamed-api-cols --epochs 40 --batch-size 64^
+    --test-size 0.01 --val-size 0.1
+
+# 2) Обучение без внутреннего split
+python .\my-GINE-model\train_gine.py --csv .\my-GINE-model\runs\splits\train_1300.csv --dataset-format auto --include-unnamed-api-cols --no-internal-split
+
+# 3) Обучение для single_seq-датасета
+python .\my-GINE-model\train_gine.py --csv .\data\your_dataset.csv --dataset-format single_seq --label-col label --seq-col api_sequence
+
+# 4) Полная справка по аргументам
+python .\my-GINE-model\train_gine.py --help
+
+# Проверка качества генерации
+python .\my-GINE-model\generation_quality_checks.py ^
+  --real-csv .\MalbehavD-V1-main\MalBehavD-V1-dataset.csv ^
+  --synthetic-csv .\MalbehavD-V1-main\MalBehavD-V1-generated-5000x2.csv ^
+  --include-unnamed-api-cols ^
+  --seeds 42,43,44,45,46
+
+# 5) Предсказание по одной последовательности
+python .\my-GINE-model\predict_gine.py --model-path .\my-GINE-model\runs\models\...pt --vocab-path .\my-GINE-model\runs\vocab\api_vocab.json --input-seq "NtOpenFile NtReadFile NtClose"
+
+# 6) Предсказание по CSV + метрики - лучше!!!!!!!!!!!!!
+python .\my-GINE-model\predict_gine.py ^
+    --model-path .\my-GINE-model\runs\models\g_h128l3_b64e40_lr0p001_s42_270b5a10_be22_vf964.pt ^
+    --vocab-path .\my-GINE-model\runs\vocab\api_vocab.json ^
+    --input-csv .\MalbehavD-V1-main\MalBehavD-V1-generated-5000x2.csv ^
+    --dataset-format auto ^
+    --include-unnamed-api-cols ^
+    --label-col labels
+
+# 7) Multi-split benchmark
+python .\my-GINE-model\run_splits.py --csv .\MalbehavD-V1-main\MalBehavD-V1-dataset.csv --label-col labels --dataset-format auto --include-unnamed-api-cols --train-per-class 650 --num-runs 5 --base-seed 42
+
+
+
+разбиение по датсетам для тренировки и обучения
+
+python .\my-GINE-model\run_splits.py --csv .\MalbehavD-V1-main\MalBehavD-V1-dataset.csv --label-col labels --dataset-format auto --include-unnamed-api-cols --train-per-class 650 --num-runs 1 --base-seed 42 --train-filename-template train_custom.csv --eval-filename-template test_custom.csv
+
+
+Сохранить историю командной строки
+
+doskey /history > .\"History cmd"\history-02-04.txt

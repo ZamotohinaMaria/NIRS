@@ -1,0 +1,22 @@
+Seed: 42
+Train samples: 1300
+Eval samples: 1270
+
+[Metrics]
+accuracy: 0.6512
+precision: 0.5902
+recall: 0.9890
+f1: 0.7393
+roc_auc: 0.8842
+
+[Confusion matrix]
+rows=true, cols=pred
+         pred_0  pred_1
+true_0   199     436
+true_1   7       628
+
+[Counts]
+True benign (0): 635
+True malware (1): 635
+Pred benign (0): 206
+Pred malware (1): 1064

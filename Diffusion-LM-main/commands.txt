@@ -45,3 +45,15 @@ python scripts/run_train.py ^
   --notes malbehav_full_balanced_v1 ^
   --app "%APP%"
 
+
+Генерация
+
+python scripts/generate_malbehav_by_label.py ^
+  --model_path runs\models\malbehav_full_balanced_v1_trf_ic16_bs16_s101_20260502-202533\best_model.pt ^
+  --target_label both ^
+  --num_samples 500 ^
+  --samples_per_round 64 ^
+  --batch_size 32 ^
+  --top_p 0.95 ^
+  --max_rounds 80 ^
+  --out_dir runs\generation_outputs

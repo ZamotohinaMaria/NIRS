@@ -1,0 +1,41 @@
+[Generation Quality Report]
+created_at: 2026-05-02T16:35:58.069806
+real_rows: 2570, synthetic_rows: 10000
+
+[1] Duplicate and leakage checks
+exact_duplicate_ratio: 0.6717
+near_duplicate_ratio(>=0.98): 0.6818
+nearest_similarity_mean: 0.8532
+
+[2] Diversity and coverage
+synthetic_unique_sequence_ratio: 0.3927, token_novelty_vs_real: 0.0000
+
+[3] Statistical closeness
+length_ks: 0.0307, length_wasserstein: 2.0933
+js_unigram: 0.0026, js_bigram: 0.0438, mmd2: 0.002634
+
+[4] Utility protocol (mean over seeds)
+baseline_real_to_real: acc=0.9607, f1=0.9598, recall=0.9401, fn=15.4
+augmented_real_plus_synth_to_real: acc=0.9681, f1=0.9674, recall=0.9479, fn=13.4
+tstr_synth_to_real: acc=0.9615, f1=0.9603, recall=0.9331, fn=17.2
+trts_real_to_synth: acc=0.9766, f1=0.9762, recall=0.9585, fn=207.6
+
+[5] OOD check
+synthetic_outlier_ratio=0.0352, real_outlier_ratio=0.0502, score_gap_real_minus_synthetic=-0.0010
+
+[6] Privacy/memorization proxy
+MIA_AUC=0.5050, mean_sim_member=0.8585, mean_sim_nonmember=0.8516
+
+[7] Verdict
+overall_status: FAIL
+summary: PASS=6, WARN=0, FAIL=2
+
+criteria:
+- exact_duplicate_ratio: FAIL | value=0.671700 | pass_if=<= 0.01 | warn_if=<= 0.05
+- near_duplicate_ratio: FAIL | value=0.681800 | pass_if=<= 0.1 | warn_if=<= 0.25
+- js_divergence_unigram: PASS | value=0.002636 | pass_if=<= 0.2 | warn_if=<= 0.35
+- tstr_f1_ratio_vs_baseline: PASS | value=1.000526 | pass_if=>= 0.9 | warn_if=>= 0.75
+- augmentation_delta_f1: PASS | value=0.007584 | pass_if=>= -0.03 | warn_if=>= -0.07
+- augmentation_fn_delta: PASS | value=-2.000000 | pass_if=<= 20.0 | warn_if=<= 60.0
+- ood_outlier_ratio_gap: PASS | value=-0.014995 | pass_if=<= 0.1 | warn_if=<= 0.2
+- privacy_mia_auc_proxy: PASS | value=0.505018 | pass_if=<= 0.6 | warn_if=<= 0.7
