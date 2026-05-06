@@ -1,0 +1,150 @@
+RUN: C:\Users\Marishka\anaconda3\python.exe scripts/text_sample.py --model_path runs\models\malbehav_full_balanced_v1_trf_ic16_bs16_s101_20260502-202533\best_model.pt --batch_size 32 --num_samples 64 --top_p 0.85 --out_dir generation_outputs/_tmp_label_sampling --verbose yes --seed 101
+Traceback (most recent call last):
+  File "C:\Users\Marishka\Desktop\code\NIRS\Diffusion-LM-main\improved-diffusion\scripts\generate_malbehav_by_label.py", line 194, in <module>
+    main()
+    ~~~~^^
+  File "C:\Users\Marishka\Desktop\code\NIRS\Diffusion-LM-main\improved-diffusion\scripts\generate_malbehav_by_label.py", line 128, in main
+    proc = subprocess.run(cmd, capture_output=True, text=True)
+  File "C:\Users\Marishka\anaconda3\Lib\subprocess.py", line 556, in run
+    stdout, stderr = process.communicate(input, timeout=timeout)
+                     ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Marishka\anaconda3\Lib\subprocess.py", line 1222, in communicate
+    stdout, stderr = self._communicate(input, endtime, timeout)
+                     ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Marishka\anaconda3\Lib\subprocess.py", line 1644, in _communicate
+    self.stdout_thread.join(self._remaining_time(endtime))
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Marishka\anaconda3\Lib\threading.py", line 1094, in join
+    self._handle.join(timeout)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^
+KeyboardInterrupt
+RUN: C:\Users\Marishka\anaconda3\python.exe scripts/text_sample.py --model_path runs\models\malbehav_full_balanced_v1_trf_ic16_bs16_s101_20260502-202533\best_model.pt --batch_size 32 --num_samples 64 --top_p 0.85 --out_dir generation_outputs/_tmp_label_sampling --verbose yes --seed 101
+round=1/80 seed=101 label0=20/1500 label1=44/1500 seen=64
+RUN: C:\Users\Marishka\anaconda3\python.exe scripts/text_sample.py --model_path runs\models\malbehav_full_balanced_v1_trf_ic16_bs16_s101_20260502-202533\best_model.pt --batch_size 32 --num_samples 64 --top_p 0.85 --out_dir generation_outputs/_tmp_label_sampling --verbose yes --seed 102
+round=2/80 seed=102 label0=44/1500 label1=84/1500 seen=128
+RUN: C:\Users\Marishka\anaconda3\python.exe scripts/text_sample.py --model_path runs\models\malbehav_full_balanced_v1_trf_ic16_bs16_s101_20260502-202533\best_model.pt --batch_size 32 --num_samples 64 --top_p 0.85 --out_dir generation_outputs/_tmp_label_sampling --verbose yes --seed 103
+round=3/80 seed=103 label0=63/1500 label1=129/1500 seen=192
+RUN: C:\Users\Marishka\anaconda3\python.exe scripts/text_sample.py --model_path runs\models\malbehav_full_balanced_v1_trf_ic16_bs16_s101_20260502-202533\best_model.pt --batch_size 32 --num_samples 64 --top_p 0.85 --out_dir generation_outputs/_tmp_label_sampling --verbose yes --seed 104
+round=4/80 seed=104 label0=92/1500 label1=164/1500 seen=256
+RUN: C:\Users\Marishka\anaconda3\python.exe scripts/text_sample.py --model_path runs\models\malbehav_full_balanced_v1_trf_ic16_bs16_s101_20260502-202533\best_model.pt --batch_size 32 --num_samples 64 --top_p 0.85 --out_dir generation_outputs/_tmp_label_sampling --verbose yes --seed 105
+round=5/80 seed=105 label0=119/1500 label1=201/1500 seen=320
+RUN: C:\Users\Marishka\anaconda3\python.exe scripts/text_sample.py --model_path runs\models\malbehav_full_balanced_v1_trf_ic16_bs16_s101_20260502-202533\best_model.pt --batch_size 32 --num_samples 64 --top_p 0.85 --out_dir generation_outputs/_tmp_label_sampling --verbose yes --seed 106
+round=6/80 seed=106 label0=144/1500 label1=240/1500 seen=384
+RUN: C:\Users\Marishka\anaconda3\python.exe scripts/text_sample.py --model_path runs\models\malbehav_full_balanced_v1_trf_ic16_bs16_s101_20260502-202533\best_model.pt --batch_size 32 --num_samples 64 --top_p 0.85 --out_dir generation_outputs/_tmp_label_sampling --verbose yes --seed 107
+round=7/80 seed=107 label0=166/1500 label1=282/1500 seen=448
+RUN: C:\Users\Marishka\anaconda3\python.exe scripts/text_sample.py --model_path runs\models\malbehav_full_balanced_v1_trf_ic16_bs16_s101_20260502-202533\best_model.pt --batch_size 32 --num_samples 64 --top_p 0.85 --out_dir generation_outputs/_tmp_label_sampling --verbose yes --seed 108
+round=8/80 seed=108 label0=197/1500 label1=315/1500 seen=512
+RUN: C:\Users\Marishka\anaconda3\python.exe scripts/text_sample.py --model_path runs\models\malbehav_full_balanced_v1_trf_ic16_bs16_s101_20260502-202533\best_model.pt --batch_size 32 --num_samples 64 --top_p 0.85 --out_dir generation_outputs/_tmp_label_sampling --verbose yes --seed 109
+round=9/80 seed=109 label0=221/1500 label1=355/1500 seen=576
+RUN: C:\Users\Marishka\anaconda3\python.exe scripts/text_sample.py --model_path runs\models\malbehav_full_balanced_v1_trf_ic16_bs16_s101_20260502-202533\best_model.pt --batch_size 32 --num_samples 64 --top_p 0.85 --out_dir generation_outputs/_tmp_label_sampling --verbose yes --seed 110
+round=10/80 seed=110 label0=244/1500 label1=396/1500 seen=640
+RUN: C:\Users\Marishka\anaconda3\python.exe scripts/text_sample.py --model_path runs\models\malbehav_full_balanced_v1_trf_ic16_bs16_s101_20260502-202533\best_model.pt --batch_size 32 --num_samples 64 --top_p 0.85 --out_dir generation_outputs/_tmp_label_sampling --verbose yes --seed 111
+round=11/80 seed=111 label0=269/1500 label1=435/1500 seen=704
+RUN: C:\Users\Marishka\anaconda3\python.exe scripts/text_sample.py --model_path runs\models\malbehav_full_balanced_v1_trf_ic16_bs16_s101_20260502-202533\best_model.pt --batch_size 32 --num_samples 64 --top_p 0.85 --out_dir generation_outputs/_tmp_label_sampling --verbose yes --seed 112
+round=12/80 seed=112 label0=297/1500 label1=471/1500 seen=768
+RUN: C:\Users\Marishka\anaconda3\python.exe scripts/text_sample.py --model_path runs\models\malbehav_full_balanced_v1_trf_ic16_bs16_s101_20260502-202533\best_model.pt --batch_size 32 --num_samples 64 --top_p 0.85 --out_dir generation_outputs/_tmp_label_sampling --verbose yes --seed 113
+round=13/80 seed=113 label0=328/1500 label1=504/1500 seen=832
+RUN: C:\Users\Marishka\anaconda3\python.exe scripts/text_sample.py --model_path runs\models\malbehav_full_balanced_v1_trf_ic16_bs16_s101_20260502-202533\best_model.pt --batch_size 32 --num_samples 64 --top_p 0.85 --out_dir generation_outputs/_tmp_label_sampling --verbose yes --seed 114
+round=14/80 seed=114 label0=356/1500 label1=540/1500 seen=896
+RUN: C:\Users\Marishka\anaconda3\python.exe scripts/text_sample.py --model_path runs\models\malbehav_full_balanced_v1_trf_ic16_bs16_s101_20260502-202533\best_model.pt --batch_size 32 --num_samples 64 --top_p 0.85 --out_dir generation_outputs/_tmp_label_sampling --verbose yes --seed 115
+round=15/80 seed=115 label0=376/1500 label1=584/1500 seen=960
+RUN: C:\Users\Marishka\anaconda3\python.exe scripts/text_sample.py --model_path runs\models\malbehav_full_balanced_v1_trf_ic16_bs16_s101_20260502-202533\best_model.pt --batch_size 32 --num_samples 64 --top_p 0.85 --out_dir generation_outputs/_tmp_label_sampling --verbose yes --seed 116
+round=16/80 seed=116 label0=400/1500 label1=624/1500 seen=1024
+RUN: C:\Users\Marishka\anaconda3\python.exe scripts/text_sample.py --model_path runs\models\malbehav_full_balanced_v1_trf_ic16_bs16_s101_20260502-202533\best_model.pt --batch_size 32 --num_samples 64 --top_p 0.85 --out_dir generation_outputs/_tmp_label_sampling --verbose yes --seed 117
+round=17/80 seed=117 label0=426/1500 label1=662/1500 seen=1088
+RUN: C:\Users\Marishka\anaconda3\python.exe scripts/text_sample.py --model_path runs\models\malbehav_full_balanced_v1_trf_ic16_bs16_s101_20260502-202533\best_model.pt --batch_size 32 --num_samples 64 --top_p 0.85 --out_dir generation_outputs/_tmp_label_sampling --verbose yes --seed 118
+round=18/80 seed=118 label0=454/1500 label1=698/1500 seen=1152
+RUN: C:\Users\Marishka\anaconda3\python.exe scripts/text_sample.py --model_path runs\models\malbehav_full_balanced_v1_trf_ic16_bs16_s101_20260502-202533\best_model.pt --batch_size 32 --num_samples 64 --top_p 0.85 --out_dir generation_outputs/_tmp_label_sampling --verbose yes --seed 119
+round=19/80 seed=119 label0=477/1500 label1=739/1500 seen=1216
+RUN: C:\Users\Marishka\anaconda3\python.exe scripts/text_sample.py --model_path runs\models\malbehav_full_balanced_v1_trf_ic16_bs16_s101_20260502-202533\best_model.pt --batch_size 32 --num_samples 64 --top_p 0.85 --out_dir generation_outputs/_tmp_label_sampling --verbose yes --seed 120
+round=20/80 seed=120 label0=503/1500 label1=777/1500 seen=1280
+RUN: C:\Users\Marishka\anaconda3\python.exe scripts/text_sample.py --model_path runs\models\malbehav_full_balanced_v1_trf_ic16_bs16_s101_20260502-202533\best_model.pt --batch_size 32 --num_samples 64 --top_p 0.85 --out_dir generation_outputs/_tmp_label_sampling --verbose yes --seed 121
+round=21/80 seed=121 label0=525/1500 label1=819/1500 seen=1344
+RUN: C:\Users\Marishka\anaconda3\python.exe scripts/text_sample.py --model_path runs\models\malbehav_full_balanced_v1_trf_ic16_bs16_s101_20260502-202533\best_model.pt --batch_size 32 --num_samples 64 --top_p 0.85 --out_dir generation_outputs/_tmp_label_sampling --verbose yes --seed 122
+round=22/80 seed=122 label0=554/1500 label1=854/1500 seen=1408
+RUN: C:\Users\Marishka\anaconda3\python.exe scripts/text_sample.py --model_path runs\models\malbehav_full_balanced_v1_trf_ic16_bs16_s101_20260502-202533\best_model.pt --batch_size 32 --num_samples 64 --top_p 0.85 --out_dir generation_outputs/_tmp_label_sampling --verbose yes --seed 123
+round=23/80 seed=123 label0=580/1500 label1=892/1500 seen=1472
+RUN: C:\Users\Marishka\anaconda3\python.exe scripts/text_sample.py --model_path runs\models\malbehav_full_balanced_v1_trf_ic16_bs16_s101_20260502-202533\best_model.pt --batch_size 32 --num_samples 64 --top_p 0.85 --out_dir generation_outputs/_tmp_label_sampling --verbose yes --seed 124
+round=24/80 seed=124 label0=606/1500 label1=930/1500 seen=1536
+RUN: C:\Users\Marishka\anaconda3\python.exe scripts/text_sample.py --model_path runs\models\malbehav_full_balanced_v1_trf_ic16_bs16_s101_20260502-202533\best_model.pt --batch_size 32 --num_samples 64 --top_p 0.85 --out_dir generation_outputs/_tmp_label_sampling --verbose yes --seed 125
+round=25/80 seed=125 label0=630/1500 label1=970/1500 seen=1600
+RUN: C:\Users\Marishka\anaconda3\python.exe scripts/text_sample.py --model_path runs\models\malbehav_full_balanced_v1_trf_ic16_bs16_s101_20260502-202533\best_model.pt --batch_size 32 --num_samples 64 --top_p 0.85 --out_dir generation_outputs/_tmp_label_sampling --verbose yes --seed 126
+round=26/80 seed=126 label0=653/1500 label1=1011/1500 seen=1664
+RUN: C:\Users\Marishka\anaconda3\python.exe scripts/text_sample.py --model_path runs\models\malbehav_full_balanced_v1_trf_ic16_bs16_s101_20260502-202533\best_model.pt --batch_size 32 --num_samples 64 --top_p 0.85 --out_dir generation_outputs/_tmp_label_sampling --verbose yes --seed 127
+round=27/80 seed=127 label0=680/1500 label1=1048/1500 seen=1728
+RUN: C:\Users\Marishka\anaconda3\python.exe scripts/text_sample.py --model_path runs\models\malbehav_full_balanced_v1_trf_ic16_bs16_s101_20260502-202533\best_model.pt --batch_size 32 --num_samples 64 --top_p 0.85 --out_dir generation_outputs/_tmp_label_sampling --verbose yes --seed 128
+round=28/80 seed=128 label0=699/1500 label1=1093/1500 seen=1792
+RUN: C:\Users\Marishka\anaconda3\python.exe scripts/text_sample.py --model_path runs\models\malbehav_full_balanced_v1_trf_ic16_bs16_s101_20260502-202533\best_model.pt --batch_size 32 --num_samples 64 --top_p 0.85 --out_dir generation_outputs/_tmp_label_sampling --verbose yes --seed 129
+round=29/80 seed=129 label0=723/1500 label1=1133/1500 seen=1856
+RUN: C:\Users\Marishka\anaconda3\python.exe scripts/text_sample.py --model_path runs\models\malbehav_full_balanced_v1_trf_ic16_bs16_s101_20260502-202533\best_model.pt --batch_size 32 --num_samples 64 --top_p 0.85 --out_dir generation_outputs/_tmp_label_sampling --verbose yes --seed 130
+round=30/80 seed=130 label0=738/1500 label1=1182/1500 seen=1920
+RUN: C:\Users\Marishka\anaconda3\python.exe scripts/text_sample.py --model_path runs\models\malbehav_full_balanced_v1_trf_ic16_bs16_s101_20260502-202533\best_model.pt --batch_size 32 --num_samples 64 --top_p 0.85 --out_dir generation_outputs/_tmp_label_sampling --verbose yes --seed 131
+round=31/80 seed=131 label0=759/1500 label1=1225/1500 seen=1984
+RUN: C:\Users\Marishka\anaconda3\python.exe scripts/text_sample.py --model_path runs\models\malbehav_full_balanced_v1_trf_ic16_bs16_s101_20260502-202533\best_model.pt --batch_size 32 --num_samples 64 --top_p 0.85 --out_dir generation_outputs/_tmp_label_sampling --verbose yes --seed 132
+round=32/80 seed=132 label0=787/1500 label1=1261/1500 seen=2048
+RUN: C:\Users\Marishka\anaconda3\python.exe scripts/text_sample.py --model_path runs\models\malbehav_full_balanced_v1_trf_ic16_bs16_s101_20260502-202533\best_model.pt --batch_size 32 --num_samples 64 --top_p 0.85 --out_dir generation_outputs/_tmp_label_sampling --verbose yes --seed 133
+round=33/80 seed=133 label0=811/1500 label1=1301/1500 seen=2112
+RUN: C:\Users\Marishka\anaconda3\python.exe scripts/text_sample.py --model_path runs\models\malbehav_full_balanced_v1_trf_ic16_bs16_s101_20260502-202533\best_model.pt --batch_size 32 --num_samples 64 --top_p 0.85 --out_dir generation_outputs/_tmp_label_sampling --verbose yes --seed 134
+round=34/80 seed=134 label0=835/1500 label1=1341/1500 seen=2176
+RUN: C:\Users\Marishka\anaconda3\python.exe scripts/text_sample.py --model_path runs\models\malbehav_full_balanced_v1_trf_ic16_bs16_s101_20260502-202533\best_model.pt --batch_size 32 --num_samples 64 --top_p 0.85 --out_dir generation_outputs/_tmp_label_sampling --verbose yes --seed 135
+round=35/80 seed=135 label0=861/1500 label1=1379/1500 seen=2240
+RUN: C:\Users\Marishka\anaconda3\python.exe scripts/text_sample.py --model_path runs\models\malbehav_full_balanced_v1_trf_ic16_bs16_s101_20260502-202533\best_model.pt --batch_size 32 --num_samples 64 --top_p 0.85 --out_dir generation_outputs/_tmp_label_sampling --verbose yes --seed 136
+round=36/80 seed=136 label0=885/1500 label1=1419/1500 seen=2304
+RUN: C:\Users\Marishka\anaconda3\python.exe scripts/text_sample.py --model_path runs\models\malbehav_full_balanced_v1_trf_ic16_bs16_s101_20260502-202533\best_model.pt --batch_size 32 --num_samples 64 --top_p 0.85 --out_dir generation_outputs/_tmp_label_sampling --verbose yes --seed 137
+round=37/80 seed=137 label0=909/1500 label1=1459/1500 seen=2368
+RUN: C:\Users\Marishka\anaconda3\python.exe scripts/text_sample.py --model_path runs\models\malbehav_full_balanced_v1_trf_ic16_bs16_s101_20260502-202533\best_model.pt --batch_size 32 --num_samples 64 --top_p 0.85 --out_dir generation_outputs/_tmp_label_sampling --verbose yes --seed 138
+round=38/80 seed=138 label0=934/1500 label1=1498/1500 seen=2432
+RUN: C:\Users\Marishka\anaconda3\python.exe scripts/text_sample.py --model_path runs\models\malbehav_full_balanced_v1_trf_ic16_bs16_s101_20260502-202533\best_model.pt --batch_size 32 --num_samples 64 --top_p 0.85 --out_dir generation_outputs/_tmp_label_sampling --verbose yes --seed 139
+round=39/80 seed=139 label0=957/1500 label1=1500/1500 seen=2496
+RUN: C:\Users\Marishka\anaconda3\python.exe scripts/text_sample.py --model_path runs\models\malbehav_full_balanced_v1_trf_ic16_bs16_s101_20260502-202533\best_model.pt --batch_size 32 --num_samples 64 --top_p 0.85 --out_dir generation_outputs/_tmp_label_sampling --verbose yes --seed 140
+round=40/80 seed=140 label0=981/1500 label1=1500/1500 seen=2560
+RUN: C:\Users\Marishka\anaconda3\python.exe scripts/text_sample.py --model_path runs\models\malbehav_full_balanced_v1_trf_ic16_bs16_s101_20260502-202533\best_model.pt --batch_size 32 --num_samples 64 --top_p 0.85 --out_dir generation_outputs/_tmp_label_sampling --verbose yes --seed 141
+round=41/80 seed=141 label0=1008/1500 label1=1500/1500 seen=2624
+RUN: C:\Users\Marishka\anaconda3\python.exe scripts/text_sample.py --model_path runs\models\malbehav_full_balanced_v1_trf_ic16_bs16_s101_20260502-202533\best_model.pt --batch_size 32 --num_samples 64 --top_p 0.85 --out_dir generation_outputs/_tmp_label_sampling --verbose yes --seed 142
+round=42/80 seed=142 label0=1032/1500 label1=1500/1500 seen=2688
+RUN: C:\Users\Marishka\anaconda3\python.exe scripts/text_sample.py --model_path runs\models\malbehav_full_balanced_v1_trf_ic16_bs16_s101_20260502-202533\best_model.pt --batch_size 32 --num_samples 64 --top_p 0.85 --out_dir generation_outputs/_tmp_label_sampling --verbose yes --seed 143
+round=43/80 seed=143 label0=1061/1500 label1=1500/1500 seen=2752
+RUN: C:\Users\Marishka\anaconda3\python.exe scripts/text_sample.py --model_path runs\models\malbehav_full_balanced_v1_trf_ic16_bs16_s101_20260502-202533\best_model.pt --batch_size 32 --num_samples 64 --top_p 0.85 --out_dir generation_outputs/_tmp_label_sampling --verbose yes --seed 144
+round=44/80 seed=144 label0=1078/1500 label1=1500/1500 seen=2816
+RUN: C:\Users\Marishka\anaconda3\python.exe scripts/text_sample.py --model_path runs\models\malbehav_full_balanced_v1_trf_ic16_bs16_s101_20260502-202533\best_model.pt --batch_size 32 --num_samples 64 --top_p 0.85 --out_dir generation_outputs/_tmp_label_sampling --verbose yes --seed 145
+round=45/80 seed=145 label0=1098/1500 label1=1500/1500 seen=2880
+RUN: C:\Users\Marishka\anaconda3\python.exe scripts/text_sample.py --model_path runs\models\malbehav_full_balanced_v1_trf_ic16_bs16_s101_20260502-202533\best_model.pt --batch_size 32 --num_samples 64 --top_p 0.85 --out_dir generation_outputs/_tmp_label_sampling --verbose yes --seed 146
+round=46/80 seed=146 label0=1119/1500 label1=1500/1500 seen=2944
+RUN: C:\Users\Marishka\anaconda3\python.exe scripts/text_sample.py --model_path runs\models\malbehav_full_balanced_v1_trf_ic16_bs16_s101_20260502-202533\best_model.pt --batch_size 32 --num_samples 64 --top_p 0.85 --out_dir generation_outputs/_tmp_label_sampling --verbose yes --seed 147
+round=47/80 seed=147 label0=1138/1500 label1=1500/1500 seen=3008
+RUN: C:\Users\Marishka\anaconda3\python.exe scripts/text_sample.py --model_path runs\models\malbehav_full_balanced_v1_trf_ic16_bs16_s101_20260502-202533\best_model.pt --batch_size 32 --num_samples 64 --top_p 0.85 --out_dir generation_outputs/_tmp_label_sampling --verbose yes --seed 148
+round=48/80 seed=148 label0=1165/1500 label1=1500/1500 seen=3072
+RUN: C:\Users\Marishka\anaconda3\python.exe scripts/text_sample.py --model_path runs\models\malbehav_full_balanced_v1_trf_ic16_bs16_s101_20260502-202533\best_model.pt --batch_size 32 --num_samples 64 --top_p 0.85 --out_dir generation_outputs/_tmp_label_sampling --verbose yes --seed 149
+round=49/80 seed=149 label0=1191/1500 label1=1500/1500 seen=3136
+RUN: C:\Users\Marishka\anaconda3\python.exe scripts/text_sample.py --model_path runs\models\malbehav_full_balanced_v1_trf_ic16_bs16_s101_20260502-202533\best_model.pt --batch_size 32 --num_samples 64 --top_p 0.85 --out_dir generation_outputs/_tmp_label_sampling --verbose yes --seed 150
+round=50/80 seed=150 label0=1211/1500 label1=1500/1500 seen=3200
+RUN: C:\Users\Marishka\anaconda3\python.exe scripts/text_sample.py --model_path runs\models\malbehav_full_balanced_v1_trf_ic16_bs16_s101_20260502-202533\best_model.pt --batch_size 32 --num_samples 64 --top_p 0.85 --out_dir generation_outputs/_tmp_label_sampling --verbose yes --seed 151
+round=51/80 seed=151 label0=1240/1500 label1=1500/1500 seen=3264
+RUN: C:\Users\Marishka\anaconda3\python.exe scripts/text_sample.py --model_path runs\models\malbehav_full_balanced_v1_trf_ic16_bs16_s101_20260502-202533\best_model.pt --batch_size 32 --num_samples 64 --top_p 0.85 --out_dir generation_outputs/_tmp_label_sampling --verbose yes --seed 152
+round=52/80 seed=152 label0=1259/1500 label1=1500/1500 seen=3328
+RUN: C:\Users\Marishka\anaconda3\python.exe scripts/text_sample.py --model_path runs\models\malbehav_full_balanced_v1_trf_ic16_bs16_s101_20260502-202533\best_model.pt --batch_size 32 --num_samples 64 --top_p 0.85 --out_dir generation_outputs/_tmp_label_sampling --verbose yes --seed 153
+round=53/80 seed=153 label0=1278/1500 label1=1500/1500 seen=3392
+RUN: C:\Users\Marishka\anaconda3\python.exe scripts/text_sample.py --model_path runs\models\malbehav_full_balanced_v1_trf_ic16_bs16_s101_20260502-202533\best_model.pt --batch_size 32 --num_samples 64 --top_p 0.85 --out_dir generation_outputs/_tmp_label_sampling --verbose yes --seed 154
+round=54/80 seed=154 label0=1301/1500 label1=1500/1500 seen=3456
+RUN: C:\Users\Marishka\anaconda3\python.exe scripts/text_sample.py --model_path runs\models\malbehav_full_balanced_v1_trf_ic16_bs16_s101_20260502-202533\best_model.pt --batch_size 32 --num_samples 64 --top_p 0.85 --out_dir generation_outputs/_tmp_label_sampling --verbose yes --seed 155
+round=55/80 seed=155 label0=1326/1500 label1=1500/1500 seen=3520
+RUN: C:\Users\Marishka\anaconda3\python.exe scripts/text_sample.py --model_path runs\models\malbehav_full_balanced_v1_trf_ic16_bs16_s101_20260502-202533\best_model.pt --batch_size 32 --num_samples 64 --top_p 0.85 --out_dir generation_outputs/_tmp_label_sampling --verbose yes --seed 156
+round=56/80 seed=156 label0=1348/1500 label1=1500/1500 seen=3584
+RUN: C:\Users\Marishka\anaconda3\python.exe scripts/text_sample.py --model_path runs\models\malbehav_full_balanced_v1_trf_ic16_bs16_s101_20260502-202533\best_model.pt --batch_size 32 --num_samples 64 --top_p 0.85 --out_dir generation_outputs/_tmp_label_sampling --verbose yes --seed 157
+round=57/80 seed=157 label0=1372/1500 label1=1500/1500 seen=3648
+RUN: C:\Users\Marishka\anaconda3\python.exe scripts/text_sample.py --model_path runs\models\malbehav_full_balanced_v1_trf_ic16_bs16_s101_20260502-202533\best_model.pt --batch_size 32 --num_samples 64 --top_p 0.85 --out_dir generation_outputs/_tmp_label_sampling --verbose yes --seed 158
+round=58/80 seed=158 label0=1394/1500 label1=1500/1500 seen=3712
+RUN: C:\Users\Marishka\anaconda3\python.exe scripts/text_sample.py --model_path runs\models\malbehav_full_balanced_v1_trf_ic16_bs16_s101_20260502-202533\best_model.pt --batch_size 32 --num_samples 64 --top_p 0.85 --out_dir generation_outputs/_tmp_label_sampling --verbose yes --seed 159
+round=59/80 seed=159 label0=1419/1500 label1=1500/1500 seen=3776
+RUN: C:\Users\Marishka\anaconda3\python.exe scripts/text_sample.py --model_path runs\models\malbehav_full_balanced_v1_trf_ic16_bs16_s101_20260502-202533\best_model.pt --batch_size 32 --num_samples 64 --top_p 0.85 --out_dir generation_outputs/_tmp_label_sampling --verbose yes --seed 160
+round=60/80 seed=160 label0=1440/1500 label1=1500/1500 seen=3840
+RUN: C:\Users\Marishka\anaconda3\python.exe scripts/text_sample.py --model_path runs\models\malbehav_full_balanced_v1_trf_ic16_bs16_s101_20260502-202533\best_model.pt --batch_size 32 --num_samples 64 --top_p 0.85 --out_dir generation_outputs/_tmp_label_sampling --verbose yes --seed 161
+round=61/80 seed=161 label0=1463/1500 label1=1500/1500 seen=3904
+RUN: C:\Users\Marishka\anaconda3\python.exe scripts/text_sample.py --model_path runs\models\malbehav_full_balanced_v1_trf_ic16_bs16_s101_20260502-202533\best_model.pt --batch_size 32 --num_samples 64 --top_p 0.85 --out_dir generation_outputs/_tmp_label_sampling --verbose yes --seed 162
+round=62/80 seed=162 label0=1490/1500 label1=1500/1500 seen=3968
+RUN: C:\Users\Marishka\anaconda3\python.exe scripts/text_sample.py --model_path runs\models\malbehav_full_balanced_v1_trf_ic16_bs16_s101_20260502-202533\best_model.pt --batch_size 32 --num_samples 64 --top_p 0.85 --out_dir generation_outputs/_tmp_label_sampling --verbose yes --seed 163
+round=63/80 seed=163 label0=1500/1500 label1=1500/1500 seen=4032
+saved=runs\generation_outputs\malbehav_best_20260505\malbehav_label0_1500_20260506_223237.txt
+label=0 accepted=1500 total_seen=4032 acceptance_rate=37.20%
+saved=runs\generation_outputs\malbehav_best_20260505\malbehav_label1_1500_20260506_223237.txt
+label=1 accepted=1500 total_seen=4032 acceptance_rate=37.20%
