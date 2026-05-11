@@ -59,10 +59,22 @@ python scripts/generate_malbehav_by_label.py ^
   --out_dir runs\generation_outputs\malbehav_best_20260505
 
 
+Конвертация сэмплов в CSV-формат MalbehavD-V1
 
+python scripts/malbehav_samples_to_csv.py ^
+  --input_txt runs\generation_outputs\malbehav_best_20260505\merge_malbehav_1500_20260506_223237.txt ^
+  --output_csv runs\generation_outputs\malbehav_best_20260505\malbehav_generated_1500.csv ^
+  --drop_special_tokens yes ^
+  --with_sha256_column yes
 
+Оценка генерации
 
-  89968356020
-  Кирилл
+python .\my-GINE-model\generation_quality_checks.py ^
+  --real-csv .\MalbehavD-V1-main\MalBehavD-V1-dataset.csv ^
+  --synthetic-csv .\Diffusion-LM-main\improved-diffusion\runs\generation_outputs\malbehav_best_20260505\malbehav_generated_1500.csv ^
+  --include-unnamed-api-cols ^
+  --seeds 42,43,44,45,46
 
-  
+Результат
+
+report text: C:\Users\Marishka\Desktop\code\NIRS\my-GINE-model\runs\generation_quality\gen_quality_20260506_230640.txt
