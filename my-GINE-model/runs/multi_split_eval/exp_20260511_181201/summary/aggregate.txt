@@ -1,0 +1,6 @@
+[Aggregate metrics]
+accuracy: mean=0.9395, std=0.0084, min=0.9273, max=0.9532
+precision: mean=0.9429, std=0.0156, min=0.9221, max=0.9653
+recall: mean=0.9361, std=0.0205, min=0.8961, max=0.9532
+f1: mean=0.9392, std=0.0088, min=0.9249, max=0.9526
+roc_auc: mean=0.9778, std=0.0055, min=0.9691, max=0.9844

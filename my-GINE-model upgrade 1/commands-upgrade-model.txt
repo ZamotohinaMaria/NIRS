@@ -1,0 +1,115 @@
+cd C:\Users\Marishka\Desktop\code\NIRS
+
+1) Обучение GINE (основной датасет)
+
+python ".\my-GINE-model upgrade 1\train_gine.py" ^
+  --csv ".\MalbehavD-V1-main\MalBehavD-V1-dataset.csv" ^
+  --dataset-format auto ^
+  --include-unnamed-api-cols ^
+  --epochs 40 ^
+  --batch-size 64 ^
+  --device cpu ^
+  --test-size 0.01 --val-size 0.1
+
+Результат:
+C:\Users\Marishka\Desktop\code\NIRS\my-GINE-model upgrade 1\runs\models\g_h128l3_b64e40_lr0p001_s42_270b5a10_be14_vf968.pt
+my-GINE-model upgrade 1\runs\models\MalBehavD-V1-dataset+e40+b64+31-17__11-05-2026.txt
+my-GINE-model upgrade 1/runs/results/MalBehavD-V1-dataset_wide_api_hd128_l3_bs64_ep40_lr0p001_wd0p0001_seed42_83b3954432.txt
+
+
+2) Классификация Batch-предсказание + метрики по CSV
+
+--Классфикация для TextGAN
+
+python ".\my-GINE-model upgrade 1\predict_gine.py" ^
+  --model-path ".\my-GINE-model upgrade 1\runs\models\g_h128l3_b64e40_lr0p001_s42_270b5a10_be14_vf968.pt" ^
+  --vocab-path ".\my-GINE-model upgrade 1\runs\vocab\api_vocab.json" ^
+  --input-csv ".\MalbehavD-V1-main\MalBehavD-V1-generated-5000x2.csv" ^
+  --dataset-format auto ^
+  --include-unnamed-api-cols ^
+  --label-col labels ^
+  --device cpu
+
+Результат:
+
+my-GINE-model upgrade 1\runs\predictions\metrics_g_h128l3_b64e40_lr0p001_s42_270b5a10_be14_vf968_MalBehavD-V1-generated-5000x2_9550ad47.txt
+
+
+
+--Классфикация для Diffusion-LM
+
+
+python ".\my-GINE-model upgrade 1\predict_gine.py" ^
+  --model-path ".\my-GINE-model upgrade 1\runs\models\g_h128l3_b64e40_lr0p001_s42_270b5a10_be14_vf968.pt" ^
+  --vocab-path ".\my-GINE-model upgrade 1\runs\vocab\api_vocab.json" ^
+  --input-csv ".\Diffusion-LM-main\improved-diffusion\runs\generation_outputs\malbehav_best_20260505\malbehav_generated_1500.csv" ^
+  --dataset-format auto ^
+  --include-unnamed-api-cols ^
+  --label-col labels ^
+  --device cpu
+
+Результат
+
+my-GINE-model upgrade 1\runs\predictions\metrics_g_h128l3_b64e40_lr0p001_s42_270b5a10_be14_vf968_malbehav_generated_1500_a8f28f6b.txt
+
+
+-------------Обучение модели 2-----------------------------------
+
+python ".\my-GINE-model upgrade 1\train_gine.py" ^
+  --csv ".\MalbehavD-V1-main\MalBehavD-V1-dataset.csv" ^
+  --dataset-format auto ^
+  --include-unnamed-api-cols ^
+  --epochs 60 ^
+  --batch-size 64 ^
+  --lr 0.0005 ^
+  --weight-decay 0.0003 ^
+  --dropout 0.25 ^
+  --undirected ^
+  --add-skip-edges ^
+  --select-metric mcc ^
+  --threshold-grid 0.10:0.90:161 ^
+  --test-size 0.1 --val-size 0.1 ^
+  --seed 23 ^
+  --device cpu
+
+Результат
+    
+    my-GINE-model upgrade 1\runs\models\MalBehavD-V1-dataset+e60+b64+51-17__11-05-2026.txt
+  
+  Saved best model to: C:\Users\Marishka\Desktop\code\NIRS\my-GINE-model upgrade 1\runs\models\g_h128l3_b64e60_lr0p0005_s23_40b0098e_be32_vf931.pt
+  Saved run summary to: C:\Users\Marishka\Desktop\code\NIRS\my-GINE-model upgrade 1\runs\results\MalBehavD-V1-dataset_wide_api_hd128_l3_bs64_ep60_lr0p0005_wd0p0003_seed23_e6c4792219.txt
+
+
+2) Классификация:
+
+-- Для TextGAN
+
+python ".\my-GINE-model upgrade 1\predict_gine.py" ^
+  --model-path ".\my-GINE-model upgrade 1\runs\models\g_h128l3_b64e60_lr0p0005_s23_40b0098e_be32_vf931.pt" ^
+  --vocab-path ".\my-GINE-model upgrade 1\runs\vocab\api_vocab.json" ^
+  --input-csv ".\MalbehavD-V1-main\MalBehavD-V1-generated-5000x2.csv" ^
+  --dataset-format auto ^
+  --include-unnamed-api-cols ^
+  --label-col labels ^
+  --undirected ^
+  --add-skip-edges ^
+  --device cpu
+
+  
+  Saved prediction metrics to: C:\Users\Marishka\Desktop\code\NIRS\my-GINE-model upgrade 1\runs\predictions\metrics_g_h128l3_b64e60_lr0p0005_s23_40b0098e_be32_vf931_MalBehavD-V1-generated-5000x2_007af4fb.txt
+
+
+  --Классфикация для Diffusion-LM
+
+  python ".\my-GINE-model upgrade 1\predict_gine.py" ^
+  --model-path ".\my-GINE-model upgrade 1\runs\models\g_h128l3_b64e60_lr0p0005_s23_40b0098e_be32_vf931.pt" ^
+  --vocab-path ".\my-GINE-model upgrade 1\runs\vocab\api_vocab.json" ^
+  --input-csv ".\Diffusion-LM-main\improved-diffusion\runs\generation_outputs\malbehav_best_20260505\malbehav_generated_1500.csv" ^
+  --dataset-format auto ^
+  --include-unnamed-api-cols ^
+  --label-col labels ^
+  --undirected ^
+  --add-skip-edges ^
+  --device cpu
+
+  Saved prediction metrics to: C:\Users\Marishka\Desktop\code\NIRS\my-GINE-model upgrade 1\runs\predictions\metrics_g_h128l3_b64e60_lr0p0005_s23_40b0098e_be32_vf931_malbehav_generated_1500_659eae04.txt

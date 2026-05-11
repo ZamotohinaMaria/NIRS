@@ -1,0 +1,46 @@
+[TRAIN]
+Samples: 2081
+Class distribution: {1: 1040, 0: 1041}
+Avg nodes: 43.16
+Avg edges: 166.66
+
+[VAL]
+Samples: 232
+Class distribution: {1: 116, 0: 116}
+Avg nodes: 42.10
+Avg edges: 162.41
+
+[TEST]
+Samples: 257
+Class distribution: {0: 128, 1: 129}
+Avg nodes: 44.36
+Avg edges: 171.43
+
+Best epoch: 32
+Best val MCC: 0.9312
+Tuned threshold (mcc): 0.4200
+Temperature: 2.4313
+Tuning score: 0.9312
+
+[Validation metrics @ tuned threshold]
+accuracy: 0.9655
+precision: 0.9576
+recall: 0.9741
+f1: 0.9658
+pr_auc: 0.9904
+mcc: 0.9312
+brier: 0.0343
+roc_auc: 0.9883
+Saved best model to: C:\Users\Marishka\Desktop\code\NIRS\my-GINE-model upgrade 1\runs\models\g_h128l3_b64e60_lr0p0005_s23_40b0098e_be32_vf931.pt
+
+Evaluating best checkpoint on test...
+
+[Test metrics]
+accuracy: 0.9689
+precision: 0.9690
+recall: 0.9690
+f1: 0.9690
+pr_auc: 0.9924
+mcc: 0.9377
+brier: 0.0285
+roc_auc: 0.9899

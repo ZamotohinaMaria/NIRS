@@ -1,0 +1,20 @@
+﻿Дата сравнения: 2026-05-11
+
+Сравнение моделей:
+1) my-GINE-model upgrade 1
+2) my-GINE-model
+
+Сводная таблица:
+- Best val F1: 0.9683 vs 0.9644 (diff +0.0039)
+- Test accuracy: 0.9615 vs 0.9231 (diff +0.0384)
+- Test precision: 1.0000 vs 0.9231 (diff +0.0769)
+- Test recall: 0.9231 vs 0.9231 (diff +0.0000)
+- Test F1: 0.9600 vs 0.9231 (diff +0.0369)
+- Test ROC-AUC: 0.9822 vs 0.9822 (diff +0.0000)
+
+Интерпретация на тесте (26 объектов):
+- upgrade 1: 25/26 верно, FP=0, FN=1
+- base model: 24/26 верно, FP=1, FN=1
+
+Вывод:
+my-GINE-model upgrade 1 показывает лучшее качество на тесте за счет более высокой точности и F1 при том же recall и ROC-AUC.

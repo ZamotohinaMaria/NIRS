@@ -1,0 +1,37 @@
+﻿Дата сравнения: 2026-05-11
+
+Сравнение классификации на наборе: MalBehavD-V1-generated-5000x2 (10000 строк)
+
+Модель 1: my-GINE-model upgrade 1 (be14_vf968)
+- Threshold: 0.4000
+- Temperature: 1.0730
+- Accuracy: 0.9762
+- Precision: 0.9843
+- Recall: 0.9678
+- F1: 0.9760
+- ROC-AUC: 0.9956
+- PR-AUC: 0.9964
+- MCC: 0.9525
+- Brier: 0.0216
+- Confusion: TN=4923, FP=77, FN=161, TP=4839
+
+Модель 2: my-GINE-model (be22_vf964)
+- Threshold: 0.5000
+- Accuracy: 0.9732
+- Precision: 0.9897
+- Recall: 0.9564
+- F1: 0.9727
+- ROC-AUC: 0.9924
+- Confusion: TN=4950, FP=50, FN=218, TP=4782
+
+Разница (upgrade 1 - base):
+- Accuracy: +0.0030
+- Precision: -0.0054
+- Recall: +0.0114
+- F1: +0.0033
+- ROC-AUC: +0.0032
+- FP: +27
+- FN: -57
+
+Вывод:
+upgrade 1 лучше по общему качеству (accuracy, recall, F1, ROC-AUC), но немного хуже по precision.

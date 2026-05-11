@@ -1,0 +1,113 @@
+Training log file: C:\Users\Marishka\Desktop\code\NIRS\my-GINE-model upgrade 1\runs\models\MalBehavD-V1-dataset+e60+b64+51-17__11-05-2026.txt
+Loading CSV...
+Adapter format: wide_api
+Source sequence columns: 175 columns
+Raw rows: 2570
+Prepared rows: 2570
+Detected label column: labels
+Detected sequence column: api_sequence
+Rows after preparation: 2570
+Building graph dataset...
+Vocabulary size: 292
+Output dir: C:\Users\Marishka\Desktop\code\NIRS\my-GINE-model upgrade 1\runs
+Saved vocab to: C:\Users\Marishka\Desktop\code\NIRS\my-GINE-model upgrade 1\runs\vocab/api_vocab.json
+
+[TRAIN]
+Samples: 2081
+Class distribution: {1: 1040, 0: 1041}
+Avg nodes: 43.16
+Avg edges: 166.66
+
+[VAL]
+Samples: 232
+Class distribution: {1: 116, 0: 116}
+Avg nodes: 42.10
+Avg edges: 162.41
+
+[TEST]
+Samples: 257
+Class distribution: {0: 128, 1: 129}
+Avg nodes: 44.36
+Avg edges: 171.43
+
+Start training...
+Epoch 001 | loss=0.9981 | val_acc=0.7543 | val_f1=0.7711 | val_pr_auc=0.7250 | val_mcc=0.5142 | val_brier=0.1960 | val_auc=0.7744
+Epoch 002 | loss=0.4456 | val_acc=0.9353 | val_f1=0.9315 | val_pr_auc=0.9876 | val_mcc=0.8762 | val_brier=0.0604 | val_auc=0.9834
+Epoch 003 | loss=0.2413 | val_acc=0.5086 | val_f1=0.6705 | val_pr_auc=0.6287 | val_mcc=0.0933 | val_brier=0.4761 | val_auc=0.7016
+Epoch 004 | loss=0.1984 | val_acc=0.5000 | val_f1=0.6667 | val_pr_auc=0.5398 | val_mcc=0.0000 | val_brier=0.4998 | val_auc=0.5734
+Epoch 005 | loss=0.1492 | val_acc=0.9440 | val_f1=0.9412 | val_pr_auc=0.9878 | val_mcc=0.8920 | val_brier=0.0499 | val_auc=0.9851
+Epoch 006 | loss=0.1258 | val_acc=0.8362 | val_f1=0.8041 | val_pr_auc=0.9830 | val_mcc=0.7117 | val_brier=0.1405 | val_auc=0.9790
+Epoch 007 | loss=0.0976 | val_acc=0.6983 | val_f1=0.7667 | val_pr_auc=0.9414 | val_mcc=0.4895 | val_brier=0.2528 | val_auc=0.9549
+Epoch 008 | loss=0.0855 | val_acc=0.8448 | val_f1=0.8163 | val_pr_auc=0.9846 | val_mcc=0.7255 | val_brier=0.1308 | val_auc=0.9814
+Epoch 009 | loss=0.0996 | val_acc=0.5000 | val_f1=0.0000 | val_pr_auc=0.7833 | val_mcc=0.0000 | val_brier=0.4985 | val_auc=0.7062
+Epoch 010 | loss=0.1036 | val_acc=0.5948 | val_f1=0.7117 | val_pr_auc=0.6607 | val_mcc=0.3237 | val_brier=0.3901 | val_auc=0.7405
+Epoch 011 | loss=0.0920 | val_acc=0.5000 | val_f1=0.0000 | val_pr_auc=0.7521 | val_mcc=0.0000 | val_brier=0.5000 | val_auc=0.6808
+Epoch 012 | loss=0.0967 | val_acc=0.6293 | val_f1=0.7296 | val_pr_auc=0.9044 | val_mcc=0.3854 | val_brier=0.3330 | val_auc=0.9328
+Epoch 013 | loss=0.0756 | val_acc=0.9440 | val_f1=0.9406 | val_pr_auc=0.9848 | val_mcc=0.8936 | val_brier=0.0508 | val_auc=0.9800
+Epoch 014 | loss=0.0556 | val_acc=0.8190 | val_f1=0.8467 | val_pr_auc=0.9901 | val_mcc=0.6844 | val_brier=0.1486 | val_auc=0.9893
+Epoch 015 | loss=0.0545 | val_acc=0.5000 | val_f1=0.6667 | val_pr_auc=0.5966 | val_mcc=0.0000 | val_brier=0.4820 | val_auc=0.6616
+Epoch 016 | loss=0.0648 | val_acc=0.8836 | val_f1=0.8924 | val_pr_auc=0.9340 | val_mcc=0.7777 | val_brier=0.1006 | val_auc=0.9595
+Epoch 017 | loss=0.0496 | val_acc=0.6164 | val_f1=0.7227 | val_pr_auc=0.6652 | val_mcc=0.3629 | val_brier=0.3729 | val_auc=0.7464
+Epoch 018 | loss=0.0520 | val_acc=0.7155 | val_f1=0.7770 | val_pr_auc=0.7818 | val_mcc=0.5168 | val_brier=0.2823 | val_auc=0.8560
+Epoch 019 | loss=0.0505 | val_acc=0.9267 | val_f1=0.9289 | val_pr_auc=0.9858 | val_mcc=0.8550 | val_brier=0.0587 | val_auc=0.9834
+Epoch 020 | loss=0.0447 | val_acc=0.5000 | val_f1=0.6667 | val_pr_auc=0.5179 | val_mcc=0.0000 | val_brier=0.5000 | val_auc=0.5345
+Epoch 021 | loss=0.0614 | val_acc=0.5172 | val_f1=0.0667 | val_pr_auc=0.9086 | val_mcc=0.1325 | val_brier=0.4704 | val_auc=0.8797
+Epoch 022 | loss=0.0410 | val_acc=0.5000 | val_f1=0.6667 | val_pr_auc=0.6362 | val_mcc=0.0000 | val_brier=0.4835 | val_auc=0.7132
+Epoch 023 | loss=0.0350 | val_acc=0.8750 | val_f1=0.8571 | val_pr_auc=0.9835 | val_mcc=0.7746 | val_brier=0.1145 | val_auc=0.9773
+Epoch 024 | loss=0.0350 | val_acc=0.5000 | val_f1=0.6667 | val_pr_auc=0.5895 | val_mcc=0.0000 | val_brier=0.4965 | val_auc=0.6515
+Epoch 025 | loss=0.0330 | val_acc=0.8966 | val_f1=0.9024 | val_pr_auc=0.9368 | val_mcc=0.7989 | val_brier=0.0937 | val_auc=0.9567
+Epoch 026 | loss=0.0271 | val_acc=0.9353 | val_f1=0.9309 | val_pr_auc=0.9890 | val_mcc=0.8781 | val_brier=0.0603 | val_auc=0.9868
+Epoch 027 | loss=0.0301 | val_acc=0.5000 | val_f1=0.6667 | val_pr_auc=0.5528 | val_mcc=0.0000 | val_brier=0.4992 | val_auc=0.5953
+Epoch 028 | loss=0.0292 | val_acc=0.5000 | val_f1=0.0000 | val_pr_auc=0.8123 | val_mcc=0.0000 | val_brier=0.4994 | val_auc=0.7663
+Epoch 029 | loss=0.0271 | val_acc=0.5733 | val_f1=0.7009 | val_pr_auc=0.5997 | val_mcc=0.2812 | val_brier=0.4144 | val_auc=0.6657
+Epoch 030 | loss=0.0256 | val_acc=0.5948 | val_f1=0.7117 | val_pr_auc=0.8885 | val_mcc=0.3237 | val_brier=0.3770 | val_auc=0.9164
+Epoch 031 | loss=0.0239 | val_acc=0.8103 | val_f1=0.7660 | val_pr_auc=0.9859 | val_mcc=0.6708 | val_brier=0.1569 | val_auc=0.9838
+Epoch 032 | loss=0.0224 | val_acc=0.9655 | val_f1=0.9658 | val_pr_auc=0.9904 | val_mcc=0.9312 | val_brier=0.0335 | val_auc=0.9883
+Epoch 033 | loss=0.0256 | val_acc=0.5172 | val_f1=0.6744 | val_pr_auc=0.7315 | val_mcc=0.1325 | val_brier=0.4693 | val_auc=0.8138
+Epoch 034 | loss=0.0299 | val_acc=0.5259 | val_f1=0.6784 | val_pr_auc=0.6017 | val_mcc=0.1629 | val_brier=0.4651 | val_auc=0.6683
+Epoch 035 | loss=0.0273 | val_acc=0.8060 | val_f1=0.8352 | val_pr_auc=0.9386 | val_mcc=0.6543 | val_brier=0.1751 | val_auc=0.9602
+Epoch 036 | loss=0.0297 | val_acc=0.5000 | val_f1=0.6667 | val_pr_auc=0.5225 | val_mcc=0.0000 | val_brier=0.5000 | val_auc=0.5431
+Epoch 037 | loss=0.0282 | val_acc=0.5000 | val_f1=0.0000 | val_pr_auc=0.6477 | val_mcc=0.0000 | val_brier=0.5000 | val_auc=0.6304
+Epoch 038 | loss=0.0313 | val_acc=0.5000 | val_f1=0.6667 | val_pr_auc=0.5088 | val_mcc=0.0000 | val_brier=0.5000 | val_auc=0.5172
+Epoch 039 | loss=0.0442 | val_acc=0.5905 | val_f1=0.7095 | val_pr_auc=0.6178 | val_mcc=0.3155 | val_brier=0.4068 | val_auc=0.6898
+Epoch 040 | loss=0.0385 | val_acc=0.8103 | val_f1=0.7660 | val_pr_auc=0.9822 | val_mcc=0.6708 | val_brier=0.1586 | val_auc=0.9779
+Epoch 041 | loss=0.0386 | val_acc=0.7716 | val_f1=0.7072 | val_pr_auc=0.9783 | val_mcc=0.6047 | val_brier=0.2036 | val_auc=0.9790
+Epoch 042 | loss=0.0336 | val_acc=0.5345 | val_f1=0.1290 | val_pr_auc=0.7609 | val_mcc=0.1890 | val_brier=0.4654 | val_auc=0.6934
+Epoch 043 | loss=0.0430 | val_acc=0.7069 | val_f1=0.5854 | val_pr_auc=0.8662 | val_mcc=0.5108 | val_brier=0.2880 | val_auc=0.8118
+Epoch 044 | loss=0.0260 | val_acc=0.5302 | val_f1=0.6804 | val_pr_auc=0.6751 | val_mcc=0.1764 | val_brier=0.4531 | val_auc=0.7573
+Epoch 045 | loss=0.0154 | val_acc=0.9483 | val_f1=0.9474 | val_pr_auc=0.9915 | val_mcc=0.8971 | val_brier=0.0420 | val_auc=0.9902
+Epoch 046 | loss=0.0128 | val_acc=0.5905 | val_f1=0.7095 | val_pr_auc=0.7002 | val_mcc=0.3155 | val_brier=0.3943 | val_auc=0.7839
+Epoch 047 | loss=0.0202 | val_acc=0.8836 | val_f1=0.8949 | val_pr_auc=0.9507 | val_mcc=0.7857 | val_brier=0.1059 | val_auc=0.9702
+Epoch 048 | loss=0.0203 | val_acc=0.9138 | val_f1=0.9194 | val_pr_auc=0.9537 | val_mcc=0.8356 | val_brier=0.0773 | val_auc=0.9729
+Epoch 049 | loss=0.0272 | val_acc=0.9009 | val_f1=0.8910 | val_pr_auc=0.9790 | val_mcc=0.8152 | val_brier=0.0946 | val_auc=0.9754
+Epoch 050 | loss=0.0188 | val_acc=0.7414 | val_f1=0.6512 | val_pr_auc=0.9215 | val_mcc=0.5641 | val_brier=0.2516 | val_auc=0.9037
+Epoch 051 | loss=0.0150 | val_acc=0.9483 | val_f1=0.9496 | val_pr_auc=0.9642 | val_mcc=0.8978 | val_brier=0.0452 | val_auc=0.9787
+Epoch 052 | loss=0.0137 | val_acc=0.9009 | val_f1=0.8920 | val_pr_auc=0.9731 | val_mcc=0.8127 | val_brier=0.0989 | val_auc=0.9734
+Epoch 053 | loss=0.0125 | val_acc=0.9181 | val_f1=0.9108 | val_pr_auc=0.9833 | val_mcc=0.8477 | val_brier=0.0813 | val_auc=0.9780
+Epoch 054 | loss=0.0164 | val_acc=0.8966 | val_f1=0.8899 | val_pr_auc=0.9652 | val_mcc=0.7989 | val_brier=0.0941 | val_auc=0.9620
+Epoch 055 | loss=0.0197 | val_acc=0.5690 | val_f1=0.6988 | val_pr_auc=0.6815 | val_mcc=0.2722 | val_brier=0.4184 | val_auc=0.7649
+Epoch 056 | loss=0.0196 | val_acc=0.6810 | val_f1=0.7566 | val_pr_auc=0.8750 | val_mcc=0.4618 | val_brier=0.2977 | val_auc=0.9225
+Epoch 057 | loss=0.0165 | val_acc=0.6034 | val_f1=0.7160 | val_pr_auc=0.6678 | val_mcc=0.3397 | val_brier=0.3924 | val_auc=0.7502
+Epoch 058 | loss=0.0157 | val_acc=0.9052 | val_f1=0.9120 | val_pr_auc=0.9525 | val_mcc=0.8203 | val_brier=0.0890 | val_auc=0.9717
+Epoch 059 | loss=0.0266 | val_acc=0.5086 | val_f1=0.6705 | val_pr_auc=0.5370 | val_mcc=0.0933 | val_brier=0.4917 | val_auc=0.5690
+Epoch 060 | loss=0.0236 | val_acc=0.8103 | val_f1=0.8406 | val_pr_auc=0.9656 | val_mcc=0.6708 | val_brier=0.1614 | val_auc=0.9756
+
+Best epoch: 32
+Best val MCC: 0.9312
+Tuned threshold (mcc): 0.4200
+Temperature: 2.4313
+Tuned val metrics | f1=0.9658 mcc=0.9312 pr_auc=0.9904 brier=0.0343
+Saved best model to: C:\Users\Marishka\Desktop\code\NIRS\my-GINE-model upgrade 1\runs\models\g_h128l3_b64e60_lr0p0005_s23_40b0098e_be32_vf931.pt
+
+Evaluating best checkpoint on test...
+
+[Test metrics]
+accuracy: 0.9689
+precision: 0.9690
+recall: 0.9690
+f1: 0.9690
+pr_auc: 0.9924
+mcc: 0.9377
+brier: 0.0285
+roc_auc: 0.9899
+Saved run summary to: C:\Users\Marishka\Desktop\code\NIRS\my-GINE-model upgrade 1\runs\results\MalBehavD-V1-dataset_wide_api_hd128_l3_bs64_ep60_lr0p0005_wd0p0003_seed23_e6c4792219.txt

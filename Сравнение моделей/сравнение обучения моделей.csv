@@ -1,0 +1,7 @@
+﻿metric,upgrade_1,base_model,diff_upgrade_minus_base
+best_val_f1,0.9683,0.9644,0.0039
+test_accuracy,0.9615,0.9231,0.0384
+test_precision,1.0000,0.9231,0.0769
+test_recall,0.9231,0.9231,0.0000
+test_f1,0.9600,0.9231,0.0369
+test_roc_auc,0.9822,0.9822,0.0000

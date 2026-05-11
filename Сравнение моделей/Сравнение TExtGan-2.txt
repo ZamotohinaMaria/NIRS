@@ -1,0 +1,44 @@
+﻿Дата сравнения: 2026-05-11
+
+Сравнение классификации на наборе: MalBehavD-V1-generated-5000x2 (10000 строк)
+
+Модель A: g_h128l3_b64e40_lr0p001_s42_270b5a10_be14_vf968
+- Threshold: 0.4000
+- Temperature: 1.0730
+- Accuracy: 0.9762
+- Precision: 0.9843
+- Recall: 0.9678
+- F1: 0.9760
+- ROC-AUC: 0.9956
+- PR-AUC: 0.9964
+- MCC: 0.9525
+- Brier: 0.0216
+- Confusion: TN=4923, FP=77, FN=161, TP=4839
+
+Модель B: g_h128l3_b64e60_lr0p0005_s23_40b0098e_be32_vf931
+- Threshold: 0.4200
+- Temperature: 2.4313
+- Accuracy: 0.9722
+- Precision: 0.9809
+- Recall: 0.9632
+- F1: 0.9719
+- ROC-AUC: 0.9900
+- PR-AUC: 0.9925
+- MCC: 0.9446
+- Brier: 0.0268
+- Confusion: TN=4906, FP=94, FN=184, TP=4816
+
+Разница (B - A):
+- Accuracy: -0.0040
+- Precision: -0.0034
+- Recall: -0.0046
+- F1: -0.0041
+- ROC-AUC: -0.0056
+- PR-AUC: -0.0039
+- MCC: -0.0079
+- Brier: +0.0052
+- FP: +17
+- FN: +23
+
+Вывод:
+На этом наборе модель A (e40, lr=0.001, seed42) лучше модели B (e60, lr=0.0005, seed23) практически по всем ключевым метрикам.

@@ -73,3 +73,22 @@ my-GINE-model\runs\predictions\0-metrics_g_h128l3_b64e40_lr0p001_s42_270b5a10_be
 Мой прогон
 
 my-GINE-model\runs\predictions\metrics_g_h128l3_b64e40_lr0p001_s42_270b5a10_be22_vf964_malbehav_generated_1500_fff55b25.txt
+
+
+---------------------------------------------------------------
+
+Сплит по модели
+
+python ".\my-GINE-model\run_splits.py" ^
+  --csv ".\MalbehavD-V1-main\MalBehavD-V1-dataset.csv" ^
+  --label-col labels ^
+  --dataset-format auto ^
+  --include-unnamed-api-cols ^
+  --train-per-class 900 ^
+  --num-runs 5 ^
+  --base-seed 42 ^
+  --device cpu ^
+  --epochs 50 ^
+  --batch-size 32 ^
+  --lr 0.0005 ^
+  --dropout 0.2
