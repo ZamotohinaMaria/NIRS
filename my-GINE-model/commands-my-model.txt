@@ -42,6 +42,6 @@ python .\my-GINE-model\run_splits.py --csv .\MalbehavD-V1-main\MalBehavD-V1-data
 python .\my-GINE-model\run_splits.py --csv .\MalbehavD-V1-main\MalBehavD-V1-dataset.csv --label-col labels --dataset-format auto --include-unnamed-api-cols --train-per-class 650 --num-runs 1 --base-seed 42 --train-filename-template train_custom.csv --eval-filename-template test_custom.csv
 
 
-Сохранить историю командной строки
+Сохранить историю командной строки 
 
 doskey /history > .\"History cmd"\history-02-04.txt

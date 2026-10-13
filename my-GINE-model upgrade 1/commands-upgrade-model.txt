@@ -96,7 +96,8 @@ python ".\my-GINE-model upgrade 1\predict_gine.py" ^
   --device cpu
 
   
-  Saved prediction metrics to: C:\Users\Marishka\Desktop\code\NIRS\my-GINE-model upgrade 1\runs\predictions\metrics_g_h128l3_b64e60_lr0p0005_s23_40b0098e_be32_vf931_MalBehavD-V1-generated-5000x2_007af4fb.txt
+  Saved prediction metrics to: 
+  \NIRS\my-GINE-model upgrade 1\runs\predictions\metrics_g_h128l3_b64e60_lr0p0005_s23_40b0098e_be32_vf931_MalBehavD-V1-generated-5000x2_007af4fb.txt
 
 
   --Классфикация для Diffusion-LM
@@ -112,4 +113,23 @@ python ".\my-GINE-model upgrade 1\predict_gine.py" ^
   --add-skip-edges ^
   --device cpu
 
-  Saved prediction metrics to: C:\Users\Marishka\Desktop\code\NIRS\my-GINE-model upgrade 1\runs\predictions\metrics_g_h128l3_b64e60_lr0p0005_s23_40b0098e_be32_vf931_malbehav_generated_1500_659eae04.txt
+  Saved prediction metrics to: 
+  \NIRS\my-GINE-model upgrade 1\runs\predictions\metrics_g_h128l3_b64e60_lr0p0005_s23_40b0098e_be32_vf931_malbehav_generated_1500_659eae04.txt
+
+
+  СПЛИТ по модели
+
+python ".\my-GINE-model upgrade 1\run_splits.py" ^
+  --csv ".\MalbehavD-V1-main\MalBehavD-V1-dataset.csv" ^
+  --label-col labels ^
+  --dataset-format auto ^
+  --include-unnamed-api-cols ^
+  --train-per-class 650 ^
+  --num-runs 5 ^
+  --base-seed 42 ^
+  --device cpu ^
+  --epochs 30 ^
+  --batch-size 64 ^
+  --lr 0.001 ^
+  --dropout 0.3 ^
+  --threshold 0.5

@@ -227,6 +227,9 @@ def write_run_report(path: str, seed: int, train_size: int, eval_size: int, metr
         f"recall: {metrics['recall']:.4f}",
         f"f1: {metrics['f1']:.4f}",
         f"roc_auc: {metrics['roc_auc']:.4f}",
+        f"pr_auc: {metrics['pr_auc']:.4f}",
+        f"mcc: {metrics['mcc']:.4f}",
+        f"brier: {metrics['brier']:.4f}",
         "",
         "[Confusion matrix]",
         "rows=true, cols=pred",
@@ -413,14 +416,16 @@ def main():
         )
         print(
             f"run seed={seed} | acc={metrics['accuracy']:.4f} "
-            f"f1={metrics['f1']:.4f} auc={metrics['roc_auc']:.4f}"
+            f"f1={metrics['f1']:.4f} auc={metrics['roc_auc']:.4f} "
+            f"pr_auc={metrics['pr_auc']:.4f} mcc={metrics['mcc']:.4f} "
+            f"brier={metrics['brier']:.4f}"
         )
 
     summary_df = pd.DataFrame(all_rows)
     summary_csv = os.path.join(summary_dir, "summary.csv")
     summary_df.to_csv(summary_csv, index=False)
 
-    metric_cols = ["accuracy", "precision", "recall", "f1", "roc_auc"]
+    metric_cols = ["accuracy", "precision", "recall", "f1", "roc_auc", "pr_auc", "mcc", "brier"]
     agg_lines = ["[Aggregate metrics]"]
     for col in metric_cols:
         values = summary_df[col].astype(float)

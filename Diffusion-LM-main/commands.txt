@@ -75,6 +75,6 @@ python .\my-GINE-model\generation_quality_checks.py ^
   --include-unnamed-api-cols ^
   --seeds 42,43,44,45,46
 
-Результат
+Результат 
 
 report text: C:\Users\Marishka\Desktop\code\NIRS\my-GINE-model\runs\generation_quality\gen_quality_20260506_230640.txt
